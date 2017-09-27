@@ -1,0 +1,28 @@
+{
+  "name": "crazy-8-smackdown",
+  "version": "0.0.1",
+  "description": "One hell of a card game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrandonMorr/crazy-8-smackdown.git"
+  },
+  "author": "Brandon Morrissey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrandonMorr/crazy-8-smackdown/issues"
+  },
+  "homepage": "https://github.com/BrandonMorr/crazy-8-smackdown#readme",
+  "devDependencies": {
+    "typescript": "^2.5.2"
+  },
+  "dependencies": {
+    "express": "^4.15.5",
+    "phaser": "^2.6.2",
+    "socket.io": "^2.0.3",
+    "webpack": "^3.6.0"
+  }
+}
