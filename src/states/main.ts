@@ -2,15 +2,23 @@ module Crazy8Countdown {
 
     export class Main extends Phaser.State {
 
-        deck:Phaser.ArrayUtils;
+        drawDeck = new DrawDeck();
+        playDeck = new PlayDeck();
+        player = new Player(1);
 
         create() {
 
-            this.deck = Phaser.ArrayUtils.numberArray(0, 51);
+            // player is given cards
+            this.player.addCards(this.drawDeck.dealCards(8));
 
-            console.log('made it here');
+            // playdrawDeck is initialized after dealing is complete
+            this.playDeck.addCards(this.drawDeck.dealCards(1));
+
+            // player plays a card onto the playdeck, no rules apply
+            this.playDeck.addCards(this.player.playCard(this.player.hand[0]));
 
         }
+
 
     }
 

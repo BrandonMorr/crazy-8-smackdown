@@ -4,8 +4,8 @@ module Crazy8Countdown {
 
         preload() {
 
-            this.load.spritesheet('playingCardFronts', 'assets/playingCards.png', 140, 190);
-            this.load.spritesheet('playingCardBacks', 'assets/playingCardBacks.png', 140, 190);
+            this.load.spritesheet('playingCardFronts', 'assets/cards/playingCards.png', 140, 190);
+            this.load.spritesheet('playingCardBacks', 'assets/cards/playingCardBacks.png', 140, 190);
 
             this.game.state.start('Main', true, false);
 

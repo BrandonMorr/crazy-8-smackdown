@@ -1,17 +1,14 @@
 module Crazy8Countdown {
 
-	export class Game extends Phaser.Game {
-
-		game: Phaser.Game;
-		deck: Phaser.ArrayUtils;
+	class Game extends Phaser.Game {
 
 		constructor() {
 
 			super(1280, 720, Phaser.AUTO, '', null);
 
-			this.state.add('Boot', Crazy8Countdown.Boot, false);
-			this.state.add('Preloader', Crazy8Countdown.Preloader, false);
-			this.state.add('Main', Crazy8Countdown.Main, false);
+			this.state.add('Boot', Boot, false);
+			this.state.add('Preloader', Preloader, false);
+			this.state.add('Main', Main, false);
 
 			this.state.start('Boot');
 
@@ -21,7 +18,7 @@ module Crazy8Countdown {
 
 	window.onload = () => {
 
-		var game = new Crazy8Countdown.Game();
+		var game = new Game();
 
 	}
 
