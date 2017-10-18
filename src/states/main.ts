@@ -7,33 +7,63 @@ module Crazy8Countdown {
 
         players: Array<Player> = [];
 
+        gameOver = false;
+
         create() {
 
-            const NUMBER_OF_PLAYERS = 4;
+            this.game.stage.backgroundColor = "#EFF7F6";
 
-            // get some players together
-            for (let i = 0; i < NUMBER_OF_PLAYERS; i++) {
-
-                this.players.push(new Player(i + 1));
-
-            }
+            // lets run with two players for now
+            this.players.push(new Player(0));
+            this.players.push(new Player(1));
 
             // generate draw deck
-            this.drawDeck.generateDrawDeck();
+            this.drawDeck.generateDrawDeck(this.game);
 
-            // deal some cards to the players
-            for (let i = 0; i < this.players.length; i++) {
+            // deal some cards to the player(s)
+            for (let i = 0; i < 2; i++) {
 
-                this.drawDeck.dealToPlayer(8, this.players[i]);
-                this.players[i].logHand();
+                this.drawDeck.dealToPlayer(this.game, this.players[0]);
+                this.drawDeck.dealToPlayer(this.game, this.players[1]);
 
             }
 
             // generate a play deck with the next draw deck card
-            this.playDeck.generatePlayDeck(this.drawDeck.deck);
+            this.playDeck.generatePlayDeck(this.game, this.drawDeck.deck);
 
         }
 
+        update() {
+
+            while (!this.isGameOver()) {
+
+                if (this.playDeck.topCard().value === 8) {
+
+                    console.log("Wild Card!");
+
+                } else {
+
+                }
+
+            }
+
+
+
+        }
+
+        isGameOver(): boolean {
+
+            let gameOver = false;
+
+            for (let player of this.players) {
+
+                return player.hand.length === 0 && player.coundown === 0;
+
+            }
+
+            return gameOver;
+
+        }
 
     }
 

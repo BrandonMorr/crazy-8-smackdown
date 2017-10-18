@@ -4,40 +4,51 @@ module Crazy8Countdown {
 
         id: number;
         name: string;
+        coundown: number;
         hand: Array<Card> = [];
 
+        /**
+         * @param id - Player ID... not sure if I'll end up using this when
+         * multiplay comes in the future.
+         */
         constructor(id: number) {
 
             this.id = id;
+            this.coundown = 8;
 
         }
 
-        playCard(card: Card): Array<Card> {
+        /**
+         * Remove card from the player's hand and return it.
+         * 
+         * @param card - card to be removed and played.
+         */
+        playCard(card: Card): Card {
 
-            let cardToPlayIndex = this.hand.indexOf(card);
-            let cardToPlay = Array<Card>(1);
+            let cardToPlay = this.hand.splice(this.hand.indexOf(card), 1);
 
-            if (cardToPlayIndex != -1) {
-
-                cardToPlay = this.hand.splice(cardToPlayIndex, 1);
-
-            }
-
-            return cardToPlay;
+            return cardToPlay[0];
 
         }
 
-        addCards(cards: Array<Card>) {
+        /**
+         * Add a card to player's hand.
+         * 
+         * @param card - card to be added to hand.
+         */
+        addCard(card: Card) {
 
-            this.hand = (this.hand, cards);
+            this.hand.push(card);
 
         }
 
+        /**
+         * Used for debugging.
+         */
         logHand() {
 
-            console.log("Player " + this.id + "'s hand:");
-            console.log(this.hand);
-
+            console.log("Player " + this.id + "'s hand: \n");
+            console.log(this.hand);   
 
         }
 
