@@ -1,2 +1,10 @@
+# System
+Thumbs.db
+.DS_Store
+
+# Vendors
 node_modules/
-dist/js/*
+
+# Build
+dist/
+npm-debug.log
