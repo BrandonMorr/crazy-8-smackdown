@@ -1,46 +1,43 @@
 /**
- * @TODO: MAKE MORE ES6-ey
+ * @class - Player class to manage player's hand and countdown score.
  */
-export class Player {
+export default class Player extends Phaser.GameObjects.Sprite {
 
-  private id: number;
-  private name: string;
-  private coundown: number;
-  private hand: Card[];
+  constructor(scene, id, color) {
+    super(scene, 100, 100);
 
-  /**
-   * @param id - Player ID... not sure if I'll end up using this when
-   * multiplay comes in the future.
-   */
-  constructor(id: number) {
     this.id = id;
+    this.color = color;
     this.coundown = 8;
+    this.hand = [];
+
+    this.setTexture(`player_${this.color}`);
   }
 
   /**
    * Remove card from the player's hand and return it.
    *
-   * @param card - card to be removed and played.
+   * @param {Card} card - The card to be removed and played.
    */
-  public playCard(card: Card): Card {
+  playCard(card) {
     const cardToPlay = this.hand.splice(this.hand.indexOf(card), 1);
 
     return cardToPlay[0];
   }
 
   /**
-   * Add a card to player's hand.
+   * Add a card to the player's hand.
    *
-   * @param card - card to be added to hand.
+   * @param {Card} card - The card to be added to the player's hand.
    */
-  public addCard(card: Card): void {
+  addCardToHand(card) {
     this.hand.push(card);
   }
 
   /**
    * Used for debugging.
    */
-  public logHand(): void {
+  logHand() {
     console.log("Player " + this.id + "'s hand: \n" + this.hand);
   }
 }

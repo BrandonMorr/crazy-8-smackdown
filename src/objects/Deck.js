@@ -1,105 +1,77 @@
-/**
- * @TODO: MAKE MORE ES6-ey
- */
-import { Card } from "./card";
+import Card from "./card";
+import Phaser from "phaser";
 
-export class Deck {
+export default class Deck extends Phaser.GameObjects.Group {
 
-  public deck: Card[];
+  constructor(scene) {
+    super(scene);
+
+    // Generate draw deck and play pile.
+    this.deck = this.generateDeck(scene);
+    this.pile = [];
+
+    // Add cards to group object.
+    for (let card of this.deck) {
+      this.add(card);
+    }
+  }
 
   /**
-   * Generate a draw Deck.
+   * Generate and return a draw Deck.
    *
-   * TODO: At some point... should use inheritence to break the draw Deck and play Deck into subclasses.
+   * @param {Phaser.Scene} scene - The phaser scene object.
    *
-   * @param game - Phaser Game object.
+   * @return {Card[]} The array containing cards which make up the deck.
+   *
    */
-  public generateDrawDeck(game: Phaser.Game) {
-    const names = ["a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "k", "q"];
+  generateDeck(scene) {
+    const values = ["a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "k", "q"];
     const suits = ["hearts", "diamonds", "spades", "clubs"];
 
+    let deck = [];
+
     for (let i = 0; i < suits.length; i++) {
-      for (let ii = 0; ii < names.length; ii++) {
-        this.deck.push(new Card(game, (200 + i), (20 + i), `${suits[i]}_${names[ii]}`, ii + 1, names[ii], suits[i]));
+      for (let ii = 0; ii < values.length; ii++) {
+        deck.push(new Card(scene, (200 + i), (20 + i), suits[i], values[ii], `${values[ii]} of ${suits[i]}`, "blue"));
       }
     }
 
-    this.shuffleDeck();
+    return this.shuffleDeck(deck);
   }
 
   /**
-   * Generate a play Deck.
+   * Return the card on the top of the deck.
    *
-   * Take the top card of the draw deck and use it as initial card to start gameplay.
-   *
-   * @param game - Phaser Game object
-   * @param drawDeck - The drawDeck collection of cards to take the card from
+   * @return {Card} The last card in deck of cards.
    */
-  public generatePlayDeck(game: Phaser.Game, drawDeck: Card[]): void {
-    const cardToAdd = drawDeck.pop();
-
-    if (cardToAdd) {
-      this.deck.push(cardToAdd);
-
-      const tween = game.add.tween(cardToAdd).to({ x: 450, y: 20 }, 400, Phaser.Easing.Cubic.In);
-      tween.onComplete.add(function() { cardToAdd.faceCardUp(); }, this);
-      tween.start();
-    } else {
-      console.log("This shouldn't happen...");
-    }
-}
-
-  /**
-   * Return the Card on the top of the deck.
-   */
-  public topCard(): Card {
-
+  topCard() {
       return this.deck[this.deck.length - 1];
-
-  }
-
-  /**
-   * Deal a card to the Player, Tween the card to the player's hand.
-   *
-   * @param game - Phaser Game object.
-   * @param player - Player we are dealing to.
-   */
-  public dealToPlayer(game: Phaser.Game, player: Player): void {
-    const cardToAdd = this.deck.pop();
-    // XXX: this will be gross, but will work for now.
-    const xPos = (player.id * 500) + (player.hand.length * 100);
-
-    if (cardToAdd) {
-      player.addCard(cardToAdd);
-
-      const tween = game.add.tween(cardToAdd).to({ x: xPos, y: 400 }, 400, Phaser.Easing.Cubic.In);
-      tween.onComplete.add(function() { cardToAdd.faceCardUp(); }, this);
-      tween.start();
-    } else {
-      console.log("Ran out of cards to deal!");
-    }
   }
 
   /**
    * Add array of card(s) to the deck.
    *
-   * @param cards - array of card(s) to add to the deck.
+   * @param {Card[]} cards - The array of cards to add to the deck.
    */
-  public addCards(cards: Card[]): void {
+  addCardsToDeck(cards) {
     this.deck = (this.deck, cards);
   }
 
   /**
-   * Shuffle the deck. Somehow this works?
+   * Shuffle the damned deck.
+   *
+   * @param {Card[]} deck - The deck of cards to shuffle.
+   *
+   * @return {Card[]} The deck of newly, randomly shuffled cards.
    */
-  public shuffleDeck(): void {
-    Phaser.ArrayUtils.shuffle(this.deck);
+  shuffleDeck(deck) {
+    return Phaser.Utils.Array.Shuffle(deck);
   }
 
   /**
    * Used for debugging.
    */
-  public logDeck(): void {
+  logDeck() {
     console.log("Deck contents:");
     console.log(this.deck);
   }

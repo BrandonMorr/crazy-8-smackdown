@@ -6,12 +6,11 @@ const nodeModules = path.join(__dirname, 'node_modules/');
 
 const definePlugin = new webpack.DefinePlugin({
   CANVAS_RENDERER: JSON.stringify(true),
-  WEBGL_RENDERER: JSON.stringify(true)
+  WEBGL_RENDERER:  JSON.stringify(true)
 });
 
 module.exports = {
   mode: 'development',
-  watch: true,
   plugins: [definePlugin],
   entry: {
     app: [path.resolve(__dirname, 'src/index.js')],
@@ -45,6 +44,9 @@ module.exports = {
     ]
   },
   devServer: {
+    publicPath: '/dist/',
+    contentBase: path.resolve(__dirname),
+    compress: true,
     port: 9000
   },
   node: {

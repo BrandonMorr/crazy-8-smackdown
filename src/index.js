@@ -20,12 +20,8 @@ const config = {
     pixelArt:   true,
     antialias:  true,
   },
-  backgroundColor: "#EFF7F6",
+  backgroundColor: "0xe8e8e8",
   scene: [ MainMenuScene, GameScene ],
 };
 
 const game = new Phaser.Game(config);
-
-// window.addEventListener("load", () => {
-//   new Game(config);
-// });
