@@ -10,12 +10,18 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Basically need to load any assets here.
+   */
   preload() {
     this.loadCards();
     this.loadPlayers();
     this.loadSounds();
   }
 
+  /**
+   * Generate the deck, setup players and deal out each players hands.
+   */
   create() {
     // Generate deck of cards.
     this.deck = new Deck(this);
@@ -24,6 +30,10 @@ export default class GameScene extends Phaser.Scene {
 
     this.players.push(new Player(this, 1, "green"));
     this.players.push(new Player(this, 2, "blue"));
+
+    this.initializeGame();
+
+    this.players[0].logHand();
 
     for (let player of this.players) {
       this.add.existing(player);
@@ -83,24 +93,28 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Do any game init within this function.
+   */
+  initializeGame() {
+    for (let i = 0; i <= 7; i++) {
+      for (let player of this.players) {
+        this.dealToPlayer(player);
+      }
+    }
+  }
+
+  /**
    * Deal a card to the Player, tween the card to the player's hand.
    *
-   * @param {Phaser.Scene} scene - The phaser scene object.
    * @param {Player} player - The player we are dealing to.
    */
-  dealToPlayer(game, player) {
-    const cardToAdd = this.deck.pop();
-    // XXX: this will be gross, but will work for now.
-    const xPos = (player.id * 500) + (player.hand.length * 100);
+  dealToPlayer(player) {
+    const cardToAdd = this.deck.drawPile.pop();
 
     if (cardToAdd) {
-      player.addCard(cardToAdd);
-
-      const tween = game.add.tween(cardToAdd).to({ x: xPos, y: 400 }, 400, Phaser.Easing.Cubic.In);
-      tween.onComplete.add(function() { cardToAdd.faceCardUp(); }, this);
-      tween.start();
+      player.addCardToHand(cardToAdd);
     } else {
-      // No more cards, shuffle pile.
+      this.deck.shuffleDeck();
     }
   }
 }

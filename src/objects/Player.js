@@ -38,6 +38,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * Used for debugging.
    */
   logHand() {
-    console.log("Player " + this.id + "'s hand: \n" + this.hand);
+    console.log("*** Player " + this.id + "'s hand ***");
+    console.log(this.hand);
   }
 }

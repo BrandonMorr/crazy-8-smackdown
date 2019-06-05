@@ -1,17 +1,20 @@
-import Card from "./card";
 import Phaser from "phaser";
+import Card from "./Card";
 
 export default class Deck extends Phaser.GameObjects.Group {
 
   constructor(scene) {
     super(scene);
 
-    // Generate draw deck and play pile.
-    this.deck = this.generateDeck(scene);
-    this.pile = [];
+    // This is where cards will be drawn from.
+    this.drawPile = [];
+    // This is where cards will played into.
+    this.playPile = [];
+
+    this.generateDeck(scene);
 
     // Add cards to group object.
-    for (let card of this.deck) {
+    for (let card of this.drawPile) {
       this.add(card);
     }
   }
@@ -36,7 +39,7 @@ export default class Deck extends Phaser.GameObjects.Group {
       }
     }
 
-    return this.shuffleDeck(deck);
+    this.drawPile = Phaser.Utils.Array.Shuffle(deck);
   }
 
   /**
@@ -45,7 +48,7 @@ export default class Deck extends Phaser.GameObjects.Group {
    * @return {Card} The last card in deck of cards.
    */
   topCard() {
-      return this.deck[this.deck.length - 1];
+      return this.drawPile[this.drawPile.length - 1];
   }
 
   /**
@@ -54,25 +57,27 @@ export default class Deck extends Phaser.GameObjects.Group {
    * @param {Card[]} cards - The array of cards to add to the deck.
    */
   addCardsToDeck(cards) {
-    this.deck = (this.deck, cards);
+    this.drawPile = (this.drawPile, cards);
   }
 
   /**
-   * Shuffle the damned deck.
-   *
-   * @param {Card[]} deck - The deck of cards to shuffle.
-   *
-   * @return {Card[]} The deck of newly, randomly shuffled cards.
+   * Shuffle the play pile, pass that back to the draw pile and clear playPile.
    */
-  shuffleDeck(deck) {
-    return Phaser.Utils.Array.Shuffle(deck);
+  shuffleDeck() {
+    this.drawPile = Phaser.Utils.Array.Shuffle(this.playPile);
+    this.playPile = [];
   }
 
   /**
-   * Used for debugging.
+   * Debug utils :-)
    */
-  logDeck() {
-    console.log("Deck contents:");
-    console.log(this.deck);
+  logDrawPile() {
+    console.log("*** Draw pile contents ***");
+    console.log(this.drawPile);
+  }
+
+  logPlayPile() {
+    console.log("*** Play pile contents ***");
+    console.log(this.playPile);
   }
 }
