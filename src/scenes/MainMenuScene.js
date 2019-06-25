@@ -1,3 +1,7 @@
+/**
+ * @class - MainMenuScene which contains menu stuff...?
+ */
+
 export default class MainMenuScene extends Phaser.Scene {
 
   constructor() {
@@ -25,7 +29,7 @@ export default class MainMenuScene extends Phaser.Scene {
     });
 
     this.startButton.on('pointerover', () => {
-      this.startButton.setTint(0x76dfa6);
+      this.startButton.setTint(0xf91f5a);
     });
 
     this.startButton.on('pointerout', () => {

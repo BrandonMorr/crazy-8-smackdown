@@ -1,6 +1,10 @@
 import Phaser from "phaser";
 import Card from "./Card";
 
+/**
+ * @class - Deck class to manage the deck of cards.
+ */
+
 export default class Deck extends Phaser.GameObjects.Group {
 
   constructor(scene) {
@@ -10,7 +14,7 @@ export default class Deck extends Phaser.GameObjects.Group {
     this.drawPile = [];
     // This is where cards will played into.
     this.playPile = [];
-
+    // Generate the deck baby.
     this.generateDeck(scene);
 
     // Add cards to group object.
@@ -43,12 +47,21 @@ export default class Deck extends Phaser.GameObjects.Group {
   }
 
   /**
-   * Return the card on the top of the deck.
+   * Return the next card of the draw pile.
    *
    * @return {Card} The last card in deck of cards.
    */
-  topCard() {
-      return this.drawPile[this.drawPile.length - 1];
+  getNextDrawCard() {
+      return this.drawPile[0];
+  }
+
+  /**
+   * Return the top card of the play pile.
+   *
+   * @return {Card} The last card in deck of cards.
+   */
+  getLastPlayCard() {
+      return this.playPile[0];
   }
 
   /**
@@ -64,6 +77,7 @@ export default class Deck extends Phaser.GameObjects.Group {
    * Shuffle the play pile, pass that back to the draw pile and clear playPile.
    */
   shuffleDeck() {
+    console.log("*** Shuffling the deck ***");
     this.drawPile = Phaser.Utils.Array.Shuffle(this.playPile);
     this.playPile = [];
   }
