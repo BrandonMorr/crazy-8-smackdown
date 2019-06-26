@@ -4,14 +4,17 @@
 
 export default class Player extends Phaser.GameObjects.Sprite {
 
-  constructor(scene, id, name, color) {
-    super(scene, 100, 100);
+  constructor(scene, x, y, id, name, color) {
+    super(scene, x, y);
 
     this.id = id;
     this.name = name;
     this.color = color;
     this.coundown = 8;
     this.hand = [];
+
+    this.nameText = scene.add.text(x, y + 50, name);
+    this.nameText.setOrigin(0.5);
 
     this.setTexture(`player_${this.color}`);
   }

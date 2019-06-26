@@ -19,7 +19,7 @@ export default class Deck extends Phaser.GameObjects.Group {
 
     // Add cards to group object.
     for (let card of this.drawPile) {
-      this.add(card);
+      this.add(card, true);
     }
   }
 
@@ -39,7 +39,7 @@ export default class Deck extends Phaser.GameObjects.Group {
 
     for (let i = 0; i < suits.length; i++) {
       for (let ii = 0; ii < values.length; ii++) {
-        deck.push(new Card(scene, (200 + i), (20 + i), suits[i], values[ii], `${values[ii]} of ${suits[i]}`, "blue"));
+        deck.push(new Card(scene, (150 + i), (150 + i), suits[i], values[ii], `${values[ii]} of ${suits[i]}`, "blue"));
       }
     }
 

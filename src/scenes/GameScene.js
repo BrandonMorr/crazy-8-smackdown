@@ -1,6 +1,7 @@
 import Card from "../objects/Card.js";
 import Deck from "../objects/Deck.js";
 import Player from "../objects/Player.js";
+import Preload from "../utilities/Preload.js";
 
 /**
  * @class - Game Scene which contains the core game loop.
@@ -12,35 +13,51 @@ export default class GameScene extends Phaser.Scene {
     super({
       key: 'GameScene',
     });
+
+    this.gameOver = false;
   }
 
   /**
    * Basically need to load any assets here.
+   *
+   * @see Preload.js for preload functions.
    */
   preload() {
-    this.loadCards();
-    this.loadPlayers();
-    this.loadSounds();
+    Preload.loadCards(this);
+    Preload.loadPlayers(this);
+    Preload.loadSounds(this);
   }
 
   /**
    * Generate the deck, setup players and initialize the game.
    */
   create() {
-
     this.deck = new Deck(this);
 
     this.players = [];
-    this.players.push(new Player(this, 0, "test jarred", "green"));
-    this.players.push(new Player(this, 1, "test willbert", "blue"));
-    this.players.push(new Player(this, 2, "test frank", "green"));
-    this.players.push(new Player(this, 3, "test kyle", "red"));
+    this.players.push(new Player(this, 700, 100, 0, "jarred", "green"));
+    this.players.push(new Player(this, 700, 200, 1, "willbert", "blue"));
+    this.players.push(new Player(this, 700, 300, 2, "frank", "purple"));
+    this.players.push(new Player(this, 100, 500, 3, "brandon", "yellow"));
 
     this.initializeGame();
 
-    this.input.once('pointerdown', function (event) {
-      this.scene.start('MainMenuScene');
-    }, this);
+    // Restart button... using for debug right now.
+    this.restartButton = this.add.text(700, 525, 'Restart?');
+    this.restartButton.setOrigin(0.5);
+    this.restartButton.setInteractive();
+
+    this.restartButton.on('pointerdown', () => {
+      this.scene.restart('GameScene');
+    });
+
+    this.restartButton.on('pointerover', () => {
+      this.restartButton.setTint(0x3bceac);
+    });
+
+    this.restartButton.on('pointerout', () => {
+      this.restartButton.clearTint();
+    });
   }
 
   /**
@@ -48,50 +65,6 @@ export default class GameScene extends Phaser.Scene {
    */
   update() {
 
-  }
-
-  /**
-   * Load card assets.
-   */
-  loadCards() {
-    const names = [ "a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "k", "q" ];
-    const suits = [ "hearts", "diamonds", "spades", "clubs" ];
-
-    for (const suit of suits) {
-      for (const name of names) {
-        const cardName = `${suit}_${name}`;
-
-        this.load.image(cardName, "assets/cards/" + cardName + ".png");
-      }
-    }
-
-    this.load.image("back_blue", "assets/cards/back_blue.png");
-    this.load.image("back_green", "assets/cards/back_green.png");
-    this.load.image("back_red", "assets/cards/back_red.png");
-  }
-
-  /**
-   * Load player assets.
-   */
-  loadPlayers() {
-    const colors = [ "black", "blue", "green", "purple", "red", "white", "yellow" ];
-
-    for (const color of colors) {
-      this.load.image(`player_${color}`, `assets/player/player_${color}.png`);
-    }
-  }
-
-  /**
-   * Load sound assets.
-   */
-  loadSounds() {
-    const sounds = [ "place", "slide" ];
-
-    for (const sound of sounds) {
-      for (let i = 1; i <= 3; i++) {
-        this.load.audio(`card_${sound}_${i}`, `assets/sounds/card_${sound}_${i}.ogg`);
-      }
-    }
   }
 
   /**
