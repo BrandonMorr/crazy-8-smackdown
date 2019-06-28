@@ -11,6 +11,7 @@ const definePlugin = new webpack.DefinePlugin({
 
 module.exports = {
   mode: 'development',
+  devtool: 'source-map',
   plugins: [definePlugin],
   entry: {
     app: [path.resolve(__dirname, 'src/index.js')],
