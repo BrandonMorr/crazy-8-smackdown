@@ -30,8 +30,8 @@ export default class GameScene extends Phaser.Scene {
    */
   create() {
     this.gameOver = false;
-    this.checkPlayerHand = true;
     this.playerTurn = 3;
+    this.checkHandForPlayableCards = true;
 
     this.deck = new Deck(this);
 
@@ -54,7 +54,6 @@ export default class GameScene extends Phaser.Scene {
 
     // Check if the last card has changed.
     if (this.checkLastPlayCardChange()) {
-      console.log("Turn has been made!");
       // A turn has been made, let's make sure to make all the player's cards
       // non-interactive.
       for (let card of this.players[this.playerTurn].hand) {
@@ -63,7 +62,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Check the player hand for playable cards.
-    if (this.checkPlayerHand) {
+    if (this.checkHandForPlayableCards) {
       for (let card of this.players[this.playerTurn].hand) {
         let lastCardPlayed = this.deck.getLastPlayCard();
 
@@ -72,7 +71,7 @@ export default class GameScene extends Phaser.Scene {
         }
       }
       // Signal that the hand has been checked.
-      this.checkPlayerHand = false;
+      this.checkHandForPlayableCards = false;
     }
   }
 
@@ -93,7 +92,7 @@ export default class GameScene extends Phaser.Scene {
         this.dealCardsToPlayer(player.id);
         // XXX: Gotta move this into something more dynamic... will do for now.
         // Tween the card game object and reveal what is in the hand.
-        if (player.name === "brandon") {
+        if (player.name === 'brandon') {
           this.tweens.add({
             targets: player.hand[i],
             x: (225 + offset),
@@ -109,7 +108,7 @@ export default class GameScene extends Phaser.Scene {
         }
       }
     }
-    // Shuffle player order to pick who goes first.
+    // Shuffle player order to determine who goes first.
     // this.players = Phaser.Utils.Array.Shuffle(this.players);
     // console.log(`${this.players[0].name} goes first!`);
 
@@ -188,13 +187,11 @@ export default class GameScene extends Phaser.Scene {
    * @return {Boolean} - True if the card has changed, false otherwise.
    */
   checkLastPlayCardChange() {
-    if (this.lastCardPlayed.name !== this.deck.getLastPlayCard().name) {
-      console.log("Card changed");
+    if (this.lastCardPlayed.name != this.deck.getLastPlayCard().name) {
       this.lastCardPlayed = this.deck.getLastPlayCard();
 
       return true;
     }
-
 
     return false;
   }
@@ -227,7 +224,7 @@ export default class GameScene extends Phaser.Scene {
         duration: 250,
       });
       // Remove the card from hand, move into the play pile.
-      this.lastCardPlayed = player.removeCardFromHand(card, this.deck);
+      player.removeCardFromHand(card, this.deck);
     });
     // When the user hovers the cursor over the card, set a tint and raise y.
     card.on('pointerover', () => {
