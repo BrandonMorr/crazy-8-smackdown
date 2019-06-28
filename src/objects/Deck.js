@@ -4,42 +4,42 @@ import Card from "./Card";
 /**
  * @class - Deck class to manage the deck of cards.
  */
-
 export default class Deck extends Phaser.GameObjects.Group {
 
   constructor(scene) {
     super(scene);
-
     // This is where cards will be drawn from.
     this.drawPile = [];
     // This is where cards will played into.
     this.playPile = [];
-    // Generate the deck baby.
+    // Generate the deck, baby.
     this.generateDeck(scene);
 
-    // Add cards to group object.
     for (let card of this.drawPile) {
+      // Add card to group object.
       this.add(card, true);
+      // Set the overall scale of the card to be 25% smaller.
+      card.scale = 0.75;
     }
   }
 
   /**
-   * Generate and return a draw Deck.
+   * Generate and randomly shuffle draw Deck.
    *
    * @param {Phaser.Scene} scene - The phaser scene object.
    *
-   * @return {Card[]} The array containing cards which make up the deck.
-   *
    */
   generateDeck(scene) {
-    const values = ["a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "k", "q"];
-    const suits = ["hearts", "diamonds", "spades", "clubs"];
+    const values = [ "a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "k", "q" ];
+    const suits = [ "hearts", "diamonds", "spades", "clubs" ];
+    const backColors = [ "blue", "green", "red" ];
 
     let deck = [];
+    let backColor = Phaser.Math.RND.pick(backColors);
 
     for (let i = 0; i < suits.length; i++) {
       for (let ii = 0; ii < values.length; ii++) {
-        deck.push(new Card(scene, (150 + i), (150 + i), suits[i], values[ii], `${values[ii]} of ${suits[i]}`, "blue"));
+        deck.push(new Card(scene, (125 + i), (125 + i), suits[i], values[ii], `${values[ii]} of ${suits[i]}`, backColor));
       }
     }
 
@@ -47,7 +47,7 @@ export default class Deck extends Phaser.GameObjects.Group {
   }
 
   /**
-   * Return the next card of the draw pile.
+   * Return the next card of the draw pile (index 0 is considered the top).
    *
    * @return {Card} The last card in deck of cards.
    */
@@ -56,7 +56,7 @@ export default class Deck extends Phaser.GameObjects.Group {
   }
 
   /**
-   * Return the top card of the play pile.
+   * Return the top card of the play pile (index 0 is considered the top).
    *
    * @return {Card} The last card in deck of cards.
    */
@@ -79,19 +79,9 @@ export default class Deck extends Phaser.GameObjects.Group {
   shuffleDeck() {
     console.log("*** Shuffling the deck ***");
     this.drawPile = Phaser.Utils.Array.Shuffle(this.playPile);
+    this.drawPile.forEach((card) => {
+      card.faceCardDown();
+    });
     this.playPile = [];
-  }
-
-  /**
-   * Debug utils :-)
-   */
-  logDrawPile() {
-    console.log("*** Draw pile contents ***");
-    console.log(this.drawPile);
-  }
-
-  logPlayPile() {
-    console.log("*** Play pile contents ***");
-    console.log(this.playPile);
   }
 }

@@ -1,7 +1,6 @@
 /**
  * @class - Preload static class to handle asset preloading.
  */
-
 export default class Preload {
 
   /**
@@ -29,7 +28,7 @@ export default class Preload {
   /**
    * Load player assets.
    *
-   * @param {Phaser.Scene} scene - The scene object.
+   * @param {Phaser.Scene} scene - The phaser scene object.
    */
   static loadPlayers(scene) {
     const colors = [ "black", "blue", "green", "purple", "red", "white", "yellow" ];
@@ -42,7 +41,7 @@ export default class Preload {
   /**
    * Load sound assets.
    *
-   * @param {Phaser.Scene} scene - The scene object.
+   * @param {Phaser.Scene} scene - The phaser scene object.
    */
   static loadSounds(scene) {
     const sounds = [ "place", "slide" ];

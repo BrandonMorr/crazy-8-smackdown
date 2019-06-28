@@ -1,7 +1,6 @@
 /**
  * @class - Card class to store suit/value information.
  */
-
 export default class Card extends Phaser.GameObjects.Sprite {
 
   constructor(scene, x, y, suit, value, name, cardBack) {
@@ -12,6 +11,7 @@ export default class Card extends Phaser.GameObjects.Sprite {
     this.name = name;
     this.cardBack = cardBack;
 
+    this.setOrigin(0.5);
     this.faceCardDown();
   }
 

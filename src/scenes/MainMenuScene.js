@@ -1,7 +1,6 @@
 /**
  * @class - MainMenuScene which contains menu stuff...?
  */
-
 export default class MainMenuScene extends Phaser.Scene {
 
   constructor() {
@@ -17,7 +16,7 @@ export default class MainMenuScene extends Phaser.Scene {
   create() {
     this.cameras.main.backgroundColor.setTo(0, 0, 0);
 
-    this.titleText = this.add.text(400, 100, 'Crazy 8 Smackdown', { fontSize: '24px' });
+    this.titleText = this.add.text(400, 100, 'Crazy 8 Smackdown', { fontSize: '32px' });
     this.titleText.setOrigin(0.5);
 
     this.startButton = this.add.text(400, 300, 'Begin Smackdown');

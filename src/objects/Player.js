@@ -1,7 +1,6 @@
 /**
  * @class - Player class to manage player's hand and countdown score.
  */
-
 export default class Player extends Phaser.GameObjects.Sprite {
 
   constructor(scene, x, y, id, name, color) {
@@ -10,7 +9,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.id = id;
     this.name = name;
     this.color = color;
-    this.coundown = 8;
+    this.countdown = 8;
     this.hand = [];
 
     this.nameText = scene.add.text(x, y + 50, name);
@@ -20,34 +19,36 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
-   * Remove card from the player's hand and return it.
+   * Remove a card from the player's hand, place it in play pile.
    *
-   * @param {Card} cards - The card(s) to be removed.
+   * @param {Card} cards - The card to be removed.
+   * @param {Deck} deck - The deck which contains the play pile to add to.
    *
    * @return {Card} - The last card added to playPile.
    */
-  removeCardFromHand(cards, deck) {
-    for (let card of cards) {
-      let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
-      console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
-      deck.playPile.push(cardToRemove[0]);
-    }
+  removeCardFromHand(card, deck) {
+    let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
+    deck.playPile.unshift(cardToRemove[0]);
+
+    console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
 
     return deck.getLastPlayCard();
   }
 
   /**
-   * Remove card from the player's hand and return it.
+   * Remove multiple cards from the player's hand, place it in play pile.
    *
-   * @param {Card} cards - The card(s) to be removed.
+   * @param {Card[]} cards - The cards to be removed.
+   * @param {Deck} deck - The deck which contains the play pile to add to.
    *
    * @return {Card} - The last card added to playPile.
    */
-  removeCardFromHandWithId(ids, deck) {
-    for (let id of ids) {
-      let cardToRemove = this.hand.splice(this.hand[id], 1);
+  removeCardsFromHand(cards, deck) {
+    for (let card of cards) {
+      let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
+      deck.playPile.unshift(cardToRemove[0]);
+
       console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
-      deck.playPile.push(cardToRemove[0]);
     }
 
     return deck.getLastPlayCard();
