@@ -1,12 +1,13 @@
+import Phaser from 'phaser';
+
 /**
  * @class - Player class to manage player's hand and countdown score.
  */
 export default class Player extends Phaser.GameObjects.Sprite {
 
-  constructor(scene, x, y, id, name, color) {
+  constructor(scene, x, y, name, color) {
     super(scene, x, y);
 
-    this.id = id;
     this.name = name;
     this.color = color;
     this.countdown = 8;
@@ -29,7 +30,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
   removeCardFromHand(card, deck) {
     let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
     deck.playPile.unshift(cardToRemove[0]);
-
     console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
 
     return deck.getLastPlayCard();
@@ -61,13 +61,5 @@ export default class Player extends Phaser.GameObjects.Sprite {
    */
   addCardToHand(card) {
     this.hand.push(card);
-  }
-
-  /**
-   * Used for debugging.
-   */
-  logHand() {
-    console.log("*** Player " + this.id + "'s hand ***");
-    console.log(this.hand);
   }
 }

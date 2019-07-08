@@ -1,3 +1,5 @@
+import Phaser from 'phaser';
+
 /**
  * @class - Card class to store suit/value information.
  */
