@@ -1,4 +1,4 @@
-import Card from "../objects/Card.js";
+import Phaser from 'phaser';
 import Deck from "../objects/Deck.js";
 import Player from "../objects/Player.js";
 import Preload from "../utilities/Preload.js";
@@ -8,7 +8,7 @@ import Preload from "../utilities/Preload.js";
  */
 export default class GameScene extends Phaser.Scene {
 
-  constructor(scene) {
+  constructor() {
     super({
       key: 'GameScene',
     });
@@ -36,12 +36,13 @@ export default class GameScene extends Phaser.Scene {
     this.deck = new Deck(this);
 
     this.players = [];
-    this.players.push(new Player(this, 700, 100, 0, "jarred", "green"));
-    this.players.push(new Player(this, 700, 200, 1, "willbert", "blue"));
-    this.players.push(new Player(this, 700, 300, 2, "frank", "purple"));
-    this.players.push(new Player(this, 100, 500, 3, "brandon", "yellow"));
+    this.players.push(new Player(this, (this.sys.game.config.width - 100), 100, "jarred", "green"));
+    this.players.push(new Player(this, (this.sys.game.config.width - 100), 200, "willbert", "blue"));
+    this.players.push(new Player(this, (this.sys.game.config.width - 100), 300, "frank", "purple"));
+    this.players.push(new Player(this, 100, 500, "brandon", "yellow"));
 
     this.initializeGame();
+    this.buildWildCardDialog();
     this.addRestartButton();
   }
 
@@ -51,7 +52,6 @@ export default class GameScene extends Phaser.Scene {
   update() {
     // Check if the game is over.
     this.checkGameOver();
-
     // Check if the last card has changed.
     if (this.checkLastPlayCardChange()) {
       // A turn has been made, let's make sure to make all the player's cards
@@ -59,18 +59,23 @@ export default class GameScene extends Phaser.Scene {
       for (let card of this.players[this.playerTurn].hand) {
         card.removeAllListeners();
       }
+
+      // Check for wildcard.
+      if (this.currentCardInPlay.value == this.players[this.playerTurn].countdown) {
+        this.wildCardDialogContainer.visible = true;
+      }
     }
 
     // Check the player hand for playable cards.
     if (this.checkHandForPlayableCards) {
       for (let card of this.players[this.playerTurn].hand) {
-        let lastCardPlayed = this.deck.getLastPlayCard();
+        let currentCardInPlay = this.deck.getLastPlayCard();
 
-        if (card.value == lastCardPlayed.value || card.suit == lastCardPlayed.suit || card.value == this.players[this.playerTurn].countdown) {
+        if (card.value == currentCardInPlay.value || card.suit == this.currentSuitInPlay || card.value == this.players[this.playerTurn].countdown) {
           this.makeCardPlayable(card, this.players[this.playerTurn]);
         }
       }
-      // Signal that the hand has been checked.
+      // Flag that the hand has been checked.
       this.checkHandForPlayableCards = false;
     }
   }
@@ -89,7 +94,7 @@ export default class GameScene extends Phaser.Scene {
     for (let i = 0; i <= 7; i++) {
       for (let player of this.players) {
         // Deal the card to player.
-        this.dealCardsToPlayer(player.id);
+        this.dealCardsToPlayer(player);
         // XXX: Gotta move this into something more dynamic... will do for now.
         // Tween the card game object and reveal what is in the hand.
         if (player.name === 'brandon') {
@@ -133,10 +138,10 @@ export default class GameScene extends Phaser.Scene {
   /**
    * Deal a card to the Player, tween the card to the player's hand.
    *
-   * @param {Number} id - The ID of the player we are dealing to.
+   * @param {Player} player - The player we are dealing to.
    * @param {Number} numberOfCards - The number of cards to deal to the player.
    */
-  dealCardsToPlayer(id, numberOfCards = 1) {
+  dealCardsToPlayer(player, numberOfCards = 1) {
     // We want to keep track of how many cards are left to deal if the deck
     // needs to be shuffled.
     for (let cardsLeftToDeal = numberOfCards; cardsLeftToDeal >= 1; cardsLeftToDeal--) {
@@ -144,14 +149,14 @@ export default class GameScene extends Phaser.Scene {
 
       if (cardToDeal) {
         // Deal the card to player.
-        this.players[id].addCardToHand(cardToDeal);
+        player.addCardToHand(cardToDeal);
       } else {
         // No cards left to draw, shuffle and try again.
         this.deck.shuffleDeck();
         // If there are enough cards left to deal, deal em'.
         if (this.deck.drawPile.length >= cardsLeftToDeal) {
           // Make sure to only deal the remainder (if there is enough).
-          this.dealCardsToPlayer(id, cardsLeftToDeal);
+          this.dealCardsToPlayer(player, cardsLeftToDeal);
         } else {
           console.log("No more cards left to deal!");
         }
@@ -168,7 +173,9 @@ export default class GameScene extends Phaser.Scene {
     // Place card on the top of the play pile.
     this.deck.playPile.unshift(cardToDeal);
     // Set the first card in play pile as the last card played.
-    this.lastCardPlayed = cardToDeal;
+    this.currentCardInPlay = cardToDeal;
+    // Set the suit in play pile as the last card's suit.
+    this.currentSuitInPlay = cardToDeal.suit;
     // Move the card to the playPile zone.
     this.tweens.add({
       targets: cardToDeal,
@@ -187,8 +194,9 @@ export default class GameScene extends Phaser.Scene {
    * @return {Boolean} - True if the card has changed, false otherwise.
    */
   checkLastPlayCardChange() {
-    if (this.lastCardPlayed.name != this.deck.getLastPlayCard().name) {
-      this.lastCardPlayed = this.deck.getLastPlayCard();
+    if (this.currentCardInPlay.name != this.deck.getLastPlayCard().name) {
+      this.currentCardInPlay = this.deck.getLastPlayCard();
+      this.currentSuitInPlay = this.deck.getLastPlayCard().suit;
 
       return true;
     }
@@ -250,6 +258,55 @@ export default class GameScene extends Phaser.Scene {
         duration: 250,
       });
     });
+  }
+
+  /**
+   * Constructs a wildcard dialog box.
+   */
+  buildWildCardDialog() {
+    // initialize container object to hold all the dialogue text.
+    this.wildCardDialogContainer = this.add.container(0, 0);
+    this.wildCardDialogContainer.visible = false;
+
+    // Add a background for the message box.
+    let wildCardDialogBackground = this.add.graphics();
+    wildCardDialogBackground.fillStyle(0xbdbdbd, 0.8);
+    wildCardDialogBackground.fillRoundedRect(200, 250, 400, 150, 4);
+
+    this.wildCardDialogContainer.add(wildCardDialogBackground);
+
+    // Show message text in the center of the screen.
+    let wildCardText = this.add.text((this.sys.game.config.width / 2), (this.sys.game.config.height / 2) - 20, 'Wild card played, choose a new suit:');
+    wildCardText.setOrigin(0.5);
+
+    this.wildCardDialogContainer.add(wildCardText);
+
+    const suits = [ "hearts", "diamonds", "spades", "clubs" ];
+    let offset = 10;
+
+    for (let suit of suits) {
+      let wildCardOption = this.add.text(this.sys.game.config.width / 2, (this.sys.game.config.height / 2) + offset, suit);
+      wildCardOption.setOrigin(0.5);
+      wildCardOption.setInteractive();
+
+      wildCardOption.on('pointerdown', () => {
+        this.currentSuitInPlay = suit;
+        this.checkHandForPlayableCards = true;
+        this.wildCardDialogContainer.visible = false;
+      });
+
+      wildCardOption.on('pointerover', () => {
+        wildCardOption.setTint(0xe3e3e3);
+      });
+
+      wildCardOption.on('pointerout', () => {
+        wildCardOption.clearTint();
+      });
+
+      this.wildCardDialogContainer.add(wildCardOption);
+
+      offset += 20;
+    }
   }
 
   /**
