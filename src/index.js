@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
 import MainMenuScene from "./scenes/MainMenuScene";
+import PlayerSetupScene from "./scenes/PlayerSetupScene";
 import GameScene from "./scenes/GameScene";
 
 const config = {
@@ -20,8 +21,8 @@ const config = {
     pixelArt:   true,
     antialias:  true,
   },
-  backgroundColor: "0xe8e8e8",
-  scene: [ MainMenuScene, GameScene ],
+  backgroundColor: "0xF5F5F5",
+  scene: [ MainMenuScene, PlayerSetupScene, GameScene ],
 };
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);

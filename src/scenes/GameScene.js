@@ -4,7 +4,7 @@ import Player from "../objects/Player.js";
 import Preload from "../utilities/Preload.js";
 
 /**
- * @class - Game Scene which contains the core game loop.
+ * @class - Game scene which contains the core game loop.
  */
 export default class GameScene extends Phaser.Scene {
 
@@ -52,8 +52,10 @@ export default class GameScene extends Phaser.Scene {
   update() {
     // Check if the game is over.
     this.checkGameOver();
+
     // Check if the last card has changed.
     if (this.checkLastPlayCardChange()) {
+
       // A turn has been made, let's make sure to make all the player's cards
       // non-interactive.
       for (let card of this.players[this.playerTurn].hand) {
@@ -88,13 +90,16 @@ export default class GameScene extends Phaser.Scene {
     for (let player of this.players) {
       this.add.existing(player);
     }
+
     // Deal out cards to the players.
     let offset = 0;
 
     for (let i = 0; i <= 7; i++) {
       for (let player of this.players) {
+
         // Deal the card to player.
         this.dealCardsToPlayer(player);
+
         // XXX: Gotta move this into something more dynamic... will do for now.
         // Tween the card game object and reveal what is in the hand.
         if (player.name === 'brandon') {
@@ -113,9 +118,6 @@ export default class GameScene extends Phaser.Scene {
         }
       }
     }
-    // Shuffle player order to determine who goes first.
-    // this.players = Phaser.Utils.Array.Shuffle(this.players);
-    // console.log(`${this.players[0].name} goes first!`);
 
     // Deal out the first card to the play pile.
     this.dealCardFromDrawToPlayPile();
@@ -127,6 +129,7 @@ export default class GameScene extends Phaser.Scene {
    */
   checkGameOver() {
     for (let player of this.players) {
+
       // If the countdown is at 0, that's it... GAME OVER!
       if (player.countdown === 0) {
         this.gameOver = true;
@@ -150,14 +153,17 @@ export default class GameScene extends Phaser.Scene {
       if (cardToDeal) {
         // Deal the card to player.
         player.addCardToHand(cardToDeal);
-      } else {
+      }
+      else {
         // No cards left to draw, shuffle and try again.
         this.deck.shuffleDeck();
+
         // If there are enough cards left to deal, deal em'.
         if (this.deck.drawPile.length >= cardsLeftToDeal) {
           // Make sure to only deal the remainder (if there is enough).
           this.dealCardsToPlayer(player, cardsLeftToDeal);
-        } else {
+        }
+        else {
           console.log("No more cards left to deal!");
         }
       }
@@ -170,12 +176,16 @@ export default class GameScene extends Phaser.Scene {
   dealCardFromDrawToPlayPile() {
     // Shift out a card from the draw pile.
     let cardToDeal = this.deck.drawPile.shift();
+
     // Place card on the top of the play pile.
     this.deck.playPile.unshift(cardToDeal);
+
     // Set the first card in play pile as the last card played.
     this.currentCardInPlay = cardToDeal;
+
     // Set the suit in play pile as the last card's suit.
     this.currentSuitInPlay = cardToDeal.suit;
+
     // Move the card to the playPile zone.
     this.tweens.add({
       targets: cardToDeal,
@@ -211,18 +221,23 @@ export default class GameScene extends Phaser.Scene {
    */
   makeCardPlayable(card, player) {
     card.setInteractive();
+
     // When the user clicks send the card to the play pile and do other stuff.
     card.on('pointerdown', () => {
       // Remove all the listeners.
       card.removeAllListeners();
+
       // Remove tint.
       card.clearTint();
+
       // Set the depth of all playPile cards to 0.
       for (let playCard of this.deck.playPile) {
         playCard.setDepth(0);
       }
+
       // Set the depth of the card to played to 1.
       card.setDepth(1);
+
       // Move the card to the play pile.
       this.tweens.add({
         targets: card,
@@ -231,13 +246,16 @@ export default class GameScene extends Phaser.Scene {
         ease: 'Linear',
         duration: 250,
       });
+
       // Remove the card from hand, move into the play pile.
       player.removeCardFromHand(card, this.deck);
     });
+
     // When the user hovers the cursor over the card, set a tint and raise y.
     card.on('pointerover', () => {
       // Set a tint to show card is playable.
       card.setTint(0xe3e3e3);
+
       // Move card up slightly.
       this.tweens.add({
         targets: card,
@@ -246,10 +264,12 @@ export default class GameScene extends Phaser.Scene {
         duration: 250,
       });
     });
+
     // When the user's cursor leaves the card, remove the tint and lower y.
     card.on('pointerout', () => {
       // Remove tint.
       card.clearTint();
+
       // Move the card back into hand.
       this.tweens.add({
         targets: card,
@@ -313,7 +333,7 @@ export default class GameScene extends Phaser.Scene {
    * Add a restart button to the scene, used for debugging.
    */
   addRestartButton() {
-    let restartButton = this.add.text(700, 525, 'Restart?');
+    let restartButton = this.add.text(700, 525, 'Restart');
     restartButton.setOrigin(0.5);
     restartButton.setInteractive();
 
@@ -322,7 +342,7 @@ export default class GameScene extends Phaser.Scene {
     });
 
     restartButton.on('pointerover', () => {
-      restartButton.setTint(0x3bceac);
+      restartButton.setTint(0x6356c7);
     });
 
     restartButton.on('pointerout', () => {
