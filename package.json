@@ -41,7 +41,9 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
+    "express": "^4.17.1",
     "phaser": "^3.18.1",
+    "socket.io": "^2.2.0",
     "webfontloader": "^1.6.28"
   }
 }
