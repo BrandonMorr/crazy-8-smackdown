@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-
+import Server from "./server/Server";
 import MainMenuScene from "./scenes/MainMenuScene";
 import PlayerSetupScene from "./scenes/PlayerSetupScene";
 import GameScene from "./scenes/GameScene";
