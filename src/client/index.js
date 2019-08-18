@@ -1,8 +1,7 @@
 import Phaser from "phaser";
-import Server from "./server/Server";
+import GameScene from "./scenes/GameScene";
 import MainMenuScene from "./scenes/MainMenuScene";
 import PlayerSetupScene from "./scenes/PlayerSetupScene";
-import GameScene from "./scenes/GameScene";
 
 const config = {
   title:    "Crazy 8 Smackdown",

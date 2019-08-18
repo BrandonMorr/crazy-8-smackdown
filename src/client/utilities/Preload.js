@@ -16,13 +16,13 @@ export default class Preload {
       for (const name of names) {
         const cardName = `${suit}_${name}`;
 
-        scene.load.image(cardName, "assets/cards/" + cardName + ".png");
+        scene.load.image(cardName, "public/assets/cards/" + cardName + ".png");
       }
     }
 
-    scene.load.image("back_blue", "assets/cards/back_blue.png");
-    scene.load.image("back_green", "assets/cards/back_green.png");
-    scene.load.image("back_red", "assets/cards/back_red.png");
+    scene.load.image("back_blue", "public/assets/cards/back_blue.png");
+    scene.load.image("back_green", "public/assets/cards/back_green.png");
+    scene.load.image("back_red", "public/assets/cards/back_red.png");
   }
 
   /**
@@ -34,7 +34,7 @@ export default class Preload {
     const colors = [ "black", "blue", "green", "purple", "red", "white", "yellow" ];
 
     for (const color of colors) {
-      scene.load.image(`player_${color}`, `assets/player/player_${color}.png`);
+      scene.load.image(`player_${color}`, `public/assets/player/player_${color}.png`);
     }
   }
 
@@ -48,7 +48,7 @@ export default class Preload {
 
     for (const sound of sounds) {
       for (let i = 1; i <= 3; i++) {
-        scene.load.audio(`card_${sound}_${i}`, `assets/sounds/card_${sound}_${i}.ogg`);
+        scene.load.audio(`card_${sound}_${i}`, `public/assets/sounds/card_${sound}_${i}.ogg`);
       }
     }
   }

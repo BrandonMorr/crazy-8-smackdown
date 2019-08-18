@@ -6,5 +6,5 @@ Thumbs.db
 node_modules/
 
 # Build
-dist/
+public/*.js
 npm-debug.log

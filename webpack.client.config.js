@@ -1,8 +1,10 @@
 const path    = require('path');
 const webpack = require('webpack');
 
-const dist        = path.join(__dirname, 'dist/');
-const nodeModules = path.join(__dirname, 'node_modules/');
+const public      = path.join(__dirname, 'public');
+const nodeModules = path.join(__dirname, 'node_modules');
+const server      = path.join(__dirname, 'src/client/server');
+const client      = path.join(__dirname, 'src/client/index.js');
 
 const definePlugin = new webpack.DefinePlugin({
   CANVAS_RENDERER: JSON.stringify(true),
@@ -11,14 +13,14 @@ const definePlugin = new webpack.DefinePlugin({
 
 module.exports = {
   mode: 'development',
-  devtool: 'source-map',
-  plugins: [definePlugin],
+  devtool: 'inline-source-map',
+  plugins: [ definePlugin ],
   entry: {
-    app: [path.resolve(__dirname, 'src/index.js')],
-    vendor: ['phaser']
+    app: [ client ],
+    vendor: [ 'phaser' ]
   },
   output: {
-    path: dist,
+    path: public,
     filename: 'bundle.js',
     publicPath: '/'
   },
@@ -32,23 +34,17 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: [nodeModules],
+        exclude: [ nodeModules, server ],
         use: {
           loader: 'babel-loader'
         }
       },
       {
         test: /\.(png|jpg|gif|ico|svg|pvr|pkm|static|ogg|mp3|wav)$/,
-        exclude: [nodeModules],
-        use: ['file-loader']
+        exclude: [ nodeModules ],
+        use: [ 'file-loader' ]
       },
     ]
-  },
-  devServer: {
-    publicPath: '/dist/',
-    contentBase: path.resolve(__dirname),
-    compress: true,
-    port: 9000
   },
   node: {
     fs: 'empty',
