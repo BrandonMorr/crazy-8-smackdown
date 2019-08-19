@@ -3,8 +3,8 @@ Thumbs.db
 .DS_Store
 
 # Vendors
-node_modules/
+node_modules
 
 # Build
-public/*.js
+public/js
 npm-debug.log

@@ -1,8 +1,9 @@
-const path = require('path');
+const path      = require('path');
 const externals = require('webpack-node-externals');
 
 const public        = path.join(__dirname, 'public');
-const nodeModules = path.join(__dirname, 'node_modules');
+const client        = path.join(__dirname, 'src/client');
+const nodeModules   = path.join(__dirname, 'node_modules');
 
 module.exports = {
   mode: 'development',
@@ -13,7 +14,7 @@ module.exports = {
   },
   entry: './src/server/Server.js',
   output: {
-    path: public,
+    path: path.join(public, 'js'),
     filename: 'server.bundle.js'
   },
   resolve: {
@@ -23,7 +24,7 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: [ nodeModules ],
+        exclude: [ nodeModules,  ],
         use: {
           loader: 'babel-loader'
         }

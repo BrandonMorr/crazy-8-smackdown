@@ -20,7 +20,7 @@ module.exports = {
     vendor: [ 'phaser' ]
   },
   output: {
-    path: public,
+    path: path.join(public, 'js'),
     filename: 'bundle.js',
     publicPath: '/'
   },

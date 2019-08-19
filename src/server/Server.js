@@ -15,15 +15,17 @@ const port = process.env.PORT || 3000;
 app.use(Helmet());
 app.use(Compression());
 
-// Add static file middleware + express request route.
-app.use('/public', Express.static(__dirname));
+// Add static file middleware (to serve static files).
+app.use('/public', Express.static(Path.join(__dirname, '../')));
+
+// Request router.
 app.get('/', function(request, response) {
-   response.sendFile(Path.resolve(__dirname, 'index.html'));
+   response.sendFile(Path.join(__dirname, '../index.html'));
 })
 
 // Confirmation that the server init went well.
 server.listen(port, () => {
-  console.log('🕺 Server init complete, listening for connections on port ' + port + ' 🕺\n');
+  console.log('\n🕺 Server init complete, listening for connections on port ' + port + ' 🕺\n');
 });
 
 // Notify when clients connect/disconnect.
