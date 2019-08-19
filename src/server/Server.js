@@ -1,4 +1,4 @@
-import SocketIO from 'socket.io-client';
+import SocketIO from 'socket.io';
 import Compression from 'compression';
 import Express from 'express';
 import Helmet from 'helmet';
