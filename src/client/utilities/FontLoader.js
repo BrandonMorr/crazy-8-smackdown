@@ -16,7 +16,7 @@ export default class FontLoader {
         families: [ 'Open Sans', 'Open Sans:bold' ]
       },
       active: function() {
-        console.log("hi");
+        console.log('Am I actually alive?');
       }
     };
   }

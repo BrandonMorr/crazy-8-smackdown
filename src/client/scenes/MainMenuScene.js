@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import Crypto from 'crypto';
+import SocketIO from 'socket.io-client';
 import FontLoader from '../utilities/FontLoader';
 
 /**
@@ -18,11 +20,21 @@ export default class MainMenuScene extends Phaser.Scene {
 
   create() {
     // Currently does jack shit...
-    FontLoader.loadWebFontOpenSans();
+    // FontLoader.loadWebFontOpenSans();
 
-    this.addTitleText()
-    this.addStartGameButton();
-    this.addPlayerSetupButton();
+    this.addTitleText();
+    // this.addRoomCodeInput();
+    this.addNameInput();
+    this.addCreateGameButton();
+    this.addJoinGameButton();
+
+    // Should probably move this into a SocketIO class eventually.
+    const socket = SocketIO();
+
+    socket.on('connect', () => {
+
+      this.addConnectionStatus();
+    });
   }
 
   update() {
@@ -33,45 +45,67 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    this.titleTextBackground = this.add.graphics();
-    this.titleTextBackground.fillRoundedRect(200, 75, 400, 50, 6);
-    this.titleTextBackground.fillStyle(0x7FFFD4, 0.5);
+    let titleText = this.add.text(400, 100, 'CRAZY 8 SMACKDOWN', { fontFamily: 'Helvetica, "sans-serif"', fontSize: '28px', fontStyle: 'bold', color: '0x000000' });
+    titleText.setOrigin(0.5);
+  }
 
-    this.titleTextBackgroundBorder = this.add.graphics();
-    this.titleTextBackgroundBorder.lineStyle(4, 0x000000);
-    this.titleTextBackgroundBorder.strokeRoundedRect(200, 75, 400, 50, 6);
+  /**
+   * Add connection status text to the scene.
+   */
+  addConnectionStatus() {
+    let titleText = this.add.text(700, 550, 'Connected', { fontSize: '18px', fontStyle: 'bold', color: '#7FFFD4' });
+    titleText.setOrigin(0.5);
+  }
 
-    this.titleText = this.add.text(400, 100, 'Crazy 8 Smackdown', { fontFamily: 'Open Sans', fontSize: '28px', fontStyle: 'bold', color: '0x000000' });
-    this.titleText.setOrigin(0.5);
+  /**
+   * Add a room code input and label.
+   */
+  addRoomCodeInput() {
+    let roomCodeLabel = this.add.text(225, 55, 'ROOM CODE', { fontSize: '18px', color: '0x000000' });
+    roomCodeLabel.setOrigin(0.5);
+
+    roomCodeInput = this.add.dom(400, 50, 'input');
+    roomCodeInput.setClassName('room-code-input');
+    roomCodeInput.setInteractive();
+  }
+
+  /**
+   * Add a game token input and label.
+   */
+  addNameInput() {
+    let nameLabel = this.add.text(225, 105, 'NAME', { fontSize: '18px', color: '0x000000' });
+    nameLabel.setOrigin(0.5);
+
+    nameInput = this.add.dom(400, 100, 'input');
+    nameInput.setClassName('name-input');
+    nameInput.setInteractive();
   }
 
   /**
    * Add a start game button that starts the game scene (GameScene.js).
    */
-  addStartGameButton() {
-    this.startButtonBackground = this.add.graphics();
-    this.startButtonBackground.fillRoundedRect(300, 280, 200, 40, 6);
-    this.startButtonBackground.fillStyle(0xFFB0B0, 0.5);
-    this.startButtonBackground.closePath();
+  addCreateGameButton() {
+    let createGameButton = this.add.text(300, 400, 'CREATE GAME', { fontSize: '20px', color: '0x000000' });
+    createGameButton.setOrigin(0.5);
+    createGameButton.setInteractive();
 
-    this.startButtonBackgroundBorder = this.add.graphics();
-    this.startButtonBackgroundBorder.lineStyle(4, 0x000000);
-    this.startButtonBackgroundBorder.strokeRoundedRect(300, 280, 200, 40, 6);
-
-    this.startButton = this.add.text(400, 300, 'Start Game', { fontFamily: 'Open Sans', fontSize: '18px', fontStyle: 'bold', color: '0x000000' });
-    this.startButton.setOrigin(0.5);
-    this.startButton.setInteractive();
-
-    this.startButton.on('pointerdown', () => {
-      this.scene.start('GameScene');
+    createGameButton.on('pointerdown', () => {
+      // Generate a random byte token.
+      // TODO: Should honestly be done on the server-side...
+      Crypto.randomBytes(2, (err, buf) => {
+        console.log(`Random game token generated: ${buf.toString('hex')}`);
+        // Will need to create a game session from here, using the generated
+        // buffer as the token to access this new Socket Room.
+      });
     });
 
-    this.startButton.on('pointerover', () => {
-      this.startButtonBackground.setAlpha(0.5);
+    createGameButton.on('pointerover', () => {
+      createGameButton.setTintFill('0x6356c7');
+
     });
 
-    this.startButton.on('pointerout', () => {
-      this.startButtonBackground.setAlpha(1);
+    createGameButton.on('pointerout', () => {
+      createGameButton.clearTint();
     });
   }
 
@@ -79,29 +113,21 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a player setup button that starts the player setup scene
    * (PlayerSetupScene.js).
    */
-  addPlayerSetupButton() {
-    this.setupButtonBackground = this.add.graphics();
-    this.setupButtonBackground.fillRoundedRect(300, 350, 200, 40, 6);
-    this.setupButtonBackground.fillStyle(0x6356c7, 0.5);
+  addJoinGameButton() {
+    let joinButton = this.add.text(500, 400, 'JOIN', { fontSize: '20px', color: '0x000000' });
+    joinButton.setOrigin(0.5);
+    joinButton.setInteractive();
 
-    this.setupButtonBackgroundBorder = this.add.graphics();
-    this.setupButtonBackgroundBorder.lineStyle(4, 0x000000);
-    this.setupButtonBackgroundBorder.strokeRoundedRect(300, 350, 200, 40, 6);
-
-    this.setupButton = this.add.text(400, 370, 'Player Setup', { fontFamily: 'Open Sans', fontSize: '18px', fontStyle: 'bold', color: '0x000000' });
-    this.setupButton.setOrigin(0.5);
-    this.setupButton.setInteractive();
-
-    this.setupButton.on('pointerdown', () => {
+    joinButton.on('pointerdown', () => {
       this.scene.start('PlayerSetupScene');
     });
 
-    this.setupButton.on('pointerover', () => {
-      this.setupButtonBackground.setAlpha(0.5);
+    joinButton.on('pointerover', () => {
+      joinButton.setTintFill(0x87E0FF);
     });
 
-    this.setupButton.on('pointerout', () => {
-      this.startButtonBackground.setAlpha(1);
+    joinButton.on('pointerout', () => {
+      joinButton.clearTint();
     });
   }
 }

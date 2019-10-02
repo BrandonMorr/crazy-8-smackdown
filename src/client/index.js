@@ -1,15 +1,16 @@
-import Phaser from "phaser";
-import GameScene from "./scenes/GameScene";
-import MainMenuScene from "./scenes/MainMenuScene";
-import PlayerSetupScene from "./scenes/PlayerSetupScene";
+import Phaser from 'phaser';
+import GameScene from './scenes/GameScene';
+import MainMenuScene from './scenes/MainMenuScene';
+import PlayerSetupScene from './scenes/PlayerSetupScene';
+
 
 const config = {
-  title:    "Crazy 8 Smackdown",
-  version:  "0.0.1",
+  title:    'Crazy 8 Smackdown',
+  version:  '0.0.1',
   width:    800,
   height:   600,
   type:     Phaser.AUTO,
-  parent:   "game",
+  parent:   'game',
   input: {
     keyboard: true,
     mouse:    true,
@@ -20,7 +21,10 @@ const config = {
     pixelArt:   true,
     antialias:  true,
   },
-  backgroundColor: "0xF5F5F5",
+  backgroundColor: '0xF5F5F5',
+  dom: {
+    createContainer: true,
+  },
   scene: [ MainMenuScene, PlayerSetupScene, GameScene ],
 };
 

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 /**
- * @class - Player class to manage player's hand and countdown score.
+ * @class - Player class to manage players.
  */
 export default class Player extends Phaser.GameObjects.Sprite {
 

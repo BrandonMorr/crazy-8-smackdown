@@ -1,9 +1,9 @@
+import Http from 'http';
+import Path from 'path';
+import Helmet from 'helmet';
+import Express from 'express';
 import SocketIO from 'socket.io';
 import Compression from 'compression';
-import Express from 'express';
-import Helmet from 'helmet';
-import Path from 'path';
-import Http from 'http';
 
 // Server setup.
 const app = Express();

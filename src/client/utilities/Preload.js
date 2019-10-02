@@ -9,20 +9,20 @@ export default class Preload {
    * @param {Phaser.Scene} scene - The phaser scene object.
    */
   static loadCards(scene) {
-    const names = [ "a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "k", "q" ];
-    const suits = [ "hearts", "diamonds", "spades", "clubs" ];
+    const names = [ 'a', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'k', 'q' ];
+    const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
 
     for (const suit of suits) {
       for (const name of names) {
         const cardName = `${suit}_${name}`;
 
-        scene.load.image(cardName, "public/assets/cards/" + cardName + ".png");
+        scene.load.image(cardName, 'public/assets/cards/' + cardName + '.png');
       }
     }
 
-    scene.load.image("back_blue", "public/assets/cards/back_blue.png");
-    scene.load.image("back_green", "public/assets/cards/back_green.png");
-    scene.load.image("back_red", "public/assets/cards/back_red.png");
+    scene.load.image('back_blue', 'public/assets/cards/back_blue.png');
+    scene.load.image('back_green', 'public/assets/cards/back_green.png');
+    scene.load.image('back_red', 'public/assets/cards/back_red.png');
   }
 
   /**
@@ -31,7 +31,7 @@ export default class Preload {
    * @param {Phaser.Scene} scene - The phaser scene object.
    */
   static loadPlayers(scene) {
-    const colors = [ "black", "blue", "green", "purple", "red", "white", "yellow" ];
+    const colors = [ 'black', 'blue', 'green', 'purple', 'red', 'white', 'yellow' ];
 
     for (const color of colors) {
       scene.load.image(`player_${color}`, `public/assets/player/player_${color}.png`);
@@ -44,7 +44,7 @@ export default class Preload {
    * @param {Phaser.Scene} scene - The phaser scene object.
    */
   static loadSounds(scene) {
-    const sounds = [ "place", "slide" ];
+    const sounds = [ 'place', 'slide' ];
 
     for (const sound of sounds) {
       for (let i = 1; i <= 3; i++) {

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import Deck from "../objects/Deck.js";
-import Player from "../objects/Player.js";
-import Preload from "../utilities/Preload.js";
+import Deck from '../objects/Deck.js';
+import Player from '../objects/Player.js';
+import Preload from '../utilities/Preload.js';
 
 /**
  * @class - Game scene which contains the core game loop.
@@ -36,10 +36,10 @@ export default class GameScene extends Phaser.Scene {
     this.deck = new Deck(this);
 
     this.players = [];
-    this.players.push(new Player(this, (this.sys.game.config.width - 100), 100, "jarred", "green"));
-    this.players.push(new Player(this, (this.sys.game.config.width - 100), 200, "willbert", "blue"));
-    this.players.push(new Player(this, (this.sys.game.config.width - 100), 300, "frank", "purple"));
-    this.players.push(new Player(this, 100, 500, "brandon", "yellow"));
+    this.players.push(new Player(this, (this.sys.game.config.width - 100), 100, 'jarred', 'green'));
+    this.players.push(new Player(this, (this.sys.game.config.width - 100), 200, 'willbert', 'blue'));
+    this.players.push(new Player(this, (this.sys.game.config.width - 100), 300, 'frank', 'purple'));
+    this.players.push(new Player(this, 100, 500, 'brandon', 'yellow'));
 
     this.initializeGame();
     this.buildWildCardDialog();
@@ -164,7 +164,7 @@ export default class GameScene extends Phaser.Scene {
           this.dealCardsToPlayer(player, cardsLeftToDeal);
         }
         else {
-          console.log("No more cards left to deal!");
+          console.log('No more cards left to deal!');
         }
       }
     }
@@ -301,7 +301,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.wildCardDialogContainer.add(wildCardText);
 
-    const suits = [ "hearts", "diamonds", "spades", "clubs" ];
+    const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
     let offset = 10;
 
     for (let suit of suits) {

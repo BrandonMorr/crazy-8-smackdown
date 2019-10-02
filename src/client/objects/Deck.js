@@ -1,5 +1,5 @@
-import Phaser from "phaser";
-import Card from "./Card";
+import Phaser from 'phaser';
+import Card from './Card';
 
 /**
  * @class - Deck class to manage the deck of cards.
@@ -30,9 +30,9 @@ export default class Deck extends Phaser.GameObjects.Group {
    *
    */
   generateDeck(scene) {
-    const values = [ "a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "k", "q" ];
-    const suits = [ "hearts", "diamonds", "spades", "clubs" ];
-    const backColors = [ "blue", "green", "red" ];
+    const values = [ 'a', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'k', 'q' ];
+    const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
+    const backColors = [ 'blue', 'green', 'red' ];
 
     let deck = [];
     let backColor = Phaser.Math.RND.pick(backColors);
@@ -77,7 +77,7 @@ export default class Deck extends Phaser.GameObjects.Group {
    * Shuffle the play pile, pass that back to the draw pile and clear playPile.
    */
   shuffleDeck() {
-    console.log("*** Shuffling the deck ***");
+    console.log('*** Shuffling the deck ***');
     this.drawPile = Phaser.Utils.Array.Shuffle(this.playPile);
     this.drawPile.forEach((card) => {
       card.faceCardDown();

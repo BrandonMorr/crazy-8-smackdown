@@ -23,13 +23,27 @@ export default class PlayerSetupScene extends Phaser.Scene {
     this.selectedColorOption = '0x000000';
 
     // Add all the things to the scene.
+    this.addNameInput();
     this.addPaintCanvas();
     this.addPaintOptions();
+    this.addConnectButton();
     this.addClearButton();
   }
 
   update() {
 
+  }
+
+  /**
+   * Creates an input element to be used for username entry.
+   */
+  addNameInput() {
+    this.nameInputLabel = this.add.text(225, 55, 'NAME', { fontFamily: 'Open Sans', fontSize: '18px', color: '0x000000' });
+    this.nameInputLabel.setOrigin(0.5);
+
+    this.nameInput = this.add.dom(400, 50, 'input');
+    this.nameInput.setClassName('name-input');
+    this.nameInput.setInteractive();
   }
 
   /**
@@ -147,10 +161,39 @@ export default class PlayerSetupScene extends Phaser.Scene {
   }
 
   /**
-   * Add a clear button to the scene, used for debugging.
+   * Add a start button which loads the connection scene.
+   */
+  addConnectButton() {
+    let connectButton = this.add.text(400, 550, 'PLAY', { fontFamily: 'Open Sans', fontSize: '18px', color: '0x000000' });
+    connectButton.setOrigin(0.5);
+    connectButton.setInteractive();
+
+    connectButton.on('pointerdown', () => {
+      // TODO: Check to see if there is any paint on the canvas.
+      let nameInputText = document.querySelector('.name-input');
+
+      if (nameInputText.value !== '') {
+        this.scene.start('GameScene');
+      }
+      else {
+        // "Name must not be empty..."
+      }
+    });
+
+    connectButton.on('pointerover', () => {
+      connectButton.setTintFill(0x7FFFD4);
+    });
+
+    connectButton.on('pointerout', () => {
+      connectButton.clearTint();
+    });
+  }
+
+  /**
+   * Add a clear button to the scene which clears the paint canvas.
    */
   addClearButton() {
-    let clearButton = this.add.text(700, 550, 'Clear');
+    let clearButton = this.add.text(700, 550, 'CLEAR', { fontFamily: 'Open Sans', fontSize: '18px', color: '0x000000' });
     clearButton.setOrigin(0.5);
     clearButton.setInteractive();
 
@@ -159,7 +202,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     });
 
     clearButton.on('pointerover', () => {
-      clearButton.setTint(0x6356c7);
+      clearButton.setTintFill(0x6356c7);
     });
 
     clearButton.on('pointerout', () => {
