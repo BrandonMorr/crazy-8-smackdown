@@ -28,9 +28,15 @@ server.listen(port, () => {
   console.log('\n🕺 Server init complete, listening for connections on port ' + port + ' 🕺\n');
 });
 
-// Notify when clients connect/disconnect.
+// Server handlers.
 io.on('connection', (socket) => {
     console.log("User connected");
+
+    // Notify the server when a user creates a new game room.
+    socket.on('createRoom', function(room) {
+      console.log('User joined room: ' + room);
+      socket.join(room);
+    });
 
     socket.on('disconnect', (socket) => {
       console.log('User disconnected');

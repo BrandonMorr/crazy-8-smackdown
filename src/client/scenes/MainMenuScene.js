@@ -12,6 +12,26 @@ export default class MainMenuScene extends Phaser.Scene {
     super({
       key: 'MainMenuScene',
     });
+
+    this.titleTextStyle = {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '28px',
+      fontStyle: 'bold',
+      color: '#000000'
+    };
+
+    this.statusTextStyle = {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '14px',
+      color: '#99ff99'
+    };
+
+    this.labelTextStyle = {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '18px',
+      fontStyle: 'bold',
+      color: '000000'
+    };
   }
 
   preload() {
@@ -23,16 +43,14 @@ export default class MainMenuScene extends Phaser.Scene {
     // FontLoader.loadWebFontOpenSans();
 
     this.addTitleText();
-    // this.addRoomCodeInput();
+    this.addRoomCodeInput();
     this.addNameInput();
     this.addCreateGameButton();
-    this.addJoinGameButton();
+    this.addPlayButton();
 
     // Should probably move this into a SocketIO class eventually.
-    const socket = SocketIO();
-
-    socket.on('connect', () => {
-
+    this.socket = SocketIO();
+    this.socket.on('connect', () => {
       this.addConnectionStatus();
     });
   }
@@ -45,7 +63,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.text(400, 100, 'CRAZY 8 SMACKDOWN', { fontFamily: 'Helvetica, "sans-serif"', fontSize: '28px', fontStyle: 'bold', color: '0x000000' });
+    let titleText = this.add.text(400, 100, 'CRAZY 8 SMACKDOWN', this.titleTextStyle);
     titleText.setOrigin(0.5);
   }
 
@@ -53,39 +71,39 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add connection status text to the scene.
    */
   addConnectionStatus() {
-    let titleText = this.add.text(700, 550, 'Connected', { fontSize: '18px', fontStyle: 'bold', color: '#7FFFD4' });
-    titleText.setOrigin(0.5);
+    let statusText = this.add.text(750, 580, 'ONLINE', this.statusTextStyle);
+    statusText.setOrigin(0.5);
   }
 
   /**
-   * Add a room code input and label.
+   * Add a room code input and label to the scene.
    */
   addRoomCodeInput() {
-    let roomCodeLabel = this.add.text(225, 55, 'ROOM CODE', { fontSize: '18px', color: '0x000000' });
+    let roomCodeLabel = this.add.text(300, 200, 'ROOM CODE', this.labelTextStyle);
     roomCodeLabel.setOrigin(0.5);
 
-    roomCodeInput = this.add.dom(400, 50, 'input');
+    let roomCodeInput = this.add.dom(400, 240, 'input');
     roomCodeInput.setClassName('room-code-input');
     roomCodeInput.setInteractive();
   }
 
   /**
-   * Add a game token input and label.
+   * Add a player name input and label to the scene.
    */
   addNameInput() {
-    let nameLabel = this.add.text(225, 105, 'NAME', { fontSize: '18px', color: '0x000000' });
+    let nameLabel = this.add.text(270, 280, 'NAME', this.labelTextStyle);
     nameLabel.setOrigin(0.5);
 
-    nameInput = this.add.dom(400, 100, 'input');
+    let nameInput = this.add.dom(400, 320, 'input');
     nameInput.setClassName('name-input');
     nameInput.setInteractive();
   }
 
   /**
-   * Add a start game button that starts the game scene (GameScene.js).
+   * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.text(300, 400, 'CREATE GAME', { fontSize: '20px', color: '0x000000' });
+    let createGameButton = this.add.text(320, 380, 'CREATE GAME', this.labelTextStyle);
     createGameButton.setOrigin(0.5);
     createGameButton.setInteractive();
 
@@ -93,15 +111,16 @@ export default class MainMenuScene extends Phaser.Scene {
       // Generate a random byte token.
       // TODO: Should honestly be done on the server-side...
       Crypto.randomBytes(2, (err, buf) => {
-        console.log(`Random game token generated: ${buf.toString('hex')}`);
+        let roomCode = buf.toString('hex').toUpperCase();
         // Will need to create a game session from here, using the generated
         // buffer as the token to access this new Socket Room.
+         let roomCodeInput = dom.querySelector('.room-code-input')
+         roomCodeInput.value = roomCode;
       });
     });
 
     createGameButton.on('pointerover', () => {
-      createGameButton.setTintFill('0x6356c7');
-
+      createGameButton.setTintFill(0x8b8b8b);
     });
 
     createGameButton.on('pointerout', () => {
@@ -110,24 +129,33 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   /**
-   * Add a player setup button that starts the player setup scene
-   * (PlayerSetupScene.js).
+   * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
-  addJoinGameButton() {
-    let joinButton = this.add.text(500, 400, 'JOIN', { fontSize: '20px', color: '0x000000' });
-    joinButton.setOrigin(0.5);
-    joinButton.setInteractive();
+  addPlayButton() {
+    let playButton = this.add.text(520, 380, 'PLAY', this.labelTextStyle);
+    playButton.setOrigin(0.5);
+    playButton.setInteractive();
 
-    joinButton.on('pointerdown', () => {
-      this.scene.start('PlayerSetupScene');
+    playButton.on('pointerdown', () => {
+      let nameInputText = document.querySelector('.name-input');
+
+      if (nameInputText.value !== '') {
+        // Tell the server we're creating a new game room.
+        this.socket.emit('createRoom', roomCode);
+        // Start the player setup scene.
+        this.scene.start('PlayerSetupScene');
+      }
+      else {
+        // Err: name must not be empty...
+      }
     });
 
-    joinButton.on('pointerover', () => {
-      joinButton.setTintFill(0x87E0FF);
+    playButton.on('pointerover', () => {
+      playButton.setTintFill(0x8b8b8b);
     });
 
-    joinButton.on('pointerout', () => {
-      joinButton.clearTint();
+    playButton.on('pointerout', () => {
+      playButton.clearTint();
     });
   }
 }
