@@ -30,18 +30,16 @@ export default class MainMenuScene extends Phaser.Scene {
       fontFamily: 'Helvetica, "sans-serif"',
       fontSize: '18px',
       fontStyle: 'bold',
-      color: '000000'
+      color: '#000000'
     };
   }
 
   preload() {
-
+    // Currently does jack shit...
+    FontLoader.loadWebFontOpenSans();
   }
 
   create() {
-    // Currently does jack shit...
-    // FontLoader.loadWebFontOpenSans();
-
     this.addTitleText();
     this.addRoomCodeInput();
     this.addNameInput();
@@ -84,6 +82,8 @@ export default class MainMenuScene extends Phaser.Scene {
 
     let roomCodeInput = this.add.dom(400, 240, 'input');
     roomCodeInput.setClassName('room-code-input');
+    roomCodeInput.node.maxLength = 4;
+    roomCodeInput.node.placeholder = 'ENTER 4 CHARACTER CODE';
     roomCodeInput.setInteractive();
   }
 
@@ -96,6 +96,8 @@ export default class MainMenuScene extends Phaser.Scene {
 
     let nameInput = this.add.dom(400, 320, 'input');
     nameInput.setClassName('name-input');
+    nameInput.node.maxLength = 12;
+    nameInput.node.placeholder = 'ENTER YOUR NAME';
     nameInput.setInteractive();
   }
 
@@ -103,7 +105,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.text(320, 380, 'CREATE GAME', this.labelTextStyle);
+    let createGameButton = this.add.text(310, 380, 'CREATE GAME', this.labelTextStyle);
     createGameButton.setOrigin(0.5);
     createGameButton.setInteractive();
 
@@ -114,7 +116,7 @@ export default class MainMenuScene extends Phaser.Scene {
         let roomCode = buf.toString('hex').toUpperCase();
         // Will need to create a game session from here, using the generated
         // buffer as the token to access this new Socket Room.
-         let roomCodeInput = dom.querySelector('.room-code-input')
+         let roomCodeInput = document.querySelector('.room-code-input')
          roomCodeInput.value = roomCode;
       });
     });
@@ -137,13 +139,21 @@ export default class MainMenuScene extends Phaser.Scene {
     playButton.setInteractive();
 
     playButton.on('pointerdown', () => {
-      let nameInputText = document.querySelector('.name-input');
+      let nameInput = document.querySelector('.name-input');
+      let roomCodeInput = document.querySelector('.room-code-input');
 
-      if (nameInputText.value !== '') {
+      if (nameInput.value !== '' && roomCodeInput.value !== '') {
+        let roomCode = roomCodeInput.value;
         // Tell the server we're creating a new game room.
-        this.socket.emit('createRoom', roomCode);
+        this.socket.emit('joinRoom', roomCode);
+        // XXX: Uncomment this later, going to focus on other things before
+        // working on the player setup...
         // Start the player setup scene.
-        this.scene.start('PlayerSetupScene');
+        // this.scene.start('PlayerSetupScene', this.socket);
+
+
+
+        this.scene.start('GameScene', this.socket);
       }
       else {
         // Err: name must not be empty...

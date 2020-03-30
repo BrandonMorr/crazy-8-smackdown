@@ -28,7 +28,7 @@ export default class GameScene extends Phaser.Scene {
   /**
    * Generate the deck, setup players and initialize the game.
    */
-  create() {
+  create(socket) {
     this.gameOver = false;
     this.playerTurn = 3;
     this.checkHandForPlayableCards = true;
@@ -36,10 +36,12 @@ export default class GameScene extends Phaser.Scene {
     this.deck = new Deck(this);
 
     this.players = [];
-    this.players.push(new Player(this, (this.sys.game.config.width - 100), 100, 'jarred', 'green'));
-    this.players.push(new Player(this, (this.sys.game.config.width - 100), 200, 'willbert', 'blue'));
-    this.players.push(new Player(this, (this.sys.game.config.width - 100), 300, 'frank', 'purple'));
-    this.players.push(new Player(this, 100, 500, 'brandon', 'yellow'));
+
+    socket.on('new player', () => {
+      console.log('New player has connected!');
+
+      this.players.push(new Player(this, (this.sys.game.config.width - 100), 100, socket.name, 'blue'));
+    });
 
     this.initializeGame();
     this.buildWildCardDialog();

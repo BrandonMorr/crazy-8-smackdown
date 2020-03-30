@@ -12,7 +12,7 @@ module.exports = {
   node: {
     __dirname: false
   },
-  entry: './src/server/Server.js',
+  entry: './server.js',
   output: {
     path: path.join(public, 'js'),
     filename: 'server.bundle.js'
