@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Deck from '../objects/Deck.js';
 import Player from '../objects/Player.js';
 import Preload from '../utilities/Preload.js';
+import SocketUtils from '../utilities/SocketUtils.js';
 
 /**
  * @class - Game scene which contains the core game loop.
@@ -12,6 +13,11 @@ export default class GameScene extends Phaser.Scene {
     super({
       key: 'GameScene',
     });
+
+    this.players = [];
+
+    this.gameOver = false;
+    this.checkHandForPlayableCards = true;
   }
 
   /**
@@ -29,13 +35,11 @@ export default class GameScene extends Phaser.Scene {
    * Generate the deck, setup players and initialize the game.
    */
   create(socket) {
-    this.gameOver = false;
-    this.playerTurn = 3;
-    this.checkHandForPlayableCards = true;
+    // Create a player object and add it
+    this.players.push(new Player(this, 125, 500, socket.name));
 
+    // Request for other players in the room, display
     this.deck = new Deck(this);
-
-    this.players = [];
 
     socket.on('new player', () => {
       console.log('New player has connected!');
@@ -45,7 +49,6 @@ export default class GameScene extends Phaser.Scene {
 
     this.initializeGame();
     this.buildWildCardDialog();
-    this.addRestartButton();
   }
 
   /**
@@ -57,26 +60,25 @@ export default class GameScene extends Phaser.Scene {
 
     // Check if the last card has changed.
     if (this.checkLastPlayCardChange()) {
-
       // A turn has been made, let's make sure to make all the player's cards
       // non-interactive.
-      for (let card of this.players[this.playerTurn].hand) {
+      for (let card of this.players[0].hand) {
         card.removeAllListeners();
       }
 
       // Check for wildcard.
-      if (this.currentCardInPlay.value == this.players[this.playerTurn].countdown) {
+      if (this.currentCardInPlay.value == this.players[0].countdown) {
         this.wildCardDialogContainer.visible = true;
       }
     }
 
     // Check the player hand for playable cards.
     if (this.checkHandForPlayableCards) {
-      for (let card of this.players[this.playerTurn].hand) {
+      for (let card of this.players[0].hand) {
         let currentCardInPlay = this.deck.getLastPlayCard();
 
-        if (card.value == currentCardInPlay.value || card.suit == this.currentSuitInPlay || card.value == this.players[this.playerTurn].countdown) {
-          this.makeCardPlayable(card, this.players[this.playerTurn]);
+        if (card.value == currentCardInPlay.value || card.suit == this.currentSuitInPlay || card.value == this.players[0].countdown) {
+          this.makeCardPlayable(card, this.players[0]);
         }
       }
       // Flag that the hand has been checked.
@@ -329,26 +331,5 @@ export default class GameScene extends Phaser.Scene {
 
       offset += 20;
     }
-  }
-
-  /**
-   * Add a restart button to the scene, used for debugging.
-   */
-  addRestartButton() {
-    let restartButton = this.add.text(700, 525, 'Restart');
-    restartButton.setOrigin(0.5);
-    restartButton.setInteractive();
-
-    restartButton.on('pointerdown', () => {
-      this.scene.restart();
-    });
-
-    restartButton.on('pointerover', () => {
-      restartButton.setTint(0x6356c7);
-    });
-
-    restartButton.on('pointerout', () => {
-      restartButton.clearTint();
-    });
   }
 }

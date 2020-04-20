@@ -5,18 +5,23 @@ import Phaser from 'phaser';
  */
 export default class Player extends Phaser.GameObjects.Sprite {
 
-  constructor(scene, x, y, name, color) {
+  constructor(scene, x, y, name) {
     super(scene, x, y);
 
     this.name = name;
-    this.color = color;
     this.countdown = 8;
     this.hand = [];
+    this.nameTextStyle = {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: '#000000'
+    };
 
-    this.nameText = scene.add.text(x, y + 50, name);
+    this.nameText = scene.add.text(x, y + 50, name, this.nameTextStyle);
     this.nameText.setOrigin(0.5);
 
-    this.setTexture(`player_${this.color}`);
+    this.setTexture(`player_blue`);
   }
 
   /**

@@ -1,9 +1,13 @@
 import Http from 'http';
 import Path from 'path';
 import Helmet from 'helmet';
+import Crypto from 'crypto';
 import Express from 'express';
 import SocketIO from 'socket.io';
 import Compression from 'compression';
+
+// Array to track active rooms.
+var rooms = [];
 
 // Server setup.
 const app = Express();
@@ -25,10 +29,7 @@ app.get('/', function(request, response) {
 
 // Tell server to start listening for connections.
 server.listen(port, () => {
-  console.log('\n==> Server init complete, listening for connections on port ' + port + ' 🕺\n');
-
-  var rooms = [];
-  var players = [];
+  console.log('\n> server init complete, listening for connections on port ' + port + ' 🕺\n');
 
   // Start listening for events from client.
   setServerHandlers();
@@ -39,56 +40,86 @@ server.listen(port, () => {
  */
 function setServerHandlers() {
   io.on('connection', (socket) => {
-    console.log('==> Player has connected (ID: ' + socket.id + ')');
-    // Listen for new player events.
-    socket.on('new player', onNewPlayer);
-    // Listen for disconnect events.
+    console.log('> player has connected (id: ' + socket.id + ')');
+
+    socket.on('new game', onNewGame);
+
+    socket.on('join game', onJoinGame);
+
+    socket.on('deal cards', () => {
+      io.emit('dealCards');
+    });
+
+    socket.on('card played', (gameObject) => {
+        io.emit('cardPlayed', gameObject);
+    });
+
     socket.on('disconnect', onClientDisconnect);
-    // Build up a list of all current players, send the data to the client.
-    // io.to(socket.roomCode).emit('displayallplayers', getAllPlayers());
-    // Broadcast new player to other new players
-    // socket.broadcast.emit('new player', socket.player);
   });
 }
 
 /**
- * Callback function to handle a new player.
+ * Callback function to handle a new game.
  *
- * @param {Object} playerData - Object representing the player information.
+ * TODO: Implement some sort of error handling.
  */
-function onNewPlayer(playerData) {
-  this.player = {
-    id: player.socket.id,
-    name: player.name,
-    roomCode: player.roomCode
-  };
-  this.join(room);
+function onNewGame() {
+  // Generate a random token to be used as room code.
+  Crypto.randomBytes(2, (err, buf) => {
+    var roomCode = buf.toString('hex');
 
-  console.log('Player ' + this.player.name + ' connected to room ' + this.room);
+    // Connect the user to the room.
+    this.join(roomCode);
 
-  players.push(this.player);
+    // Add room to list of active rooms.
+    rooms.push(roomCode);
+
+    // Log it to the server.
+    console.log('> ' + this.name + ' (id: ' + this.id + ')' + ' created room: ' + roomCode);
+  });
+}
+
+/**
+ * Callback function to handle joining an existing game.
+ */
+function onJoinGame(roomCode) {
+  // Check to see if the supplied room code is actively in  use.
+  var foundRoom = rooms.find(room => room === roomCode);
+
+  // If room code is valid, connect the user.
+  if (foundRoom) {
+    this.join(roomCode);
+
+    console.log('> ' + playerName + ' (id: ' + this.id + ')' + ' joined room: ' + roomCode);
+  }
+  else {
+    // Err: room does not exist.
+  }
 }
 
 /**
  * Callback function to handle when a user disconnects.
+ *
+ * Check to see if clients current room is empty, if so remove it from the list
+ * of active rooms.
  */
 function onClientDisconnect() {
-  console.log('==> Player has disconnected (ID: ' + this.id + ')');
+  console.log('> player has disconnected (id: ' + this.id + ')');
 }
 
 /**
- * Return all players currently connected a given room.
+ * Print out all players currently connected to a room.
  */
-function getAllPlayersFromRoom(room) {
+function getAllPlayersFromRoom(roomCode) {
   var players = [];
 
-  Object.keys(io.sockets.adapter.rooms[room].sockets).forEach(function(socketId) {
-    var player = io.sockets.connected[socketId].id;
+  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(function(socketId) {
+    var player = io.sockets.connected[socketId].name;
 
     if (player) {
       players.push(player);
     }
   });
 
-  return players;
+  console.log(players);
 }

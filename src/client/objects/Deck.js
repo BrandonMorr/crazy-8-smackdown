@@ -37,9 +37,11 @@ export default class Deck extends Phaser.GameObjects.Group {
     let deck = [];
     let backColor = Phaser.Math.RND.pick(backColors);
 
+    let middleY = scene.cameras.main.height / 2;
+
     for (let i = 0; i < suits.length; i++) {
       for (let ii = 0; ii < values.length; ii++) {
-        deck.push(new Card(scene, (125 + i), (125 + i), suits[i], values[ii], `${values[ii]} of ${suits[i]}`, backColor));
+        deck.push(new Card(scene, (125 + i), (middleY + i), suits[i], values[ii], `${values[ii]} of ${suits[i]}`, backColor));
       }
     }
 

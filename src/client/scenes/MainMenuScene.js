@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import Crypto from 'crypto';
 import SocketIO from 'socket.io-client';
 import FontLoader from '../utilities/FontLoader';
 
@@ -44,7 +43,7 @@ export default class MainMenuScene extends Phaser.Scene {
     this.addRoomCodeInput();
     this.addNameInput();
     this.addCreateGameButton();
-    this.addPlayButton();
+    this.addJoinButton();
 
     // Should probably move this into a SocketIO class eventually.
     this.socket = SocketIO();
@@ -74,31 +73,31 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   /**
-   * Add a room code input and label to the scene.
-   */
-  addRoomCodeInput() {
-    let roomCodeLabel = this.add.text(300, 200, 'ROOM CODE', this.labelTextStyle);
-    roomCodeLabel.setOrigin(0.5);
-
-    let roomCodeInput = this.add.dom(400, 240, 'input');
-    roomCodeInput.setClassName('room-code-input');
-    roomCodeInput.node.maxLength = 4;
-    roomCodeInput.node.placeholder = 'ENTER 4 CHARACTER CODE';
-    roomCodeInput.setInteractive();
-  }
-
-  /**
    * Add a player name input and label to the scene.
    */
   addNameInput() {
-    let nameLabel = this.add.text(270, 280, 'NAME', this.labelTextStyle);
+    let nameLabel = this.add.text(270, 200, 'NAME', this.labelTextStyle);
     nameLabel.setOrigin(0.5);
 
-    let nameInput = this.add.dom(400, 320, 'input');
+    let nameInput = this.add.dom(400, 240, 'input');
     nameInput.setClassName('name-input');
     nameInput.node.maxLength = 12;
     nameInput.node.placeholder = 'ENTER YOUR NAME';
     nameInput.setInteractive();
+  }
+
+  /**
+   * Add a room code input and label to the scene.
+   */
+  addRoomCodeInput() {
+    let roomCodeLabel = this.add.text(300, 280, 'ROOM CODE', this.labelTextStyle);
+    roomCodeLabel.setOrigin(0.5);
+
+    let roomCodeInput = this.add.dom(400, 320, 'input');
+    roomCodeInput.setClassName('room-code-input');
+    roomCodeInput.node.maxLength = 4;
+    roomCodeInput.node.placeholder = 'ENTER 4 CHARACTER CODE';
+    roomCodeInput.setInteractive();
   }
 
   /**
@@ -110,15 +109,17 @@ export default class MainMenuScene extends Phaser.Scene {
     createGameButton.setInteractive();
 
     createGameButton.on('pointerdown', () => {
-      // Generate a random byte token.
-      // TODO: Should honestly be done on the server-side...
-      Crypto.randomBytes(2, (err, buf) => {
-        let roomCode = buf.toString('hex').toUpperCase();
-        // Will need to create a game session from here, using the generated
-        // buffer as the token to access this new Socket Room.
-         let roomCodeInput = document.querySelector('.room-code-input')
-         roomCodeInput.value = roomCode;
-      });
+      let playerName = document.querySelector('.name-input').value;
+
+      if (playerName !== '') {
+        // Tell the server who we are and that we're creating a new game.
+        this.socket.name = playerName.toUpperCase();
+        this.socket.emit('new game');
+        this.scene.start('GameScene', this.socket);
+      }
+      else {
+        // Err: name must not be empty.
+      }
     });
 
     createGameButton.on('pointerover', () => {
@@ -133,30 +134,27 @@ export default class MainMenuScene extends Phaser.Scene {
   /**
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
-  addPlayButton() {
-    let playButton = this.add.text(520, 380, 'PLAY', this.labelTextStyle);
+  addJoinButton() {
+    let playButton = this.add.text(520, 380, 'JOIN', this.labelTextStyle);
     playButton.setOrigin(0.5);
     playButton.setInteractive();
 
     playButton.on('pointerdown', () => {
-      let nameInput = document.querySelector('.name-input');
-      let roomCodeInput = document.querySelector('.room-code-input');
+      let playerName = document.querySelector('.name-input').value;
+      let roomCode = document.querySelector('.room-code-input').value;
 
-      if (nameInput.value !== '' && roomCodeInput.value !== '') {
-        let roomCode = roomCodeInput.value;
-        // Tell the server we're creating a new game room.
-        this.socket.emit('joinRoom', roomCode);
+      if (playerName !== '' && roomCode !== '') {
+        // Tell the server who we are and that we're joining an existing game.
+        this.socket.name = playerName.toUpperCase();
+        this.socket.emit('join game', roomCode);
+        this.scene.start('GameScene', this.socket);
         // XXX: Uncomment this later, going to focus on other things before
         // working on the player setup...
         // Start the player setup scene.
         // this.scene.start('PlayerSetupScene', this.socket);
-
-
-
-        this.scene.start('GameScene', this.socket);
       }
       else {
-        // Err: name must not be empty...
+        // Err: name & room must not be empty...
       }
     });
 
