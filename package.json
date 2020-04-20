@@ -30,7 +30,7 @@
   "homepage": "https://github.com/BrandonMorr/crazy-8-smackdown#readme",
   "devDependencies": {
     "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^1.0.1",
     "eslint": "^6.8.0",
