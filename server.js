@@ -49,7 +49,7 @@ function setServerHandlers() {
 }
 
 /**
- * Callback function to handle a new game.
+ * Callback to handle creating a new game.
  */
 function onNewGame() {
   // Generate a random token to be used as room code.
@@ -70,7 +70,7 @@ function onNewGame() {
 }
 
 /**
- * Callback function to handle joining an existing game.
+ * Callback to handle joining an existing game.
  */
 function onJoinGame(roomCode) {
   // Check to see if the supplied room code is actively in  use.
@@ -92,7 +92,7 @@ function onJoinGame(roomCode) {
 }
 
 /**
- * Notify other players that a new player has connected.
+ * Callback to notify other players that a new player has connected.
  */
 function onNewPlayer(playerName, roomCode) {
   this.name = playerName;
@@ -106,7 +106,7 @@ function onNewPlayer(playerName, roomCode) {
 }
 
 /**
- *
+ * Callback to notify players that a player is ready to smack down.
  */
 function onPlayerReady(playerName, roomCode) {
   // Let everyone else know you're ready.
