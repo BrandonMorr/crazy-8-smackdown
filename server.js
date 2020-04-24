@@ -29,7 +29,7 @@ app.get('/', function(request, response) {
 
 // Tell server to start listening for connections.
 server.listen(port, () => {
-  console.log('\n> server init complete, listening for connections on port ' + port + ' 🕺\n');
+  console.log('\n🕺 server init complete, listening for connections on port ' + port + ' 🕺\n');
 
   // Start listening for events from client.
   setServerHandlers();
@@ -40,28 +40,16 @@ server.listen(port, () => {
  */
 function setServerHandlers() {
   io.on('connection', (socket) => {
-    console.log('> player has connected (id: ' + socket.id + ')');
-
     socket.on('new game', onNewGame);
-
     socket.on('join game', onJoinGame);
-
-    socket.on('deal cards', () => {
-      io.emit('dealCards');
-    });
-
-    socket.on('card played', (gameObject) => {
-        io.emit('cardPlayed', gameObject);
-    });
-
-    socket.on('disconnect', onClientDisconnect);
+    socket.on('new player', onNewPlayer);
+    socket.on('player ready', onPlayerReady);
+    socket.on('disconnect', onDisconnect);
   });
 }
 
 /**
  * Callback function to handle a new game.
- *
- * TODO: Implement some sort of error handling.
  */
 function onNewGame() {
   // Generate a random token to be used as room code.
@@ -74,8 +62,10 @@ function onNewGame() {
     // Add room to list of active rooms.
     rooms.push(roomCode);
 
-    // Log it to the server.
-    console.log('> ' + this.name + ' (id: ' + this.id + ')' + ' created room: ' + roomCode);
+    // Send the room code back to the client.
+    io.emit('room code', roomCode);
+
+    console.log('[' + this.id + '] created room: ' + roomCode);
   });
 }
 
@@ -88,13 +78,39 @@ function onJoinGame(roomCode) {
 
   // If room code is valid, connect the user.
   if (foundRoom) {
+    // Connect the user to the room.
     this.join(roomCode);
 
-    console.log('> ' + playerName + ' (id: ' + this.id + ')' + ' joined room: ' + roomCode);
+    // Send the room code back to the client.
+    this.emit('room code', roomCode);
+
+    console.log('[' + this.id + '] joined room: ' + roomCode);
   }
   else {
     // Err: room does not exist.
   }
+}
+
+/**
+ * Notify other players that a new player has connected.
+ */
+function onNewPlayer(playerName, roomCode) {
+  this.name = playerName;
+  this.roomCode = roomCode;
+
+  // Build up a list of all current players, send the data to the client.
+  this.emit('get players', getPlayersInRoom(this.name, roomCode));
+
+  // Broadcast new player to other new players.
+  this.broadcast.to(roomCode).emit('new player', playerName);
+}
+
+/**
+ *
+ */
+function onPlayerReady(playerName, roomCode) {
+  // Let everyone else know you're ready.
+  this.broadcast.to(roomCode).emit('player ready', playerName);
 }
 
 /**
@@ -103,23 +119,26 @@ function onJoinGame(roomCode) {
  * Check to see if clients current room is empty, if so remove it from the list
  * of active rooms.
  */
-function onClientDisconnect() {
-  console.log('> player has disconnected (id: ' + this.id + ')');
+function onDisconnect() {
+  if (this.roomCode) {
+    io.to(this.roomCode).emit('player quit', this.name);
+  }
+  console.log('[' + this.id + '] has disconnected');
 }
 
 /**
- * Print out all players currently connected to a room.
+ * Return all other players currently connected to a room.
  */
-function getAllPlayersFromRoom(roomCode) {
+function getPlayersInRoom(playerName, roomCode) {
   var players = [];
 
-  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(function(socketId) {
-    var player = io.sockets.connected[socketId].name;
+  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(function(id) {
+    var player = io.sockets.connected[id].name;
 
     if (player) {
       players.push(player);
     }
   });
 
-  console.log(players);
+  return players;
 }

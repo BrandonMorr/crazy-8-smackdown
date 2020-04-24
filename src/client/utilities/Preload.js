@@ -31,10 +31,8 @@ export default class Preload {
    * @param {Phaser.Scene} scene - The phaser scene object.
    */
   static loadPlayers(scene) {
-    const colors = [ 'black', 'blue', 'green', 'purple', 'red', 'white', 'yellow' ];
-
-    for (const color of colors) {
-      scene.load.image(`player_${color}`, `public/assets/player/player_${color}.png`);
+    for (let i = 1; i <= 4; i++) {
+      scene.load.image(`player_${i}`, `public/assets/player/player_${i}.png`);
     }
   }
 

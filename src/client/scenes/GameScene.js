@@ -15,9 +15,9 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.players = [];
-
     this.gameOver = false;
-    this.checkHandForPlayableCards = true;
+    this.gameStarted = false;
+    this.checkHandForPlayableCards = false;
   }
 
   /**
@@ -35,26 +35,59 @@ export default class GameScene extends Phaser.Scene {
    * Generate the deck, setup players and initialize the game.
    */
   create(socket) {
-    // Create a player object and add it
-    this.players.push(new Player(this, 125, 500, socket.name));
+    this.socket = socket;
 
-    // Request for other players in the room, display
-    this.deck = new Deck(this);
+    // Create local player's Player object and add it to players array.
+    this.player = new Player(this, 100, 500, this.socket.name);
+    this.players.push(this.player);
 
-    socket.on('new player', () => {
-      console.log('New player has connected!');
+    // Notify other players that we are connected.
+    this.socket.emit('new player', this.player.name, this.socket.roomCode);
 
-      this.players.push(new Player(this, (this.sys.game.config.width - 100), 100, socket.name, 'blue'));
+    // Handler for new player connections.
+    this.socket.on('new player', (playerName) => {
+      this.players.push(new Player(this, this.calculatePlayerX(), 100, playerName));
     });
 
-    this.initializeGame();
-    this.buildWildCardDialog();
+    // Handler for getting all the players.
+    this.socket.on('get players', (players) => {
+      for (let playerName of players) {
+        if (playerName !== this.player.name) {
+          this.players.push(new Player(this, this.calculatePlayerX(), 100, playerName));
+        }
+      }
+    });
+
+    this.socket.on('player ready', (playerName) => {
+      console.log(playerName + 'IS READY WOO');
+      for (let player of this.players) {
+        if (player.name === playerName) {
+          console.log('AND WE GON SHOW IT');
+          player.playerReady();
+        }
+      }
+    })
+
+    // Handler for removing a player who has disconnected.
+    this.socket.on('player quit', (playerName) => {
+      for (let player of this.players) {
+        if (player.name === playerName) {
+          player.removePlayer();
+        }
+      }
+
+      // Remove player from players array.
+      this.players = this.players.filter((player) => player.name !== playerName);
+    });
+
+    this.addReadyButton();
   }
 
   /**
    * Game logic will go in here.
    */
   update() {
+    /*
     // Check if the game is over.
     this.checkGameOver();
 
@@ -84,6 +117,7 @@ export default class GameScene extends Phaser.Scene {
       // Flag that the hand has been checked.
       this.checkHandForPlayableCards = false;
     }
+    */
   }
 
   /**
@@ -100,7 +134,6 @@ export default class GameScene extends Phaser.Scene {
 
     for (let i = 0; i <= 7; i++) {
       for (let player of this.players) {
-
         // Deal the card to player.
         this.dealCardsToPlayer(player);
 
@@ -133,7 +166,6 @@ export default class GameScene extends Phaser.Scene {
    */
   checkGameOver() {
     for (let player of this.players) {
-
       // If the countdown is at 0, that's it... GAME OVER!
       if (player.countdown === 0) {
         this.gameOver = true;
@@ -332,4 +364,43 @@ export default class GameScene extends Phaser.Scene {
       offset += 20;
     }
   }
+
+  calculatePlayerX() {
+    if (this.players.length === 1) {
+      return 100;
+    }
+    else if (this.players.length === 2) {
+      return 300;
+    }
+    else {
+      return 500;
+    }
+  }
+
+  /**
+  * Add a restart button to the scene, used for debugging.
+  */
+ addReadyButton() {
+   this.readyButton = this.add.text(700, 525, 'READY', {
+     fontFamily: 'Helvetica, "sans-serif"',
+     fontSize: '20px',
+     fontStyle: 'bold',
+     color: '#000000'
+   });
+   this.readyButton.setOrigin(0.5);
+   this.readyButton.setInteractive();
+
+   this.readyButton.on('pointerdown', () => {
+     this.socket.emit('player ready', this.player.name, this.socket.roomCode);
+     this.player.playerReady();
+   });
+
+   this.readyButton.on('pointerover', () => {
+     this.readyButton.setTintFill(0x8b8b8b);
+   });
+
+   this.readyButton.on('pointerout', () => {
+     this.readyButton.clearTint();
+   });
+ }
 }

@@ -11,17 +11,20 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.name = name;
     this.countdown = 8;
     this.hand = [];
-    this.nameTextStyle = {
+    this.ready = false;
+
+    this.nameText = this.scene.add.text(x, y + 60, name, {
       fontFamily: 'Helvetica, "sans-serif"',
       fontSize: '20px',
       fontStyle: 'bold',
       color: '#000000'
-    };
-
-    this.nameText = scene.add.text(x, y + 50, name, this.nameTextStyle);
+    });
     this.nameText.setOrigin(0.5);
 
-    this.setTexture(`player_blue`);
+    const playerNum = Phaser.Math.RND.between(1, 4);
+    this.setTexture(`player_${playerNum}`);
+
+    this.scene.add.existing(this);
   }
 
   /**
@@ -66,5 +69,29 @@ export default class Player extends Phaser.GameObjects.Sprite {
    */
   addCardToHand(card) {
     this.hand.push(card);
+  }
+
+  /**
+   * Add text to show player is ready smack down.
+   */
+   playerReady() {
+     this.readyText = this.scene.add.text(this.x, this.y + 85, 'READY', {
+       fontFamily: 'Helvetica, "sans-serif"',
+       fontSize: '14px',
+       color: '#99ff99'
+     });
+     this.readyText.setOrigin(0.5);
+
+     this.ready = true;
+   }
+
+  /**
+   * Remove any player-relavant stuff from scene.
+   */
+  removePlayer() {
+    this.nameText.destroy();
+    this.readyText.destroy();
+    this.destroy();
+    // Cya :-D
   }
 }

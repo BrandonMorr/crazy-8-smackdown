@@ -45,10 +45,16 @@ export default class MainMenuScene extends Phaser.Scene {
     this.addCreateGameButton();
     this.addJoinButton();
 
-    // Should probably move this into a SocketIO class eventually.
-    this.socket = SocketIO();
+    this.socket = new SocketIO();
+
     this.socket.on('connect', () => {
       this.addConnectionStatus();
+    });
+
+    // TODO: not this...
+    this.socket.on('room code', (roomCode) => {
+      this.socket.roomCode = roomCode;
+      console.log(roomCode);
     });
   }
 
@@ -115,6 +121,7 @@ export default class MainMenuScene extends Phaser.Scene {
         // Tell the server who we are and that we're creating a new game.
         this.socket.name = playerName.toUpperCase();
         this.socket.emit('new game');
+
         this.scene.start('GameScene', this.socket);
       }
       else {
@@ -147,6 +154,7 @@ export default class MainMenuScene extends Phaser.Scene {
         // Tell the server who we are and that we're joining an existing game.
         this.socket.name = playerName.toUpperCase();
         this.socket.emit('join game', roomCode);
+
         this.scene.start('GameScene', this.socket);
         // XXX: Uncomment this later, going to focus on other things before
         // working on the player setup...
