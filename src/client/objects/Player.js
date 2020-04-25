@@ -21,9 +21,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
     });
     this.nameText.setOrigin(0.5);
 
-    const playerNum = Phaser.Math.RND.between(1, 4);
-    this.setTexture(`player_${playerNum}`);
-
     this.scene.add.existing(this);
   }
 
@@ -85,13 +82,25 @@ export default class Player extends Phaser.GameObjects.Sprite {
      this.ready = true;
    }
 
+   /**
+    * Will remove this in the future.
+    */
+   setPlayerTexture(playerNumber) {
+     this.setTexture(`player_${playerNumber}`);
+   }
+
   /**
    * Remove any player-relavant stuff from scene.
    */
   removePlayer() {
-    this.nameText.destroy();
-    this.readyText.destroy();
-    this.destroy();
-    // Cya :-D
+    if (this.nameText) {
+      this.nameText.destroy();
+    }
+
+    if (this.readyText) {
+      this.readyText.destroy();
+    }
+
+    this.destroy(); // Cya doods!
   }
 }

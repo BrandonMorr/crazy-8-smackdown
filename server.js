@@ -63,7 +63,7 @@ function onNewGame() {
     rooms.push(roomCode);
 
     // Send the room code back to the client.
-    io.emit('room code', roomCode);
+    this.emit('room code', roomCode);
 
     console.log('[' + this.id + '] created room: ' + roomCode);
   });
@@ -87,30 +87,49 @@ function onJoinGame(roomCode) {
     console.log('[' + this.id + '] joined room: ' + roomCode);
   }
   else {
-    // Err: room does not exist.
+    // TODO: emit some sort of error message back to the client.
+    // something like...
+    // this.emit('error room does not exist', roomCode);
   }
 }
 
 /**
  * Callback to notify other players that a new player has connected.
+ *
+ * Send the client back a list of existing players in the room.
  */
 function onNewPlayer(playerName, roomCode) {
-  this.name = playerName;
-  this.roomCode = roomCode;
+  this.player = {
+    name: playerName,
+    roomCode: roomCode,
+    ready: false
+  }
 
   // Build up a list of all current players, send the data to the client.
-  this.emit('get players', getPlayersInRoom(this.name, roomCode));
+  this.emit('get players', getPlayersInRoom(roomCode));
 
   // Broadcast new player to other new players.
-  this.broadcast.to(roomCode).emit('new player', playerName);
+  this.broadcast.to(roomCode).emit('new player', this.player);
 }
 
 /**
  * Callback to notify players that a player is ready to smack down.
+ *
+ * Check to see if all players are ready and if so notify everyone that the
+ * game has begun.
  */
 function onPlayerReady(playerName, roomCode) {
+  this.player.ready = true;
+
   // Let everyone else know you're ready.
-  this.broadcast.to(roomCode).emit('player ready', playerName);
+  this.broadcast.to(this.player.roomCode).emit('player ready', this.player.name);
+
+  // Check to see if all players are ready.
+  if (checkAllPlayersReady(this.player.roomCode)) {
+    // TODO: should store some sort of gameStarted property on the room
+    // server-side so we can prevent any people from joining.
+    io.to(this.player.roomCode).emit('game start');
+  }
 }
 
 /**
@@ -120,20 +139,44 @@ function onPlayerReady(playerName, roomCode) {
  * of active rooms.
  */
 function onDisconnect() {
-  if (this.roomCode) {
-    io.to(this.roomCode).emit('player quit', this.name);
+  // Check to see if the socket has a player data object.
+  if ('player' in this) {
+    // Alert others of the disconnected player.
+    io.to(this.player.roomCode).emit('player quit', this.player.name);
   }
+
   console.log('[' + this.id + '] has disconnected');
+}
+
+/**
+ * Check and return whether all players are ready to play.
+ */
+function checkAllPlayersReady(roomCode) {
+  var players = getPlayersInRoom(roomCode);
+
+  // Only continue if there is 2 or more players.
+  if (players.length >= 2) {
+    // See if any players are not ready.
+    if (players.find(player => player.ready === false)) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+  else {
+    return false;
+  }
 }
 
 /**
  * Return all other players currently connected to a room.
  */
-function getPlayersInRoom(playerName, roomCode) {
+function getPlayersInRoom(roomCode) {
   var players = [];
 
-  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(function(id) {
-    var player = io.sockets.connected[id].name;
+  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(id => {
+    var player = io.sockets.connected[id].player;
 
     if (player) {
       players.push(player);

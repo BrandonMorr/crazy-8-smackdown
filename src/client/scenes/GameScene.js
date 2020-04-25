@@ -40,42 +40,48 @@ export default class GameScene extends Phaser.Scene {
     // Create local player's Player object and add it to players array.
     this.player = new Player(this, 100, 500, this.socket.name);
     this.players.push(this.player);
+    // NOTE: remove this at some point, will use more dynamic avatars.
+    this.player.setPlayerTexture(this.players.length);
 
     // Notify other players that we are connected.
     this.socket.emit('new player', this.player.name, this.socket.roomCode);
 
     // Handler for new player connections.
-    this.socket.on('new player', (playerName) => {
-      this.players.push(new Player(this, this.calculatePlayerX(), 100, playerName));
+    this.socket.on('new player', (player) => {
+      this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
+      // NOTE: remove this at some point, will use more dynamic avatars.
+      this.players[this.players.length - 1].setPlayerTexture(this.players.length);
     });
 
-    // Handler for getting all the players.
+    // Handler for getting all the other players.
     this.socket.on('get players', (players) => {
-      for (let playerName of players) {
-        if (playerName !== this.player.name) {
-          this.players.push(new Player(this, this.calculatePlayerX(), 100, playerName));
+      for (let player of players) {
+        // We only want to add other players.
+        if (player.name !== this.player.name) {
+          this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
+          // NOTE: remove this at some point, will use more dynamic avatars.
+          this.players[this.players.length - 1].setPlayerTexture(this.players.length);
         }
       }
     });
 
     this.socket.on('player ready', (playerName) => {
-      console.log(playerName + 'IS READY WOO');
-      for (let player of this.players) {
-        if (player.name === playerName) {
-          console.log('AND WE GON SHOW IT');
-          player.playerReady();
-        }
-      }
+      let player = this.getPlayerByName(playerName);
+      player.playerReady();
+    });
+
+    this.socket.on('game start', () => {
+      this.gameStarted = true;
+      // Remove the 'READY' text on each player.
+      this.players.forEach((player) => {
+        player.readyText.destroy();
+      })
     })
 
     // Handler for removing a player who has disconnected.
     this.socket.on('player quit', (playerName) => {
-      for (let player of this.players) {
-        if (player.name === playerName) {
-          player.removePlayer();
-        }
-      }
-
+      // Remove the player from the scene.
+      this.getPlayerByName(playerName).removePlayer();
       // Remove player from players array.
       this.players = this.players.filter((player) => player.name !== playerName);
     });
@@ -87,37 +93,38 @@ export default class GameScene extends Phaser.Scene {
    * Game logic will go in here.
    */
   update() {
-    /*
-    // Check if the game is over.
-    this.checkGameOver();
+    if (this.gameStarted) {
+      // Check if the game is over.
+      // this.checkGameOver();
+      /*
+      // Check if the last card has changed.
+      if (this.checkLastPlayCardChange()) {
+        // A turn has been made, let's make sure to make all the player's cards
+        // non-interactive.
+        for (let card of this.players[0].hand) {
+          card.removeAllListeners();
+        }
 
-    // Check if the last card has changed.
-    if (this.checkLastPlayCardChange()) {
-      // A turn has been made, let's make sure to make all the player's cards
-      // non-interactive.
-      for (let card of this.players[0].hand) {
-        card.removeAllListeners();
-      }
-
-      // Check for wildcard.
-      if (this.currentCardInPlay.value == this.players[0].countdown) {
-        this.wildCardDialogContainer.visible = true;
-      }
-    }
-
-    // Check the player hand for playable cards.
-    if (this.checkHandForPlayableCards) {
-      for (let card of this.players[0].hand) {
-        let currentCardInPlay = this.deck.getLastPlayCard();
-
-        if (card.value == currentCardInPlay.value || card.suit == this.currentSuitInPlay || card.value == this.players[0].countdown) {
-          this.makeCardPlayable(card, this.players[0]);
+        // Check for wildcard.
+        if (this.currentCardInPlay.value == this.players[0].countdown) {
+          this.wildCardDialogContainer.visible = true;
         }
       }
-      // Flag that the hand has been checked.
-      this.checkHandForPlayableCards = false;
+
+      // Check the player hand for playable cards.
+      if (this.checkHandForPlayableCards) {
+        for (let card of this.players[0].hand) {
+          let currentCardInPlay = this.deck.getLastPlayCard();
+
+          if (card.value == currentCardInPlay.value || card.suit == this.currentSuitInPlay || card.value == this.players[0].countdown) {
+            this.makeCardPlayable(card, this.players[0]);
+          }
+        }
+        // Flag that the hand has been checked.
+        this.checkHandForPlayableCards = false;
+      }
+      */
     }
-    */
   }
 
   /**
@@ -370,18 +377,25 @@ export default class GameScene extends Phaser.Scene {
       return 100;
     }
     else if (this.players.length === 2) {
-      return 300;
+      return 400;
     }
     else {
-      return 500;
+      return 700;
     }
   }
 
   /**
-  * Add a restart button to the scene, used for debugging.
-  */
- addReadyButton() {
-   this.readyButton = this.add.text(700, 525, 'READY', {
+   * Return a player by their name property.
+   */
+  getPlayerByName(playerName) {
+    return this.players.find((player) => player.name === playerName);
+  }
+
+  /**
+   * Add a restart button to the scene, used for debugging.
+   */
+  addReadyButton() {
+   this.readyButton = this.add.text(700, 500, 'READY', {
      fontFamily: 'Helvetica, "sans-serif"',
      fontSize: '20px',
      fontStyle: 'bold',
@@ -391,8 +405,10 @@ export default class GameScene extends Phaser.Scene {
    this.readyButton.setInteractive();
 
    this.readyButton.on('pointerdown', () => {
-     this.socket.emit('player ready', this.player.name, this.socket.roomCode);
+     this.socket.emit('player ready');
      this.player.playerReady();
+     // TODO: toggle ready/unready.
+     this.readyButton.destroy();
    });
 
    this.readyButton.on('pointerover', () => {
@@ -402,5 +418,5 @@ export default class GameScene extends Phaser.Scene {
    this.readyButton.on('pointerout', () => {
      this.readyButton.clearTint();
    });
- }
+  }
 }
