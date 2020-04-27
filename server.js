@@ -44,57 +44,67 @@ function setServerHandlers() {
     socket.on('join game', onJoinGame);
     socket.on('new player', onNewPlayer);
     socket.on('player ready', onPlayerReady);
+    socket.on('card played', onCardPlayed);
     socket.on('disconnect', onDisconnect);
   });
 }
 
 /**
- * Callback to handle creating a new game.
+ * Handle creating a new game.
  */
 function onNewGame() {
   // Generate a random token to be used as room code.
   Crypto.randomBytes(2, (err, buf) => {
-    var roomCode = buf.toString('hex');
+    var room = {
+      roomCode: buf.toString('hex'),
+      gameStarted: false,
+      gameOver: false,
+      playerOrder: [],
+      playerTurn: 0
+    }
 
     // Connect the user to the room.
-    this.join(roomCode);
-
-    // Add room to list of active rooms.
-    rooms.push(roomCode);
+    this.join(room.roomCode);
 
     // Send the room code back to the client.
-    this.emit('room code', roomCode);
+    this.emit('room code', room.roomCode);
 
-    console.log('[' + this.id + '] created room: ' + roomCode);
+    // Add room to list of active rooms.
+    rooms[room.roomCode] = room;
   });
 }
 
 /**
- * Callback to handle joining an existing game.
+ * Handle joining an existing game.
  */
 function onJoinGame(roomCode) {
-  // Check to see if the supplied room code is actively in  use.
-  var foundRoom = rooms.find(room => room === roomCode);
+  // Check to see if the supplied room code is actively in use.
+  var foundRoom = Object.keys(rooms).find(room => room === roomCode);
 
-  // If room code is valid, connect the user.
+  // If room code is valid and the game hasn't started, connect the user.
   if (foundRoom) {
-    // Connect the user to the room.
-    this.join(roomCode);
+    if (rooms[foundRoom].gameStarted === false) {
+      // Connect the user to the room.
+      this.join(roomCode);
 
-    // Send the room code back to the client.
-    this.emit('room code', roomCode);
-
-    console.log('[' + this.id + '] joined room: ' + roomCode);
+      // Send the room code back to the client.
+      this.emit('room code', roomCode);
+    }
+    else {
+      // TODO: emit some sort of error message back to the client.
+      // something like...
+      // this.emit('error game in progress');
+    }
   }
   else {
     // TODO: emit some sort of error message back to the client.
     // something like...
-    // this.emit('error room does not exist', roomCode);
+    // this.emit('error room does not exist');
   }
 }
 
 /**
- * Callback to notify other players that a new player has connected.
+ * Notify others that a new player has connected.
  *
  * Send the client back a list of existing players in the room.
  */
@@ -113,30 +123,58 @@ function onNewPlayer(playerName, roomCode) {
 }
 
 /**
- * Callback to notify players that a player is ready to smack down.
+ * Notify others that a player is ready to smack down.
  *
- * Check to see if all players are ready and if so notify everyone that the
- * game has begun.
+ * If all players are ready, randomly pick a player to go first and notify all
+ * players that the game has stared.
  */
-function onPlayerReady(playerName, roomCode) {
+function onPlayerReady(playerName) {
   this.player.ready = true;
 
-  // Let everyone else know you're ready.
-  this.broadcast.to(this.player.roomCode).emit('player ready', this.player.name);
+  // Let everyone else know the player is ready.
+  this.broadcast.to(this.player.roomCode).emit('show player ready', this.player.name);
 
   // Check to see if all players are ready.
   if (checkAllPlayersReady(this.player.roomCode)) {
-    // TODO: should store some sort of gameStarted property on the room
-    // server-side so we can prevent any people from joining.
-    io.to(this.player.roomCode).emit('game start');
+    // Flag that the room's game has started.
+    rooms[this.player.roomCode].gameStarted = true;
+
+    // Notify everyone that the game has started.
+    io.to(this.player.roomCode).emit('game started');
+
+    // Determine the player order.
+    rooms[this.player.roomCode].playerOrder = determinePlayerOrder(this.player.roomCode);
+
+    // Notify all players who's turn it is.
+    io.to(this.player.roomCode).emit('show player turn', rooms[this.player.roomCode].playerOrder[0]);
   }
 }
 
 /**
- * Callback function to handle when a user disconnects.
+ * Notify players that a turn has been made, move to next player.
+ */
+function onCardPlayed() {
+  var roomCode = this.player.roomCode;
+  var playerTurn = rooms[roomCode].playerOrder.length - 1;
+
+  // Let everyone know that the player has played a card.
+  this.broadcast.to(roomCode).emit('show card played', this.player);
+
+  // If the last player has played, reset back to first. Otherwise move to next player.
+  rooms[roomCode].playerTurn === playerTurn ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
+
+  // Grab the next player to play.
+  var player = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
+
+  // Notify everyone who is going to play next.
+  io.to(roomCode).emit('show player turn', player);
+}
+
+/**
+ * Handle user disconnection, notify others who left.
  *
- * Check to see if clients current room is empty, if so remove it from the list
- * of active rooms.
+ * TODO: handle reomving the player from the playerOrder property in the rooms
+ * array.
  */
 function onDisconnect() {
   // Check to see if the socket has a player data object.
@@ -170,13 +208,32 @@ function checkAllPlayersReady(roomCode) {
 }
 
 /**
- * Return all other players currently connected to a room.
+ * Determine who plays in what order.
+ */
+function determinePlayerOrder(roomCode) {
+  var players = getPlayersInRoom(roomCode);
+
+  // Fisher Yates shuffle implementation, probably overkill but whateva.
+  for (var i = players.length - 1; i > 0; i--) {
+    var randomIndex = Math.floor(Math.random() * (i + 1));
+    var itemAtIndex = players[randomIndex];
+
+    players[randomIndex] = players[i];
+    players[i] = itemAtIndex;
+  }
+
+  return players;
+}
+
+/**
+ * Return all players currently connected to a room.
  */
 function getPlayersInRoom(roomCode) {
   var players = [];
 
-  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(id => {
-    var player = io.sockets.connected[id].player;
+  // Loop over sockets connected to a room, return all players found.
+  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(socket => {
+    var player = io.sockets.connected[socket].player;
 
     if (player) {
       players.push(player);

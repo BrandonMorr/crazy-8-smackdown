@@ -30,7 +30,7 @@ export default class Deck extends Phaser.GameObjects.Group {
    *
    */
   generateDeck(scene) {
-    const values = [ 'a', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'k', 'q' ];
+    const values = [ 'a', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k' ];
     const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
     const backColors = [ 'blue', 'green', 'red' ];
 

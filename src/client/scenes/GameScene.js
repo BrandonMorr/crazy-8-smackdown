@@ -40,20 +40,21 @@ export default class GameScene extends Phaser.Scene {
     // Create local player's Player object and add it to players array.
     this.player = new Player(this, 100, 500, this.socket.name);
     this.players.push(this.player);
+
     // NOTE: remove this at some point, will use more dynamic avatars.
     this.player.setPlayerTexture(this.players.length);
 
     // Notify other players that we are connected.
     this.socket.emit('new player', this.player.name, this.socket.roomCode);
 
-    // Handler for new player connections.
+    // Handle new player connections.
     this.socket.on('new player', (player) => {
       this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
       // NOTE: remove this at some point, will use more dynamic avatars.
       this.players[this.players.length - 1].setPlayerTexture(this.players.length);
     });
 
-    // Handler for getting all the other players.
+    // Show all the other players.
     this.socket.on('get players', (players) => {
       for (let player of players) {
         // We only want to add other players.
@@ -65,18 +66,46 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-    this.socket.on('player ready', (playerName) => {
+    // Show everyone that the player
+    this.socket.on('show player ready', (playerName) => {
       let player = this.getPlayerByName(playerName);
-      player.playerReady();
+      player.showPlayerReady();
     });
 
-    this.socket.on('game start', () => {
+    // When a turn has been made, remove the 'Making Turn' text.
+    this.socket.on('show card played', (playerObj) => {
+      for (let player of this.players) {
+        if (player.name === playerObj.name) {
+          player.turnText.destroy();
+        }
+      }
+    });
+
+    // Display 'Making Turn' text to show who has to play.
+    this.socket.on('show player turn', (playerObj) => {
+      if (this.player.name === playerObj.name) {
+        // It's your turn!
+        this.addPlayCardButton();
+        this.player.showPlayerTurn();
+      }
+      else {
+        // It's someone elses turn!
+        for (let player of this.players) {
+          if (player.name === playerObj.name) {
+            player.showPlayerTurn();
+          }
+        }
+      }
+    });
+
+    // Flag that the game has started, remove player text.
+    this.socket.on('game started', () => {
       this.gameStarted = true;
       // Remove the 'READY' text on each player.
       this.players.forEach((player) => {
         player.readyText.destroy();
-      })
-    })
+      });
+    });
 
     // Handler for removing a player who has disconnected.
     this.socket.on('player quit', (playerName) => {
@@ -259,8 +288,6 @@ export default class GameScene extends Phaser.Scene {
 
   /**
    * Make a card playable by adding click/hover listeners.
-   *
-   * @param {Card} card - The card to make playable.
    */
   makeCardPlayable(card, player) {
     card.setInteractive();
@@ -395,7 +422,7 @@ export default class GameScene extends Phaser.Scene {
    * Add a restart button to the scene, used for debugging.
    */
   addReadyButton() {
-   this.readyButton = this.add.text(700, 500, 'READY', {
+   this.readyButton = this.add.text(700, 550, 'READY', {
      fontFamily: 'Helvetica, "sans-serif"',
      fontSize: '20px',
      fontStyle: 'bold',
@@ -406,7 +433,7 @@ export default class GameScene extends Phaser.Scene {
 
    this.readyButton.on('pointerdown', () => {
      this.socket.emit('player ready');
-     this.player.playerReady();
+     this.player.showPlayerReady();
      // TODO: toggle ready/unready.
      this.readyButton.destroy();
    });
@@ -418,5 +445,35 @@ export default class GameScene extends Phaser.Scene {
    this.readyButton.on('pointerout', () => {
      this.readyButton.clearTint();
    });
+  }
+
+  /**
+   * Add a make turn button (FOR DEV PURPOSES).
+   */
+  addPlayCardButton() {
+    this.playCardButton = this.add.text(700, 550, 'PLAY CARD', {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: '#000000'
+    });
+    this.playCardButton.setOrigin(0.5);
+    this.playCardButton.setInteractive();
+
+    this.playCardButton.on('pointerdown', () => {
+      // TODO: might need to tell the server which card we played?
+      this.socket.emit('card played');
+      // TODO: toggle ready/unready.
+      this.playCardButton.destroy();
+      this.player.turnText.destroy();
+    });
+
+    this.playCardButton.on('pointerover', () => {
+      this.playCardButton.setTintFill(0x8b8b8b);
+    });
+
+    this.playCardButton.on('pointerout', () => {
+      this.playCardButton.clearTint();
+    });
   }
 }

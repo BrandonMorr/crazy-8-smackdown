@@ -71,23 +71,35 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Add text to show player is ready smack down.
    */
-   playerReady() {
-     this.readyText = this.scene.add.text(this.x, this.y + 85, 'READY', {
-       fontFamily: 'Helvetica, "sans-serif"',
-       fontSize: '14px',
-       color: '#99ff99'
-     });
-     this.readyText.setOrigin(0.5);
+  showPlayerReady() {
+    this.readyText = this.scene.add.text(this.x, this.y + 85, 'READY', {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '14px',
+      color: '#99ff99'
+    });
+    this.readyText.setOrigin(0.5);
 
-     this.ready = true;
-   }
+    this.ready = true;
+  }
 
-   /**
-    * Will remove this in the future.
-    */
-   setPlayerTexture(playerNumber) {
-     this.setTexture(`player_${playerNumber}`);
-   }
+  /**
+   * Add text to show player is ready smack down.
+   */
+  showPlayerTurn() {
+    this.turnText = this.scene.add.text(this.x, this.y + 85, 'MAKING TURN', {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '14px',
+      color: '#99ff99'
+    });
+    this.turnText.setOrigin(0.5);
+  }
+
+  /**
+   * Will remove this in the future.
+   */
+  setPlayerTexture(playerNumber) {
+    this.setTexture(`player_${playerNumber}`);
+  }
 
   /**
    * Remove any player-relavant stuff from scene.
@@ -99,6 +111,10 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     if (this.readyText) {
       this.readyText.destroy();
+    }
+
+    if (this.turnText) {
+      this.turnText.destroy();
     }
 
     this.destroy(); // Cya doods!
