@@ -6,6 +6,9 @@ import Express from 'express';
 import SocketIO from 'socket.io';
 import Compression from 'compression';
 
+import Deck from './objects/Deck';
+import Card from './objects/Card';
+
 // Array to track active rooms.
 var rooms = [];
 
@@ -160,7 +163,8 @@ function onCardPlayed() {
   // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player);
 
-  // If the last player has played, reset back to first. Otherwise move to next player.
+  // If the last player has played, reset back to first player. Otherwise
+  // move to the next player.
   rooms[roomCode].playerTurn === playerTurn ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
 
   // Grab the next player to play.
