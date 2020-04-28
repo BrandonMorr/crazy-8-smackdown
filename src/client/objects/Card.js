@@ -5,23 +5,20 @@ import Phaser from 'phaser';
  */
 export default class Card extends Phaser.GameObjects.Sprite {
 
-  constructor(scene, x, y, suit, value, name, cardBack) {
+  constructor(scene, x, y, suit, value, name) {
     super(scene, x, y);
 
     this.suit = suit;
     this.value = value;
     this.name = name;
-    this.cardBack = cardBack;
+    this.cardBack = 'red';
 
     this.setOrigin(0.5);
-    this.faceCardDown();
-  }
+    this.setScale(0.75);
+    this.faceCardUp();
 
-  /**
-   * Load the card back texture to face card down.
-   */
-  faceCardDown() {
-    this.setTexture(`back_${this.cardBack}`);
+
+    this.scene.add.existing(this);
   }
 
   /**
@@ -30,4 +27,11 @@ export default class Card extends Phaser.GameObjects.Sprite {
    faceCardUp() {
      this.setTexture(`${this.suit}_${this.value}`);
    }
+
+  /**
+   * Load the card back texture to face card down.
+   */
+  faceCardDown() {
+    this.setTexture(`back_${this.cardBack}`);
+  }
 }

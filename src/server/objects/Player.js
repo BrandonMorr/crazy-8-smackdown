@@ -3,7 +3,8 @@
  */
 export default class Player {
 
-  constructor(name, roomCode) {
+  constructor(id, name, roomCode) {
+    this.id = id;
     this.name = name;
     this.roomCode = roomCode;
 

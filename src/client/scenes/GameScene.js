@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import Card from '../objects/Card.js';
 import Deck from '../objects/Deck.js';
 import Player from '../objects/Player.js';
 import Preload from '../utilities/Preload.js';
@@ -84,8 +85,10 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // Display 'Making Turn' text to show who has to play.
-    this.socket.on('show player turn', (playerObj) => {
-      if (this.player.name === playerObj.name) {
+    this.socket.on('show player turn', (player) => {
+      let name = player.name;
+
+      if (this.player.name === name) {
         // It's your turn!
         this.addPlayCardButton();
         this.player.showPlayerTurn();
@@ -93,7 +96,7 @@ export default class GameScene extends Phaser.Scene {
       else {
         // It's someone elses turn!
         for (let player of this.players) {
-          if (player.name === playerObj.name) {
+          if (player.name === name) {
             player.showPlayerTurn();
           }
         }
@@ -104,9 +107,20 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('game started', () => {
       this.gameStarted = true;
       // Remove the 'READY' text on each player.
-      this.players.forEach((player) => {
+      for (let player of this.players) {
         player.readyText.destroy();
-      });
+      }
+    });
+
+    // Update the card in play (card to play on).
+    this.socket.on('update card in play', (card) => {
+      this.currentCardInPlay = new Card(this, 400, 300, card.suit, card.value, card.name);
+      this.add.existing(this.currentCardInPlay);
+    })
+
+    // Tween cards to the player.
+    this.socket.on('add card to hand', (card) => {
+      this.dealCardToPlayer(card);
     });
 
     // Handler for removing a player who has disconnected.
@@ -116,156 +130,104 @@ export default class GameScene extends Phaser.Scene {
       // Remove player from players array.
       this.players = this.players.filter((player) => player.name !== playerName);
     });
+
+    // TODO: only show this button when there are two or more players in room.
+    this.addReadyButton();
   }
 
   /**
    * Game logic will go in here.
    */
   update() {
-    if (this.gameStarted) {
-      // Check if the game is over.
-      // this.checkGameOver();
-      /*
-      // Check if the last card has changed.
-      if (this.checkLastPlayCardChange()) {
-        // A turn has been made, let's make sure to make all the player's cards
-        // non-interactive.
-        for (let card of this.players[0].hand) {
-          card.removeAllListeners();
-        }
-
-        // Check for wildcard.
-        if (this.currentCardInPlay.value == this.players[0].countdown) {
-          this.wildCardDialogContainer.visible = true;
-        }
-      }
-
-      // Check the player hand for playable cards.
-      if (this.checkHandForPlayableCards) {
-        for (let card of this.players[0].hand) {
-          let currentCardInPlay = this.deck.getLastPlayCard();
-
-          if (card.value == currentCardInPlay.value || card.suit == this.currentSuitInPlay || card.value == this.players[0].countdown) {
-            this.makeCardPlayable(card, this.players[0]);
-          }
-        }
-        // Flag that the hand has been checked.
-        this.checkHandForPlayableCards = false;
-      }
-      */
-    }
-  }
-
-  /**
-   * Do any game init within this function.
-   */
-  initializeGame() {
-    // NOTE: Might not need this anymore
+    // Nothing here so far ^_^
   }
 
   /**
    * Tween the card(s) to the player's hand.
    *
-   * @param {Cards[]} cards - The card(s) to tween to our hand.
+   * @param {Card} card - The card to tween to our hand.
    */
-  dealCardsToPlayer(cards) {
-    // TODO
-  }
+  dealCardToPlayer(card) {
+    let cardToTween = new Card(this, 400, 300, card.suit, card.value, card.name);
+    this.player.hand.push(cardToTween);
 
-  /**
-   * Deal a card from the draw deck to the play pile.
-   */
-  dealCardFromDrawToPlayPile() {
-    // Move the card to the playPile zone.
     this.tweens.add({
-      targets: cardToDeal,
-      x: '+=125',
+      targets: cardToTween,
+      x: this.calculateCardX(),
+      y: '+=200',
       ease: 'Linear',
       duration: 250,
-      onComplete: () => {
-        cardToDeal.faceCardUp();
-      }
+      onComplete: this.checkCardPlayable(cardToTween)
     });
-  }
-
-  /**
-   * Check to see if the last card has changed.
-   *
-   * @return {Boolean} - True if the card has changed, false otherwise.
-   */
-  checkLastPlayCardChange() {
-    if (this.currentCardInPlay.name != this.deck.getLastPlayCard().name) {
-      this.currentCardInPlay = this.deck.getLastPlayCard();
-      this.currentSuitInPlay = this.deck.getLastPlayCard().suit;
-
-      return true;
-    }
-
-    return false;
   }
 
   /**
    * Make a card playable by adding click/hover listeners.
    */
-  makeCardPlayable(card, player) {
-    card.setInteractive();
+  checkCardPlayable(card) {
+    let isPlayable =
+      // Check if card matches the current value in play.
+      card.value == this.currentCardInPlay.value ||
+      // Check if card matches the current suit in play.
+      card.suit == this.currentCardInPlay.suit ||
+      // Check if the card is a wild one.
+      card.value == this.player.countdown;
 
-    // When the user clicks send the card to the play pile and do other stuff.
-    card.on('pointerdown', () => {
-      // Remove all the listeners.
-      card.removeAllListeners();
+    if (isPlayable) {
+      card.setInteractive();
 
-      // Remove tint.
-      card.clearTint();
+      // When the user clicks send the card to the play pile and do other stuff.
+      card.on('pointerdown', () => {
+        // Remove all the listeners.
+        card.removeAllListeners();
 
-      // Set the depth of all playPile cards to 0.
-      for (let playCard of this.deck.playPile) {
-        playCard.setDepth(0);
-      }
+        // Remove tint.
+        card.clearTint();
 
-      // Set the depth of the card to played to 1.
-      card.setDepth(1);
+        // Set the depth of the card to played to 1 so it is on the top.
+        // card.setDepth();
 
-      // Move the card to the play pile.
-      this.tweens.add({
-        targets: card,
-        x: 250,
-        y: 125,
-        ease: 'Linear',
-        duration: 250,
+        // Move the card to the play pile.
+        this.tweens.add({
+          targets: card,
+          x: 400,
+          y: 300,
+          ease: 'Linear',
+          duration: 250,
+        });
+
+        // Remove the card from hand, move into the play pile.
+        // player.removeCardFromHand(cards);
       });
 
-      // Remove the card from hand, move into the play pile.
-      player.removeCardFromHand(card, this.deck);
-    });
+      // When the user hovers the cursor over the card, set a tint and raise y.
+      card.on('pointerover', () => {
+        // Set a tint to show card is playable.
+        card.setTint(0xe3e3e3);
 
-    // When the user hovers the cursor over the card, set a tint and raise y.
-    card.on('pointerover', () => {
-      // Set a tint to show card is playable.
-      card.setTint(0xe3e3e3);
-
-      // Move card up slightly.
-      this.tweens.add({
-        targets: card,
-        y: 450,
-        ease: 'Linear',
-        duration: 250,
+        // Move card up slightly.
+        this.tweens.add({
+          targets: card,
+          y: 450,
+          ease: 'Linear',
+          duration: 250,
+        });
       });
-    });
 
-    // When the user's cursor leaves the card, remove the tint and lower y.
-    card.on('pointerout', () => {
-      // Remove tint.
-      card.clearTint();
+      // When the user's cursor leaves the card, remove the tint and lower y.
+      card.on('pointerout', () => {
+        // Remove tint.
+        card.clearTint();
 
-      // Move the card back into hand.
-      this.tweens.add({
-        targets: card,
-        y: 500,
-        ease: 'Linear',
-        duration: 250,
+        // Move the card back into hand.
+        this.tweens.add({
+          targets: card,
+          y: 500,
+          ease: 'Linear',
+          duration: 250,
+        });
       });
-    });
+    }
   }
 
   /**
@@ -327,6 +289,13 @@ export default class GameScene extends Phaser.Scene {
     else {
       return 700;
     }
+  }
+
+  calculateCardX() {
+    let handSize = this.player.hand.length;
+    let offset = handSize * 50;
+
+    return `${(offset + 170)}`;
   }
 
   /**

@@ -113,7 +113,7 @@ function onJoinGame(roomCode) {
  * Send the client back a list of existing players in the room.
  */
 function onNewPlayer(playerName, roomCode) {
-  this.player = new Player(playerName, roomCode);
+  this.player = new Player(this.id, playerName, roomCode);
 
   // Build up a list of all current players, send the data to the client.
   this.emit('get players', getPlayersInRoom(roomCode));
@@ -148,24 +148,24 @@ function onPlayerReady(playerName) {
     // Generate a deck object, store it in the room data.
     rooms[this.player.roomCode].deck = new Deck();
 
+    // Shift out a card from the draw pile...
+    let firstCardInPlay = rooms[this.player.roomCode].deck.drawPile.shift();
+
+    // ...and place said card on the top of the play pile.
+    rooms[this.player.roomCode].deck.playPile.unshift(firstCardInPlay);
+
+    // Set the first card in play pile as the last card played.
+    rooms[this.player.roomCode].cardInPlay = firstCardInPlay;
+
+    // Notify all players what the first card to play is.
+    io.to(this.player.roomCode).emit('update card in play', firstCardInPlay);
+
     // Deal out 8 cards to players.
     for (let i = 0; i <= 7; i++) {
       for (let player of rooms[this.player.roomCode].playerOrder) {
         dealCardsToPlayer(player);
       }
     }
-
-    // Shift out a card from the draw pile...
-    let cardToDeal = rooms[this.player.roomCode].deck.drawPile.shift();
-
-    // ...and place said card on the top of the play pile.
-    rooms[this.player.roomCode].deck.playPile.unshift(cardToDeal);
-
-    // Set the first card in play pile as the last card played.
-    rooms[this.player.roomCode].currentCardInPlay = cardToDeal;
-
-    // Set the suit in play pile as the last card's suit.
-    rooms[this.player.roomCode].currentSuitInPlay = cardToDeal.suit;
 
     // Notify all players who's turn it is.
     io.to(this.player.roomCode).emit('show player turn', rooms[this.player.roomCode].playerOrder[0]);
@@ -295,6 +295,9 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
     if (cardToDeal) {
       // Move the card to player's hand array.
       player.addCardToHand(cardToDeal);
+
+      // Send the card to the player's client.
+      io.to(player.id).emit('add card to hand', cardToDeal);
     }
     else {
       // No cards left to draw, shuffle and try again.
