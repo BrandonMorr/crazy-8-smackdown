@@ -50,6 +50,7 @@ export default class GameScene extends Phaser.Scene {
     // Handle new player connections.
     this.socket.on('new player', (player) => {
       this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
+
       // NOTE: remove this at some point, will use more dynamic avatars.
       this.players[this.players.length - 1].setPlayerTexture(this.players.length);
     });
@@ -60,6 +61,7 @@ export default class GameScene extends Phaser.Scene {
         // We only want to add other players.
         if (player.name !== this.player.name) {
           this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
+
           // NOTE: remove this at some point, will use more dynamic avatars.
           this.players[this.players.length - 1].setPlayerTexture(this.players.length);
         }
@@ -114,8 +116,6 @@ export default class GameScene extends Phaser.Scene {
       // Remove player from players array.
       this.players = this.players.filter((player) => player.name !== playerName);
     });
-
-    this.addReadyButton();
   }
 
   /**
@@ -160,104 +160,22 @@ export default class GameScene extends Phaser.Scene {
    * Do any game init within this function.
    */
   initializeGame() {
-    // Add players to screen.
-    for (let player of this.players) {
-      this.add.existing(player);
-    }
-
-    // Deal out cards to the players.
-    let offset = 0;
-
-    for (let i = 0; i <= 7; i++) {
-      for (let player of this.players) {
-        // Deal the card to player.
-        this.dealCardsToPlayer(player);
-
-        // XXX: Gotta move this into something more dynamic... will do for now.
-        // Tween the card game object and reveal what is in the hand.
-        if (player.name === 'brandon') {
-          this.tweens.add({
-            targets: player.hand[i],
-            x: (225 + offset),
-            y: 500,
-            ease: 'Linear',
-            duration: 250,
-            onComplete: function () {
-              player.hand[i].faceCardUp();
-            }
-          });
-
-          offset = offset + 50;
-        }
-      }
-    }
-
-    // Deal out the first card to the play pile.
-    this.dealCardFromDrawToPlayPile();
+    // NOTE: Might not need this anymore
   }
 
   /**
-   * Determine if the game is over by checking each player's countdown score, 0
-   * is considered game over.
-   */
-  checkGameOver() {
-    for (let player of this.players) {
-      // If the countdown is at 0, that's it... GAME OVER!
-      if (player.countdown === 0) {
-        this.gameOver = true;
-        console.log(`${player.name} is the winner!`);
-      }
-    }
-  }
-
-  /**
-   * Deal a card to the Player, tween the card to the player's hand.
+   * Tween the card(s) to the player's hand.
    *
-   * @param {Player} player - The player we are dealing to.
-   * @param {Number} numberOfCards - The number of cards to deal to the player.
+   * @param {Cards[]} cards - The card(s) to tween to our hand.
    */
-  dealCardsToPlayer(player, numberOfCards = 1) {
-    // We want to keep track of how many cards are left to deal if the deck
-    // needs to be shuffled.
-    for (let cardsLeftToDeal = numberOfCards; cardsLeftToDeal >= 1; cardsLeftToDeal--) {
-      let cardToDeal = this.deck.drawPile.shift();
-
-      if (cardToDeal) {
-        // Deal the card to player.
-        player.addCardToHand(cardToDeal);
-      }
-      else {
-        // No cards left to draw, shuffle and try again.
-        this.deck.shuffleDeck();
-
-        // If there are enough cards left to deal, deal em'.
-        if (this.deck.drawPile.length >= cardsLeftToDeal) {
-          // Make sure to only deal the remainder (if there is enough).
-          this.dealCardsToPlayer(player, cardsLeftToDeal);
-        }
-        else {
-          console.log('No more cards left to deal!');
-        }
-      }
-    }
+  dealCardsToPlayer(cards) {
+    // TODO
   }
 
   /**
    * Deal a card from the draw deck to the play pile.
    */
   dealCardFromDrawToPlayPile() {
-    // Shift out a card from the draw pile.
-    let cardToDeal = this.deck.drawPile.shift();
-
-    // Place card on the top of the play pile.
-    this.deck.playPile.unshift(cardToDeal);
-
-    // Set the first card in play pile as the last card played.
-    this.currentCardInPlay = cardToDeal;
-
-    // Set the suit in play pile as the last card's suit.
-    this.currentSuitInPlay = cardToDeal.suit;
-
     // Move the card to the playPile zone.
     this.tweens.add({
       targets: cardToDeal,
@@ -419,7 +337,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Add a restart button to the scene, used for debugging.
+   * Add a ready button to the scene to ready up.
+   *
+   * TODO: only show button when more than one player present in the room.
    */
   addReadyButton() {
    this.readyButton = this.add.text(700, 550, 'READY', {
@@ -461,7 +381,7 @@ export default class GameScene extends Phaser.Scene {
     this.playCardButton.setInteractive();
 
     this.playCardButton.on('pointerdown', () => {
-      // TODO: might need to tell the server which card we played?
+      // TODO: tell the server which card we played.
       this.socket.emit('card played');
       // TODO: toggle ready/unready.
       this.playCardButton.destroy();
