@@ -31,6 +31,13 @@ export default class MainMenuScene extends Phaser.Scene {
       fontStyle: 'bold',
       color: '#000000'
     };
+
+    this.messageTextStyle = {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '18px',
+      fontStyle: 'bold',
+      color: '#ff0000'
+    };
   }
 
   preload() {
@@ -51,10 +58,17 @@ export default class MainMenuScene extends Phaser.Scene {
       this.addConnectionStatus();
     });
 
-    // TODO: not this...
-    this.socket.on('room code', (roomCode) => {
+    this.socket.on('new game success', (roomCode) => {
       this.socket.roomCode = roomCode;
-      console.log(roomCode);
+      this.scene.start('GameScene', this.socket);
+    });
+
+    this.socket.on('join success', () => {
+      this.scene.start('GameScene', this.socket);
+    });
+
+    this.socket.on('join error', (errorMessage) => {
+      this.showErrorMessage(errorMessage);
     });
   }
 
@@ -120,12 +134,11 @@ export default class MainMenuScene extends Phaser.Scene {
       if (playerName !== '') {
         // Tell the server who we are and that we're creating a new game.
         this.socket.name = playerName.toUpperCase();
-        this.socket.emit('new game');
 
-        this.scene.start('GameScene', this.socket);
+        this.socket.emit('new game');
       }
       else {
-        // Err: name must not be empty.
+        this.showErrorMessage('NAME CANNOT BE EMPTY');
       }
     });
 
@@ -153,16 +166,12 @@ export default class MainMenuScene extends Phaser.Scene {
       if (playerName !== '' && roomCode !== '') {
         // Tell the server who we are and that we're joining an existing game.
         this.socket.name = playerName.toUpperCase();
-        this.socket.emit('join game', roomCode);
+        this.socket.roomCode = roomCode;
 
-        this.scene.start('GameScene', this.socket);
-        // XXX: Uncomment this later, going to focus on other things before
-        // working on the player setup...
-        // Start the player setup scene.
-        // this.scene.start('PlayerSetupScene', this.socket);
+        this.socket.emit('join request', roomCode);
       }
       else {
-        // Err: name & room must not be empty...
+        this.showErrorMessage('NAME & ROOM CODE CANNOT BE EMPTY');
       }
     });
 
@@ -172,6 +181,22 @@ export default class MainMenuScene extends Phaser.Scene {
 
     playButton.on('pointerout', () => {
       playButton.clearTint();
+    });
+  }
+
+  showErrorMessage(errorMessage) {
+    this.errorMessage = this.add.text(400, 450, `ERROR: ${errorMessage}`, this.messageTextStyle);
+    this.errorMessage.setOrigin(0.5);
+
+    this.tweens.add({
+      targets: this.errorMessage,
+      delay: 3000,
+      alpha: 0,
+      ease: 'linear',
+      duration: 400,
+      onComplete: () => {
+        this.errorMessage.destroy();
+      }
     });
   }
 }

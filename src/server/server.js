@@ -45,7 +45,7 @@ server.listen(port, () => {
 function setServerHandlers() {
   io.on('connection', (socket) => {
     socket.on('new game', onNewGame);
-    socket.on('join game', onJoinGame);
+    socket.on('join request', onJoinRequest);
     socket.on('new player', onNewPlayer);
     socket.on('player ready', onPlayerReady);
     socket.on('card played', onCardPlayed);
@@ -71,7 +71,7 @@ function onNewGame() {
     this.join(room.roomCode);
 
     // Send the room code back to the client.
-    this.emit('room code', room.roomCode);
+    this.emit('new game success', room.roomCode);
 
     // Add room to list of active rooms.
     rooms[room.roomCode] = room;
@@ -81,7 +81,7 @@ function onNewGame() {
 /**
  * Handle joining an existing game.
  */
-function onJoinGame(roomCode) {
+function onJoinRequest(roomCode) {
   // Check to see if the supplied room code is actively in use.
   let foundRoom = Object.keys(rooms).find(room => room === roomCode);
 
@@ -92,18 +92,16 @@ function onJoinGame(roomCode) {
       this.join(roomCode);
 
       // Send the room code back to the client.
-      this.emit('room code', roomCode);
+      this.emit('join success', roomCode);
     }
     else {
-      // TODO: emit some sort of error message back to the client.
-      // something like...
-      // this.emit('error game in progress');
+      // Notify the user that the room's game is in progress.
+      this.emit('join error', 'GAME IS IN PROGRESS');
     }
   }
   else {
-    // TODO: emit some sort of error message back to the client.
-    // something like...
-    // this.emit('error room does not exist');
+    // Notify the user that the room does not exist.
+    this.emit('join error', 'GAME DOES NOT EXIST');
   }
 }
 
@@ -151,6 +149,7 @@ function onPlayerReady(playerName) {
     // Generate a deck object, store it in the room data.
     rooms[this.player.roomCode].deck = new Deck();
 
+    // TODO: do this after the cards are dealt
     // Shift out a card from the draw pile...
     let firstCardInPlay = rooms[this.player.roomCode].deck.drawPile.shift();
 

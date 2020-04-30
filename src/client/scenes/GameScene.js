@@ -150,7 +150,7 @@ export default class GameScene extends Phaser.Scene {
 
       this.currentCardInPlay = card;
       this.deck.addCardToPlayPile(card);
-    })
+    });
 
     // Handle removing a player who has disconnected.
     this.socket.on('player quit', (playerName) => {
@@ -162,6 +162,7 @@ export default class GameScene extends Phaser.Scene {
 
     // TODO: only show this button when there are two or more players in room.
     this.addReadyButton();
+    this.addRoomCode();
   }
 
   /**
@@ -206,7 +207,6 @@ export default class GameScene extends Phaser.Scene {
       if (isPlayable) {
         card.setInteractive();
 
-        // When the user clicks send the card to the play pile and do other stuff.
         card.on('pointerdown', () => {
           // Notify players that a card has been played.
           this.socket.emit('card played', card);
@@ -376,5 +376,32 @@ export default class GameScene extends Phaser.Scene {
    this.readyButton.on('pointerout', () => {
      this.readyButton.clearTint();
    });
+  }
+
+  /**
+   * Add room code text to the scene.
+   */
+  addRoomCode() {
+    this.roomCodeText = this.add.text(700, 580, `ROOM CODE: ${this.socket.roomCode.toUpperCase()}`, {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '14px',
+      fontStyle: 'bold',
+      color: '#000000'
+    });
+    this.roomCodeText.setOrigin(0.5);
+    this.roomCodeText.setInteractive();
+
+    this.roomCodeText.on('pointerdown', () => {
+      // Copy room code to the clipboard.
+      navigator.clipboard.writeText(this.socket.roomCode);
+    });
+
+    this.roomCodeText.on('pointerover', () => {
+      this.roomCodeText.setTintFill(0x8b8b8b);
+    });
+
+    this.roomCodeText.on('pointerout', () => {
+      this.roomCodeText.clearTint();
+    });
   }
 }
