@@ -145,6 +145,9 @@ function onPlayerReady(playerName) {
     // Determine the player order.
     rooms[this.player.roomCode].playerOrder = shufflePlayerOrder(this.player.roomCode);
 
+    // Notify all players who's turn it is.
+    io.to(this.player.roomCode).emit('show player turn', rooms[this.player.roomCode].playerOrder[0]);
+
     // Generate a deck object, store it in the room data.
     rooms[this.player.roomCode].deck = new Deck();
 
@@ -158,7 +161,7 @@ function onPlayerReady(playerName) {
     rooms[this.player.roomCode].cardInPlay = firstCardInPlay;
 
     // Notify all players what the first card to play is.
-    io.to(this.player.roomCode).emit('update card in play', firstCardInPlay);
+    io.to(this.player.roomCode).emit('show first card in play', firstCardInPlay);
 
     // Deal out 8 cards to players.
     for (let i = 0; i <= 7; i++) {
@@ -166,24 +169,24 @@ function onPlayerReady(playerName) {
         dealCardsToPlayer(player);
       }
     }
-
-    // Notify all players who's turn it is.
-    io.to(this.player.roomCode).emit('show player turn', rooms[this.player.roomCode].playerOrder[0]);
   }
 }
 
 /**
  * Notify players that a turn has been made, move to next player.
  */
-function onCardPlayed() {
+function onCardPlayed(card) {
   let roomCode = this.player.roomCode;
   let playerTurn = rooms[roomCode].playerOrder.length - 1;
 
   // Let everyone know that the player has played a card.
-  this.broadcast.to(roomCode).emit('show card played', this.player);
+  this.broadcast.to(roomCode).emit('show card played', this.player, card);
 
-  // If the last player has played, reset back to first player. Otherwise
-  // move to the next player.
+  // Update the card in play.
+  rooms[this.player.roomCode].cardInPlay = card;
+
+  // If the player in last position has played, reset back to first player.
+  // Otherwise move position to next player.
   rooms[roomCode].playerTurn === playerTurn ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
 
   // Grab the next player to play.
@@ -213,6 +216,7 @@ function onDisconnect() {
  * Check and return whether all players are ready to play.
  */
 function checkAllPlayersReady(roomCode) {
+  let ready = true;
   let players = getPlayersInRoom(roomCode);
 
   // Only continue if there is 2 or more players.
@@ -220,16 +224,15 @@ function checkAllPlayersReady(roomCode) {
     // See if any players are not ready.
     for (let player of players) {
       if (player.ready === false) {
-        return false;
-      }
-      else {
-        return true;
+        ready = false;
       }
     }
   }
   else {
-    return false;
+    ready = false;
   }
+
+  return ready;
 }
 
 /**

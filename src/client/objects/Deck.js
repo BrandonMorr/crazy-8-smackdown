@@ -12,15 +12,6 @@ export default class Deck extends Phaser.GameObjects.Group {
     this.drawPile = [];
     // This is where cards will played into.
     this.playPile = [];
-    // Generate the deck, baby.
-    this.generateDeck(scene);
-
-    for (let card of this.drawPile) {
-      // Add card to group object.
-      this.add(card, true);
-      // Set the overall scale of the card to be 25% smaller.
-      card.scale = 0.75;
-    }
   }
 
   /**
@@ -67,23 +58,42 @@ export default class Deck extends Phaser.GameObjects.Group {
   }
 
   /**
-   * Add array of card(s) to the deck.
+   * Add a card to the draw pile.
    *
-   * @param {Card[]} cards - The array of cards to add to the deck.
+   * @param {Card} card - The card to add to the play pile.
    */
-  addCardsToDeck(cards) {
-    this.drawPile = (this.drawPile, cards);
+  addCardToDrawPile(card) {
+    // Add card to playpile.
+    this.drawPile.unshift(card);
+  }
+
+  /**
+   * Add a card to the play pile.
+   *
+   * @param {Card} card - The card to add to the play pile.
+   */
+  addCardToPlayPile(card) {
+    // Set depth to 0 so the new card is displayed on top
+    for (let pileCard of this.playPile) {
+      pileCard.setDepth(0);
+    }
+
+    card.setDepth(1);
+
+    // Add card to playpile.
+    this.playPile.unshift(card);
   }
 
   /**
    * Shuffle the play pile, pass that back to the draw pile and clear playPile.
    */
   shuffleDeck() {
-    console.log('*** Shuffling the deck ***');
     this.drawPile = Phaser.Utils.Array.Shuffle(this.playPile);
-    this.drawPile.forEach((card) => {
-      card.faceCardDown();
-    });
+
+    for (let card of this.drawPile) {
+      card.setFaceDown();
+    }
+
     this.playPile = [];
   }
 }

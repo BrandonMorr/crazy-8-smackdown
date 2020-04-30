@@ -17,7 +17,6 @@ export default class Card extends Phaser.GameObjects.Sprite {
     this.setScale(0.75);
     this.faceCardUp();
 
-
     this.scene.add.existing(this);
   }
 
@@ -33,5 +32,20 @@ export default class Card extends Phaser.GameObjects.Sprite {
    */
   faceCardDown() {
     this.setTexture(`back_${this.cardBack}`);
+  }
+
+  /**
+   * Custom toJSON function.
+   *
+   * @return {String} - A JSON representation of the card object.
+   */
+  toJSON() {
+    let card = {
+      suit: this.suit,
+      value: this.value,
+      name: this.name
+    };
+
+    return card;
   }
 }

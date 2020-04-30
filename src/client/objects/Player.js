@@ -28,35 +28,13 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * Remove a card from the player's hand, place it in play pile.
    *
    * @param {Card} cards - The card to be removed.
-   * @param {Deck} deck - The deck which contains the play pile to add to.
-   *
-   * @return {Card} - The last card added to playPile.
+   * @param {Deck} deck - The deck that contains the pile of cards to add to.
    */
   removeCardFromHand(card, deck) {
     let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
-    deck.playPile.unshift(cardToRemove[0]);
-    console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
+    deck.addCardToPlayPile(cardToRemove[0]);
 
-    return deck.getLastPlayCard();
-  }
-
-  /**
-   * Remove multiple cards from the player's hand, place it in play pile.
-   *
-   * @param {Card[]} cards - The cards to be removed.
-   * @param {Deck} deck - The deck which contains the play pile to add to.
-   *
-   * @return {Card} - The last card added to playPile.
-   */
-  removeCardsFromHand(cards, deck) {
-    for (let card of cards) {
-      let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
-      deck.playPile.unshift(cardToRemove[0]);
-
-      console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
-    }
-
-    return deck.getLastPlayCard();
+    console.log(`${cardToRemove[0].name} was played!`);
   }
 
   /**
@@ -102,7 +80,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
-   * Remove any player-relavant stuff from scene.
+   * Clean up any player stuff from scene.
    */
   removePlayer() {
     if (this.nameText) {
@@ -117,6 +95,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
       this.turnText.destroy();
     }
 
-    this.destroy(); // Cya doods!
+    this.destroy(); // Cya dood!
   }
 }

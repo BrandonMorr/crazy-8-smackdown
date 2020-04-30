@@ -16,9 +16,11 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.players = [];
+    this.deck = new Deck();
+    this.yourTurn = false;
     this.gameOver = false;
     this.gameStarted = false;
-    this.checkHandForPlayableCards = false;
+    this.currentCardInPlay = false;
   }
 
   /**
@@ -76,9 +78,25 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // When a turn has been made, remove the 'Making Turn' text.
-    this.socket.on('show card played', (playerObj) => {
+    this.socket.on('show card played', (playerObj, cardObj) => {
       for (let player of this.players) {
         if (player.name === playerObj.name) {
+          let card = new Card(this, player.x, player.y, cardObj.suit, cardObj.value, cardObj.name);
+
+          // Add the card to the play pile.
+          this.deck.addCardToPlayPile(card);
+
+          // Set the new card in play.
+          this.currentCardInPlay = card;
+
+          this.tweens.add({
+            targets: card,
+            x: 400,
+            y: 300,
+            ease: 'Linear',
+            duration: 250
+          });
+
           player.turnText.destroy();
         }
       }
@@ -90,14 +108,20 @@ export default class GameScene extends Phaser.Scene {
 
       if (this.player.name === name) {
         // It's your turn!
-        this.addPlayCardButton();
         this.player.showPlayerTurn();
+        this.yourTurn = true;
+
+        // Check for playable cards.
+        for (let card of this.player.hand) {
+            this.checkCardPlayable(card);
+        }
       }
       else {
         // It's someone elses turn!
         for (let player of this.players) {
           if (player.name === name) {
             player.showPlayerTurn();
+            this.yourTurn = false;
           }
         }
       }
@@ -112,18 +136,20 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-    // Update the card in play (card to play on).
-    this.socket.on('update card in play', (card) => {
-      this.currentCardInPlay = new Card(this, 400, 300, card.suit, card.value, card.name);
-      this.add.existing(this.currentCardInPlay);
-    })
-
     // Tween cards to the player.
     this.socket.on('add card to hand', (card) => {
       this.dealCardToPlayer(card);
     });
 
-    // Handler for removing a player who has disconnected.
+    // Update the card in play (card to play on).
+    this.socket.on('show first card in play', (cardObj) => {
+      let card = new Card(this, 400, 300, cardObj.suit, cardObj.value, cardObj.name);
+
+      this.currentCardInPlay = card;
+      this.deck.addCardToPlayPile(card);
+    })
+
+    // Handle removing a player who has disconnected.
     this.socket.on('player quit', (playerName) => {
       // Remove the player from the scene.
       this.getPlayerByName(playerName).removePlayer();
@@ -165,68 +191,78 @@ export default class GameScene extends Phaser.Scene {
    * Make a card playable by adding click/hover listeners.
    */
   checkCardPlayable(card) {
-    let isPlayable =
-      // Check if card matches the current value in play.
-      card.value == this.currentCardInPlay.value ||
-      // Check if card matches the current suit in play.
-      card.suit == this.currentCardInPlay.suit ||
-      // Check if the card is a wild one.
-      card.value == this.player.countdown;
+    if (this.yourTurn) {
+      let isPlayable =
+        // Check if card matches the current suit in play.
+        card.suit == this.currentCardInPlay.suit ||
+        // Check if card matches the current value in play.
+        card.value == this.currentCardInPlay.value ||
+        // Check if the card is wild (wildcard = countdown score).
+        card.value == this.player.countdown;
 
-    if (isPlayable) {
-      card.setInteractive();
+      if (isPlayable) {
+        card.setInteractive();
 
-      // When the user clicks send the card to the play pile and do other stuff.
-      card.on('pointerdown', () => {
-        // Remove all the listeners.
-        card.removeAllListeners();
+        // When the user clicks send the card to the play pile and do other stuff.
+        card.on('pointerdown', () => {
+          // Notify players that a card has been played.
+          this.socket.emit('card played', card);
 
-        // Remove tint.
-        card.clearTint();
+          // Remove the turn text.
+          this.player.turnText.destroy();
 
-        // Set the depth of the card to played to 1 so it is on the top.
-        // card.setDepth();
+          // Remove tint.
+          card.clearTint();
 
-        // Move the card to the play pile.
-        this.tweens.add({
-          targets: card,
-          x: 400,
-          y: 300,
-          ease: 'Linear',
-          duration: 250,
+          // Remove the listeners on all cards.
+          for (let card of this.player.hand) {
+            card.removeAllListeners();
+          }
+
+          // Remove the card from the player's hand array.
+          this.player.removeCardFromHand(card, this.deck);
+
+          // Move the card to the play pile.
+          this.tweens.add({
+            targets: card,
+            x: 400,
+            y: 300,
+            ease: 'Linear',
+            duration: 250,
+          });
         });
 
-        // Remove the card from hand, move into the play pile.
-        // player.removeCardFromHand(cards);
-      });
+        // When the user hovers the cursor over the card, set a tint and raise y.
+        card.on('pointerover', () => {
+          // Set a tint to show card is playable.
+          card.setTint(0xe3e3e3);
 
-      // When the user hovers the cursor over the card, set a tint and raise y.
-      card.on('pointerover', () => {
-        // Set a tint to show card is playable.
-        card.setTint(0xe3e3e3);
-
-        // Move card up slightly.
-        this.tweens.add({
-          targets: card,
-          y: 450,
-          ease: 'Linear',
-          duration: 250,
+          // Move card up slightly.
+          this.tweens.add({
+            targets: card,
+            y: 450,
+            ease: 'Linear',
+            duration: 250,
+          });
         });
-      });
 
-      // When the user's cursor leaves the card, remove the tint and lower y.
-      card.on('pointerout', () => {
-        // Remove tint.
-        card.clearTint();
+        // When the user's cursor leaves the card, remove the tint and lower y.
+        card.on('pointerout', () => {
+          // Remove tint.
+          card.clearTint();
 
-        // Move the card back into hand.
-        this.tweens.add({
-          targets: card,
-          y: 500,
-          ease: 'Linear',
-          duration: 250,
+          // Move the card back into hand.
+          this.tweens.add({
+            targets: card,
+            y: 500,
+            ease: 'Linear',
+            duration: 250,
+          });
         });
-      });
+      }
+      else {
+
+      }
     }
   }
 
@@ -261,7 +297,6 @@ export default class GameScene extends Phaser.Scene {
 
       wildCardOption.on('pointerdown', () => {
         this.currentSuitInPlay = suit;
-        this.checkHandForPlayableCards = true;
         this.wildCardDialogContainer.visible = false;
       });
 
@@ -292,10 +327,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   calculateCardX() {
+    let startingX = 170;
     let handSize = this.player.hand.length;
     let offset = handSize * 50;
 
-    return `${(offset + 170)}`;
+    return startingX + offset;
   }
 
   /**
@@ -334,35 +370,5 @@ export default class GameScene extends Phaser.Scene {
    this.readyButton.on('pointerout', () => {
      this.readyButton.clearTint();
    });
-  }
-
-  /**
-   * Add a make turn button (FOR DEV PURPOSES).
-   */
-  addPlayCardButton() {
-    this.playCardButton = this.add.text(700, 550, 'PLAY CARD', {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '20px',
-      fontStyle: 'bold',
-      color: '#000000'
-    });
-    this.playCardButton.setOrigin(0.5);
-    this.playCardButton.setInteractive();
-
-    this.playCardButton.on('pointerdown', () => {
-      // TODO: tell the server which card we played.
-      this.socket.emit('card played');
-      // TODO: toggle ready/unready.
-      this.playCardButton.destroy();
-      this.player.turnText.destroy();
-    });
-
-    this.playCardButton.on('pointerover', () => {
-      this.playCardButton.setTintFill(0x8b8b8b);
-    });
-
-    this.playCardButton.on('pointerout', () => {
-      this.playCardButton.clearTint();
-    });
   }
 }
