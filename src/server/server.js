@@ -71,7 +71,7 @@ function onNewGame() {
     this.join(room.roomCode);
 
     // Send the room code back to the client.
-    this.emit('new game success', room.roomCode);
+    this.emit('new game', room.roomCode);
 
     // Add room to list of active rooms.
     rooms[room.roomCode] = room;
@@ -92,7 +92,7 @@ function onJoinRequest(roomCode) {
       this.join(roomCode);
 
       // Send the room code back to the client.
-      this.emit('join success', roomCode);
+      this.emit('join game', roomCode);
     }
     else {
       // Notify the user that the room's game is in progress.
@@ -198,8 +198,10 @@ function onCardPlayed(card) {
 /**
  * Handle user disconnection, notify others who left.
  *
- * TODO: handle reomving the player from the playerOrder property in the rooms
- * array.
+ * TODO:
+ *  - handle reomving the player from the playerOrder property in the rooms
+ *  array.
+ *  - check the room to see if there are no players, remove the room if so.
  */
 function onDisconnect() {
   // Check to see if the socket has a player data object.
@@ -207,8 +209,6 @@ function onDisconnect() {
     // Alert others of the disconnected player.
     io.to(this.player.roomCode).emit('player quit', this.player.name);
   }
-
-  console.log('[' + this.id + '] has disconnected');
 }
 
 /**

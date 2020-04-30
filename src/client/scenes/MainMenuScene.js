@@ -58,12 +58,12 @@ export default class MainMenuScene extends Phaser.Scene {
       this.addConnectionStatus();
     });
 
-    this.socket.on('new game success', (roomCode) => {
+    this.socket.on('new game', (roomCode) => {
       this.socket.roomCode = roomCode;
       this.scene.start('GameScene', this.socket);
     });
 
-    this.socket.on('join success', () => {
+    this.socket.on('join game', () => {
       this.scene.start('GameScene', this.socket);
     });
 
@@ -73,7 +73,7 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   update() {
-
+    
   }
 
   /**

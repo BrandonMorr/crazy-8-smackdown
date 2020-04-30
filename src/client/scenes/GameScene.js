@@ -114,9 +114,22 @@ export default class GameScene extends Phaser.Scene {
         this.player.showPlayerTurn();
         this.yourTurn = true;
 
+        let needToDrawCard = true;
+
         // Check for playable cards.
         for (let card of this.player.hand) {
-            this.checkCardPlayable(card);
+          let isPlayable = this.checkCardPlayable(card);
+
+          // If the card is playable, make it interactive.
+          if (isPlayable) {
+            this.makeCardInteractive(card);
+            needToDrawCard = false;
+          }
+        }
+
+        // If no cards are playable, the player needs to draw.
+        if (needToDrawCard) {
+          
         }
       }
       else {
@@ -165,11 +178,8 @@ export default class GameScene extends Phaser.Scene {
     this.addRoomCode();
   }
 
-  /**
-   * Game logic will go in here.
-   */
   update() {
-    // Nothing here so far ^_^
+
   }
 
   /**
@@ -187,22 +197,20 @@ export default class GameScene extends Phaser.Scene {
       y: '+=200',
       ease: 'Linear',
       duration: 250,
-      onComplete: this.checkCardPlayable(cardToTween)
+      onComplete: () => {
+        if (this.checkCardPlayable(cardToTween)) {
+          this.makeCardInteractive(cardToTween);
+        }
+      }
     });
   }
 
   /**
    * Make a card playable by adding click/hover listeners.
    */
-  checkCardPlayable(card) {
+  makeCardInteractive(card) {
     if (this.yourTurn) {
-      let isPlayable =
-        // Check if card matches the current suit in play.
-        card.suit == this.currentCardInPlay.suit ||
-        // Check if card matches the current value in play.
-        card.value == this.currentCardInPlay.value ||
-        // Check if the card is wild (wildcard = countdown score).
-        card.value == this.player.countdown;
+      let isPlayable = this.checkCardPlayable(card);
 
       if (isPlayable) {
         card.setInteractive();
@@ -320,6 +328,9 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Return an x position to place a player.
+   */
   calculatePlayerX() {
     if (this.players.length === 1) {
       return 100;
@@ -332,6 +343,9 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Return an x position to place a card in player's hand.
+   */
   calculateCardX() {
     let startingX = 170;
     let handSize = this.player.hand.length;
@@ -339,6 +353,21 @@ export default class GameScene extends Phaser.Scene {
 
     return startingX + offset;
   }
+
+  /**
+   * Check to see if a card is playable, otherwise return false.
+   */
+   checkCardPlayable(card) {
+     let isPlayable =
+       // Check if card matches the current suit in play.
+       card.suit == this.currentCardInPlay.suit ||
+       // Check if card matches the current value in play.
+       card.value == this.currentCardInPlay.value ||
+       // Check if the card is wild (wildcard = countdown score).
+       card.value == this.player.countdown;
+
+     return isPlayable;
+   }
 
   /**
    * Return a player by their name property.
