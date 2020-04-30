@@ -43,7 +43,7 @@ export default class Preload {
    */
   static loadSounds(scene) {
     for (let i = 1; i <= 3; i++) {
-      scene.load.audio(`card_${sound}_${i}`, `public/assets/sounds/card_slide_${i}.ogg`);
+      scene.load.audio(`card_slide_${i}`, `public/assets/sounds/card_slide_${i}.ogg`);
     }
   }
 }
