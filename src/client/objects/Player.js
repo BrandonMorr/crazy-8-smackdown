@@ -33,8 +33,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
   removeCardFromHand(card, deck) {
     let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
     deck.addCardToPlayPile(cardToRemove[0]);
-
-    console.log(`${cardToRemove[0].name} was played!`);
   }
 
   /**

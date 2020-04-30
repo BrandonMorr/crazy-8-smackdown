@@ -42,12 +42,8 @@ export default class Preload {
    * @param {Phaser.Scene} scene - The phaser scene object.
    */
   static loadSounds(scene) {
-    const sounds = [ 'place', 'slide' ];
-
-    for (const sound of sounds) {
-      for (let i = 1; i <= 3; i++) {
-        scene.load.audio(`card_${sound}_${i}`, `public/assets/sounds/card_${sound}_${i}.ogg`);
-      }
+    for (let i = 1; i <= 3; i++) {
+      scene.load.audio(`card_${sound}_${i}`, `public/assets/sounds/card_slide_${i}.ogg`);
     }
   }
 }

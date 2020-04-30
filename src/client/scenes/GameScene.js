@@ -90,7 +90,7 @@ export default class GameScene extends Phaser.Scene {
           this.currentCardInPlay = card;
 
           // Play a sound.
-          this.sound.play(`card_place_${Phaser.Math.RND.between(1, 3)}`);
+          this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
 
           this.tweens.add({
             targets: card,
@@ -226,7 +226,7 @@ export default class GameScene extends Phaser.Scene {
           this.player.removeCardFromHand(card, this.deck);
 
           // Play a sound.
-          this.sound.play(`card_place_${Phaser.Math.RND.between(1, 3)}`);
+          this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
 
           // Move the card to the play pile.
           this.tweens.add({
