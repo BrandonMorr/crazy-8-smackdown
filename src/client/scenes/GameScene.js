@@ -89,6 +89,9 @@ export default class GameScene extends Phaser.Scene {
           // Set the new card in play.
           this.currentCardInPlay = card;
 
+          // Play a sound.
+          this.sound.play(`card_place_${Phaser.Math.RND.between(1, 3)}`);
+
           this.tweens.add({
             targets: card,
             x: 400,
@@ -221,6 +224,9 @@ export default class GameScene extends Phaser.Scene {
 
           // Remove the card from the player's hand array.
           this.player.removeCardFromHand(card, this.deck);
+
+          // Play a sound.
+          this.sound.play(`card_place_${Phaser.Math.RND.between(1, 3)}`);
 
           // Move the card to the play pile.
           this.tweens.add({
