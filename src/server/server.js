@@ -203,6 +203,12 @@ function onCardPlayed(card) {
   if (this.player.checkHandEmpty()) {
     this.player.countdown--;
 
+    // Check to see if the game is over.
+    if (this.player.countdown === 0) {
+      // Notify players that the game is over and who the winner is.
+      this.emit('game over', this.player);
+    }
+
     dealCardsToPlayer(this.player, this.player.countdown);
   }
 
@@ -219,8 +225,23 @@ function onCardPlayed(card) {
   // Otherwise move position to next player.
   rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
 
+  // If a jack was played skip the next players turn.
+  if (card.value === 'j') {
+    rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
+  }
+
   // Grab the next player to play.
   let player = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
+
+  // If a 2 was played, deal two cards to the next player.
+  if (card.value === '2') {
+    dealCardsToPlayer(player, 2);
+  }
+
+  // If a queen of spades was played, deal 5 cards to the next player.
+  if (card.value === 'q of spades') {
+    dealCardsToPlayer(player, 5);
+  }
 
   // Notify everyone who is going to play next.
   io.to(roomCode).emit('show player turn', player);
@@ -290,22 +311,6 @@ function checkAllPlayersReady(roomCode) {
   }
 
   return ready;
-}
-
-/**
- * Determine if the game is over by checking each player's countdown score, 0
- * is considered game over.
- */
-function checkGameOver(roomCode) {
-  let players = getPlayersInRoom(roomCode);
-
-  for (let player of players) {
-    // If the player's countdown is at 0 then game over.
-    if (player.countdown === 0) {
-      rooms[roomCode].gameOver = true;
-      // TODO: set the player to winner, do some cool visual shite.
-    }
-  }
 }
 
 /**
