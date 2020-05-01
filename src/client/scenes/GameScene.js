@@ -3,7 +3,6 @@ import Card from '../objects/Card.js';
 import Deck from '../objects/Deck.js';
 import Player from '../objects/Player.js';
 import Preload from '../utilities/Preload.js';
-import SocketUtils from '../utilities/SocketUtils.js';
 
 /**
  * @class - Game scene which contains the core game loop.
