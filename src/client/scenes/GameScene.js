@@ -166,9 +166,9 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // Handle removing a player who has disconnected.
-    this.socket.on('player quit', (playerName) => {
+    this.socket.on('player quit', (playerObj) => {
       // Remove the player from the scene.
-      this.getPlayerByName(playerName).removePlayer();
+      this.getPlayerByName(playerObj.name).removePlayer();
       // Remove player from players array.
       this.players = this.players.filter((player) => player.name !== playerName);
     });

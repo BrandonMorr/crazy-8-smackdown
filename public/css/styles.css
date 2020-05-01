@@ -18,3 +18,46 @@ input ::placeholder {
 canvas {
   border-radius: 4px;
 }
+
+div {
+  font-family: Helvetica, "sans-serif";
+  font-weight: bold;
+  color: #000000;
+  user-select: none;
+}
+
+.status {
+  color: white;
+  background-color: #99ff99;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.badge {
+  color: white;
+  background-color: #ff88dc;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.error {
+  color: white;
+  background-color: #ff0040;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.button {
+  color: #505050;
+  font-weight: bold;
+  height: 48px;
+  width: 150px;
+  border-radius: 12px;
+  border-color: #e0e0e0;
+  border-right: none;
+  border-left: none;
+  background-color: #e0e0e0;
+  -webkit-box-shadow: 0 4px 0 0 #505050;
+  -moz-box-shadow: 0 4px 0 0 #505050;
+  box-shadow: 0 4px 0 0 #505050;
+}

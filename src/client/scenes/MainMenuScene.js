@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import SocketIO from 'socket.io-client';
-import FontLoader from '../utilities/FontLoader';
 
 /**
  * @class - It's da main menu scene!
@@ -11,38 +10,10 @@ export default class MainMenuScene extends Phaser.Scene {
     super({
       key: 'MainMenuScene',
     });
-
-    this.titleTextStyle = {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '28px',
-      fontStyle: 'bold',
-      color: '#000000'
-    };
-
-    this.statusTextStyle = {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '14px',
-      color: '#99ff99'
-    };
-
-    this.labelTextStyle = {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '18px',
-      fontStyle: 'bold',
-      color: '#000000'
-    };
-
-    this.messageTextStyle = {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '18px',
-      fontStyle: 'bold',
-      color: '#ff0000'
-    };
   }
 
   preload() {
-    // Currently does jack shit...
-    FontLoader.loadWebFontOpenSans();
+
   }
 
   create() {
@@ -73,31 +44,34 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   update() {
-    
+
   }
 
   /**
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.text(400, 100, 'CRAZY 8 SMACKDOWN', this.titleTextStyle);
-    titleText.setOrigin(0.5);
+    let titleText = this.add.dom(400, 100, 'div', 'font-size: 28px', 'CRAZY 8 SMACKDOWN');
+    titleText.setClassName('title');
+
+    let releaseBadge = this.add.dom(530, 130, 'div', 'font-size: 16px', 'ALPHA');
+    releaseBadge.setClassName('badge');
   }
 
   /**
    * Add connection status text to the scene.
    */
   addConnectionStatus() {
-    let statusText = this.add.text(750, 580, 'ONLINE', this.statusTextStyle);
-    statusText.setOrigin(0.5);
+    let statusText = this.add.dom(740, 580, 'div', 'font-size: 14px;', 'CONNECTED');
+    statusText.setClassName('status');
   }
 
   /**
    * Add a player name input and label to the scene.
    */
   addNameInput() {
-    let nameLabel = this.add.text(270, 200, 'NAME', this.labelTextStyle);
-    nameLabel.setOrigin(0.5);
+    let nameLabel = this.add.dom(270, 205, 'div', 'font-size: 18px;', 'NAME');
+    nameLabel.setClassName('label');
 
     let nameInput = this.add.dom(400, 240, 'input');
     nameInput.setClassName('name-input');
@@ -110,8 +84,8 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a room code input and label to the scene.
    */
   addRoomCodeInput() {
-    let roomCodeLabel = this.add.text(300, 280, 'ROOM CODE', this.labelTextStyle);
-    roomCodeLabel.setOrigin(0.5);
+    let roomCodeLabel = this.add.dom(300, 285, 'div', 'font-size: 18px;', 'ROOM CODE');
+    roomCodeLabel.setClassName('label');
 
     let roomCodeInput = this.add.dom(400, 320, 'input');
     roomCodeInput.setClassName('room-code-input');
@@ -124,8 +98,8 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.text(310, 380, 'CREATE GAME', this.labelTextStyle);
-    createGameButton.setOrigin(0.5);
+    let createGameButton = this.add.dom(310, 380, 'button', 'font-size: 16px;', 'CREATE GAME');
+    createGameButton.setClassName('button');
     createGameButton.setInteractive();
 
     createGameButton.on('pointerdown', () => {
@@ -141,22 +115,14 @@ export default class MainMenuScene extends Phaser.Scene {
         this.showErrorMessage('NAME CANNOT BE EMPTY');
       }
     });
-
-    createGameButton.on('pointerover', () => {
-      createGameButton.setTintFill(0x8b8b8b);
-    });
-
-    createGameButton.on('pointerout', () => {
-      createGameButton.clearTint();
-    });
   }
 
   /**
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
   addJoinButton() {
-    let playButton = this.add.text(520, 380, 'JOIN', this.labelTextStyle);
-    playButton.setOrigin(0.5);
+    let playButton = this.add.dom(490, 380, 'button', 'font-size: 16px;', 'JOIN');
+    playButton.setClassName('button');
     playButton.setInteractive();
 
     playButton.on('pointerdown', () => {
@@ -174,19 +140,14 @@ export default class MainMenuScene extends Phaser.Scene {
         this.showErrorMessage('NAME & ROOM CODE CANNOT BE EMPTY');
       }
     });
-
-    playButton.on('pointerover', () => {
-      playButton.setTintFill(0x8b8b8b);
-    });
-
-    playButton.on('pointerout', () => {
-      playButton.clearTint();
-    });
   }
 
+  /**
+   * Display error message to the use, fade it out after a few seconds.
+   */
   showErrorMessage(errorMessage) {
-    this.errorMessage = this.add.text(400, 450, `ERROR: ${errorMessage}`, this.messageTextStyle);
-    this.errorMessage.setOrigin(0.5);
+    this.errorMessage = this.add.dom(400, 460, 'div', 'font-size: 18px;', errorMessage);
+    this.errorMessage.setClassName('error');
 
     this.tweens.add({
       targets: this.errorMessage,

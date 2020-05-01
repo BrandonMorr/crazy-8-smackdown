@@ -286,7 +286,7 @@ function onDisconnect() {
   // Check to see if the socket has a player data object.
   if ('player' in this) {
     // Alert others of the disconnected player.
-    io.to(this.player.roomCode).emit('player quit', this.player.name);
+    io.to(this.player.roomCode).emit('player quit', this.player);
   }
 }
 
