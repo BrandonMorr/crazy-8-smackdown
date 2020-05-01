@@ -62,7 +62,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add connection status text to the scene.
    */
   addConnectionStatus() {
-    let statusText = this.add.dom(740, 580, 'div', 'font-size: 14px;', 'CONNECTED');
+    let statusText = this.add.dom(735, 570, 'div', 'font-size: 14px;', 'CONNECTED');
     statusText.setClassName('status');
   }
 

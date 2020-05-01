@@ -31,6 +31,9 @@ div {
   background-color: #99ff99;
   padding: 4px;
   border-radius: 4px;
+  -webkit-box-shadow: 0 4px 0 0 #7fdf7f;
+  -moz-box-shadow: 0 4px 0 0 #7fdf7f;
+  box-shadow: 0 4px 0 0 #7fdf7f;
 }
 
 .badge {
@@ -38,6 +41,9 @@ div {
   background-color: #ff88dc;
   padding: 4px;
   border-radius: 4px;
+  -webkit-box-shadow: 0 4px 0 0 #d06eb3;
+  -moz-box-shadow: 0 4px 0 0 #d06eb3;
+  box-shadow: 0 4px 0 0 #d06eb3;
 }
 
 .error {
@@ -45,6 +51,9 @@ div {
   background-color: #ff0040;
   padding: 6px;
   border-radius: 6px;
+  -webkit-box-shadow: 0 4px 0 0 #c12048;
+  -moz-box-shadow: 0 4px 0 0 #c12048;
+  box-shadow: 0 4px 0 0 #c12048;
 }
 
 .button {
@@ -59,5 +68,5 @@ div {
   background-color: #e0e0e0;
   -webkit-box-shadow: 0 4px 0 0 #505050;
   -moz-box-shadow: 0 4px 0 0 #505050;
-  box-shadow: 0 4px 0 0 #505050;
+  box-shadow: 0 4px 0 0 #757575;;
 }
