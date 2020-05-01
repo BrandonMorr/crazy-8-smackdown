@@ -25,8 +25,6 @@ export default class Player {
     let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
     deck.playPile.unshift(cardToRemove[0]);
 
-    console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
-
     return deck.getLastPlayCard();
   }
 
@@ -42,8 +40,6 @@ export default class Player {
     for (let card of cards) {
       let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
       deck.playPile.unshift(cardToRemove[0]);
-
-      console.log(`[${this.name}] ${cardToRemove[0].name} was played!`);
     }
 
     return deck.getLastPlayCard();
@@ -56,7 +52,5 @@ export default class Player {
    */
   addCardToHand(card) {
     this.hand.push(card);
-
-    console.log(`[${this.name}] ${card.name} was added to hand!`);
   }
 }

@@ -3,8 +3,8 @@ const webpack = require('webpack');
 
 const public      = path.join(__dirname, 'public');
 const nodeModules = path.join(__dirname, 'node_modules');
-const server      = path.join(__dirname, 'src/client/server');
-const client      = path.join(__dirname, 'src/client/index.js');
+const server      = path.join(__dirname, 'src/server');
+const client      = path.join(__dirname, 'src/client/client');
 
 const definePlugin = new webpack.DefinePlugin({
   CANVAS_RENDERER: JSON.stringify(true),
