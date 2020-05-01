@@ -16,14 +16,17 @@ export default class Player {
   /**
    * Remove a card from the player's hand, place it in play pile.
    *
-   * @param {Card} cards - The card to be removed.
+   * @param {Card} card - The card to be removed.
    * @param {Deck} deck - The deck which contains the play pile to add to.
    */
   removeCardFromHand(card, deck) {
-    let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
+    let cardToRemoveIndex = this.hand.findIndex((cardObj) => cardObj.name === card.name);
+    let cardToRemove = this.hand.splice(cardToRemoveIndex, 1);
+
+    // Add the card to the play pile.
     deck.addCardToPlayPile(cardToRemove[0]);
 
-    console.log(`${card.name} was removed from ${this.name}`);
+    console.log(`${cardToRemove[0].name} was removed from ${this.name}`);
   }
 
   /**
