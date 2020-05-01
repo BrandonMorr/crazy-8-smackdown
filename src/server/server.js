@@ -6,6 +6,7 @@ import Express from 'express';
 import SocketIO from 'socket.io';
 import Compression from 'compression';
 
+import Room from './objects/Room';
 import Deck from './objects/Deck';
 import Card from './objects/Card';
 import Player from './objects/Player';
@@ -59,22 +60,17 @@ function setServerHandlers() {
 function onNewGame() {
   // Generate a random token to be used as room code.
   Crypto.randomBytes(2, (err, buf) => {
-    let room = {
-      roomCode: buf.toString('hex'),
-      gameStarted: false,
-      gameOver: false,
-      playerOrder: [],
-      playerTurn: 0,
-    };
+    // Generate a random room code.
+    let roomCode = buf.toString('hex');
+
+    // Add room to rooms array.
+    rooms[roomCode] = new Room(roomCode);
 
     // Connect the user to the room.
-    this.join(room.roomCode);
+    this.join(roomCode);
 
     // Send the room code back to the client.
-    this.emit('new game', room.roomCode);
-
-    // Add room to list of active rooms.
-    rooms[room.roomCode] = room;
+    this.emit('new game', roomCode);
   });
 }
 
