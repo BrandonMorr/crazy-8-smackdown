@@ -45,7 +45,7 @@ export default class GameScene extends Phaser.Scene {
     this.players.push(this.player);
 
     // NOTE: remove this at some point, will use more dynamic avatars.
-    this.player.setPlayerTexture(this.players.length);
+    this.player.setPlayerTexture(1);
 
     // Notify other players that we are connected.
     this.socket.emit('new player', this.player.name, this.socket.roomCode);
@@ -71,7 +71,7 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-    // Show everyone that the player
+    // Show that a player is ready.
     this.socket.on('show player ready', (playerName) => {
       let player = this.getPlayerByName(playerName);
       player.showPlayerReady();
@@ -129,7 +129,7 @@ export default class GameScene extends Phaser.Scene {
 
         // If no cards are playable, the player needs to draw.
         if (needToDrawCard) {
-          
+
         }
       }
       else {
@@ -210,73 +210,66 @@ export default class GameScene extends Phaser.Scene {
    */
   makeCardInteractive(card) {
     if (this.yourTurn) {
-      let isPlayable = this.checkCardPlayable(card);
+      card.setInteractive();
 
-      if (isPlayable) {
-        card.setInteractive();
+      card.on('pointerdown', () => {
+        // Notify players that a card has been played.
+        this.socket.emit('card played', card);
 
-        card.on('pointerdown', () => {
-          // Notify players that a card has been played.
-          this.socket.emit('card played', card);
+        // Remove the turn text.
+        this.player.turnText.destroy();
 
-          // Remove the turn text.
-          this.player.turnText.destroy();
+        // Remove tint.
+        card.clearTint();
 
-          // Remove tint.
-          card.clearTint();
+        // Remove the listeners on all cards.
+        for (let card of this.player.hand) {
+          card.removeAllListeners();
+        }
 
-          // Remove the listeners on all cards.
-          for (let card of this.player.hand) {
-            card.removeAllListeners();
-          }
+        // Remove the card from the player's hand array.
+        this.player.removeCardFromHand(card, this.deck);
 
-          // Remove the card from the player's hand array.
-          this.player.removeCardFromHand(card, this.deck);
+        // Play a sound.
+        this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
 
-          // Play a sound.
-          this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
-
-          // Move the card to the play pile.
-          this.tweens.add({
-            targets: card,
-            x: 400,
-            y: 300,
-            ease: 'Linear',
-            duration: 250,
-          });
+        // Move the card to the play pile.
+        this.tweens.add({
+          targets: card,
+          x: 400,
+          y: 300,
+          ease: 'Linear',
+          duration: 250,
         });
+      });
 
-        // When the user hovers the cursor over the card, set a tint and raise y.
-        card.on('pointerover', () => {
-          // Set a tint to show card is playable.
-          card.setTint(0xe3e3e3);
+      // When the user hovers the cursor over the card, set a tint and raise y.
+      card.on('pointerover', () => {
+        // Set a tint to show card is playable.
+        card.setTint(0xe3e3e3);
 
-          // Move card up slightly.
-          this.tweens.add({
-            targets: card,
-            y: 450,
-            ease: 'Linear',
-            duration: 250,
-          });
+        // Move card up slightly.
+        this.tweens.add({
+          targets: card,
+          y: 450,
+          ease: 'Linear',
+          duration: 250,
         });
+      });
 
-        // When the user's cursor leaves the card, remove the tint and lower y.
-        card.on('pointerout', () => {
-          // Remove tint.
-          card.clearTint();
+      // When the user's cursor leaves the card, remove the tint and lower y.
+      card.on('pointerout', () => {
+        // Remove tint.
+        card.clearTint();
 
-          // Move the card back into hand.
-          this.tweens.add({
-            targets: card,
-            y: 500,
-            ease: 'Linear',
-            duration: 250,
-          });
+        // Move the card back into hand.
+        this.tweens.add({
+          targets: card,
+          y: 500,
+          ease: 'Linear',
+          duration: 250,
         });
-      }
-      else {
-
-      }
+      });
     }
   }
 

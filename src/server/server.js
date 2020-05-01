@@ -83,16 +83,25 @@ function onJoinRequest(roomCode) {
 
   // If room code is valid and the game hasn't started, connect the user.
   if (foundRoom) {
-    if (rooms[foundRoom].gameStarted === false) {
-      // Connect the user to the room.
-      this.join(roomCode);
+    let playersInRoom = getPlayersInRoom(roomCode).length;
 
-      // Send the room code back to the client.
-      this.emit('join game', roomCode);
+    // If there are less than 4 players in the room, connect the user.
+    if (playersInRoom < 4) {
+      if (rooms[foundRoom].gameStarted === false) {
+        // Connect the user to the room.
+        this.join(roomCode);
+
+        // Send the room code back to the client.
+        this.emit('join game', roomCode);
+      }
+      else {
+        // Notify the user that the room's game is in progress.
+        this.emit('join error', 'GAME IS IN PROGRESS');
+      }
     }
     else {
-      // Notify the user that the room's game is in progress.
-      this.emit('join error', 'GAME IS IN PROGRESS');
+      // Notify the user that the room is full.
+      this.emit('join error', 'ROOM IS FULL');
     }
   }
   else {
