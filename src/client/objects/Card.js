@@ -37,7 +37,7 @@ export default class Card extends Phaser.GameObjects.Sprite {
   /**
    * Custom toJSON function.
    *
-   * @return {String} - A JSON representation of the card object.
+   * @return {string} - A JSON representation of the card object.
    */
   toJSON() {
     let card = {

@@ -39,4 +39,13 @@ export default class Player {
 
     console.log(`${card.name} was added to ${this.name}`);
   }
+
+  /**
+   * Return if the player's hand is empty.
+   *
+   * @return {boolean} - Whether the hand is empty or not.
+   */
+  checkHandEmpty() {
+    return this.hand.length === 0;
+  }
 }

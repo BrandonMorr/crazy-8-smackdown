@@ -198,6 +198,14 @@ function onCardPlayed(card) {
   // Remove the card from the player's hand.
   this.player.removeCardFromHand(card, deck);
 
+  // Check if the player's hand is empty, if so lower score and deal out more
+  // cards.
+  if (this.player.checkHandEmpty()) {
+    this.player.countdown--;
+
+    dealCardsToPlayer(this.player, this.player.countdown);
+  }
+
   // Update the card in play.
   rooms[this.player.roomCode].cardInPlay = card;
 
