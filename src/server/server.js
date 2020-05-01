@@ -50,6 +50,7 @@ function setServerHandlers() {
     socket.on('new player', onNewPlayer);
     socket.on('player ready', onPlayerReady);
     socket.on('card played', onCardPlayed);
+    socket.on('draw card', onDrawCard);
     socket.on('disconnect', onDisconnect);
   });
 }
@@ -131,48 +132,55 @@ function onNewPlayer(playerName, roomCode) {
  * If all players are ready, randomly pick a player to go first and notify all
  * players that the game has stared.
  */
-function onPlayerReady(playerName) {
+function onPlayerReady() {
+  let roomCode = this.player.roomCode;
+
   this.player.ready = true;
 
   // Let everyone else know the player is ready.
-  this.broadcast.to(this.player.roomCode).emit('show player ready', this.player.name);
+  this.broadcast.to(roomCode).emit('show player ready', this.player.name);
 
   // Check to see if all players are ready.
-  if (checkAllPlayersReady(this.player.roomCode)) {
+  if (checkAllPlayersReady(roomCode)) {
     // Flag that the room's game has started.
-    rooms[this.player.roomCode].gameStarted = true;
+    rooms[roomCode].gameStarted = true;
 
     // Notify everyone that the game has started.
-    io.to(this.player.roomCode).emit('game started');
+    io.to(roomCode).emit('game started');
 
     // Determine the player order.
-    rooms[this.player.roomCode].playerOrder = shufflePlayerOrder(this.player.roomCode);
+    rooms[roomCode].playerOrder = shufflePlayerOrder(roomCode);
+
+    let firstPlayer = rooms[roomCode].playerOrder[0];
 
     // Notify all players who's turn it is.
-    io.to(this.player.roomCode).emit('show player turn', rooms[this.player.roomCode].playerOrder[0]);
+    io.to(roomCode).emit('show player turn', firstPlayer);
 
     // Generate a deck object, store it in the room data.
-    rooms[this.player.roomCode].deck = new Deck();
+    rooms[roomCode].deck = new Deck();
 
     // TODO: do this after the cards are dealt
     // Shift out a card from the draw pile...
-    let firstCardInPlay = rooms[this.player.roomCode].deck.drawPile.shift();
+    let firstCardInPlay = rooms[roomCode].deck.drawPile.shift();
 
     // ...and place said card on the top of the play pile.
-    rooms[this.player.roomCode].deck.playPile.unshift(firstCardInPlay);
+    rooms[roomCode].deck.playPile.unshift(firstCardInPlay);
 
     // Set the first card in play pile as the last card played.
-    rooms[this.player.roomCode].cardInPlay = firstCardInPlay;
+    rooms[roomCode].cardInPlay = firstCardInPlay;
 
     // Notify all players what the first card to play is.
-    io.to(this.player.roomCode).emit('show first card in play', firstCardInPlay);
+    io.to(roomCode).emit('show first card in play', firstCardInPlay);
 
     // Deal out 8 cards to players.
     for (let i = 0; i <= 7; i++) {
-      for (let player of rooms[this.player.roomCode].playerOrder) {
+      for (let player of rooms[roomCode].playerOrder) {
         dealCardsToPlayer(player);
       }
     }
+
+    // Notify the player that they can start their turn.
+    io.to(firstPlayer.id).emit('turn start');
   }
 }
 
@@ -181,23 +189,54 @@ function onPlayerReady(playerName) {
  */
 function onCardPlayed(card) {
   let roomCode = this.player.roomCode;
-  let playerTurn = rooms[roomCode].playerOrder.length - 1;
+  let deck = rooms[roomCode].deck;
+  let playerTurnLast = rooms[roomCode].playerOrder.length - 1;
 
-  // Let everyone know that the player has played a card.
-  this.broadcast.to(roomCode).emit('show card played', this.player, card);
+  // Remove the card from the player's hand.
+  this.player.removeCardFromHand(card, deck);
 
   // Update the card in play.
   rooms[this.player.roomCode].cardInPlay = card;
 
+  // Let everyone know that the player has played a card.
+  this.broadcast.to(roomCode).emit('show card played', this.player, card);
+
   // If the player in last position has played, reset back to first player.
   // Otherwise move position to next player.
-  rooms[roomCode].playerTurn === playerTurn ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
+  rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
 
   // Grab the next player to play.
   let player = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
 
   // Notify everyone who is going to play next.
   io.to(roomCode).emit('show player turn', player);
+
+  // Notify the first player to start the turn.
+  io.to(player.id).emit('turn start');
+}
+
+/**
+ * Player has no playable cards, deal a new card and move on.
+ */
+function onDrawCard() {
+  let roomCode = this.player.roomCode;
+  let playerTurnLast = rooms[roomCode].playerOrder.length - 1;
+
+  // Deal a new card to the player.
+  dealCardsToPlayer(this.player);
+
+  // If the player in last position has played, reset back to first player.
+  // Otherwise move position to next player.
+  rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
+
+  // Grab the next player to play.
+  let player = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
+
+  // Notify everyone who is going to play next.
+  io.to(roomCode).emit('show player turn', player);
+
+  // Notify the first player to start the turn.
+  io.to(player.id).emit('turn start');
 }
 
 /**

@@ -79,67 +79,67 @@ export default class GameScene extends Phaser.Scene {
 
     // When a turn has been made, remove the 'Making Turn' text.
     this.socket.on('show card played', (playerObj, cardObj) => {
-      for (let player of this.players) {
-        if (player.name === playerObj.name) {
-          let card = new Card(this, player.x, player.y, cardObj.suit, cardObj.value, cardObj.name);
+      let player = this.getPlayerByName(playerObj.name);
+      let card = new Card(this, player.x, player.y, cardObj.suit, cardObj.value, cardObj.name);
 
-          // Add the card to the play pile.
-          this.deck.addCardToPlayPile(card);
+      // Add the card to the play pile.
+      this.deck.addCardToPlayPile(card);
 
-          // Set the new card in play.
-          this.currentCardInPlay = card;
+      // Set the new card in play.
+      this.currentCardInPlay = card;
 
-          // Play a sound.
-          this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
+      // Play a sound.
+      this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
 
-          this.tweens.add({
-            targets: card,
-            x: 400,
-            y: 300,
-            ease: 'Linear',
-            duration: 250
-          });
-
-          player.turnText.destroy();
-        }
-      }
+      this.tweens.add({
+        targets: card,
+        x: 400,
+        y: 300,
+        ease: 'Linear',
+        duration: 250
+      });
     });
 
     // Display 'Making Turn' text to show who has to play.
-    this.socket.on('show player turn', (player) => {
-      let name = player.name;
+    this.socket.on('show player turn', (playerObj) => {
+      for (let player of this.players) {
+        if (player.turnText) {
+          player.turnText.destroy();
+        }
+      }
 
-      if (this.player.name === name) {
+      if (this.player.name === playerObj.name) {
         // It's your turn!
         this.player.showPlayerTurn();
         this.yourTurn = true;
-
-        let needToDrawCard = true;
-
-        // Check for playable cards.
-        for (let card of this.player.hand) {
-          let isPlayable = this.checkCardPlayable(card);
-
-          // If the card is playable, make it interactive.
-          if (isPlayable) {
-            this.makeCardInteractive(card);
-            needToDrawCard = false;
-          }
-        }
-
-        // If no cards are playable, the player needs to draw.
-        if (needToDrawCard) {
-
-        }
       }
       else {
         // It's someone elses turn!
-        for (let player of this.players) {
-          if (player.name === name) {
-            player.showPlayerTurn();
-            this.yourTurn = false;
-          }
+        let player = this.getPlayerByName(playerObj.name);
+
+        player.showPlayerTurn();
+        this.yourTurn = false;
+      }
+    });
+
+    // Check player hand for playable cards, otherwise draw a card and move on.
+    this.socket.on('turn start', () => {
+      let needToDrawCard = true;
+
+      // Check for playable cards.
+      for (let card of this.player.hand) {
+        let isPlayable = this.checkCardPlayable(card);
+
+        // If the card is playable, make it interactive.
+        if (isPlayable) {
+          this.makeCardInteractive(card);
+          needToDrawCard = false;
         }
+      }
+
+      // If no cards are playable, the player needs to draw a card.
+      if (needToDrawCard) {
+        this.addDrawCardButton();
       }
     });
 
@@ -175,7 +175,7 @@ export default class GameScene extends Phaser.Scene {
 
     // TODO: only show this button when there are two or more players in room.
     this.addReadyButton();
-    this.addRoomCode();
+    this.addRoomCodeButton();
   }
 
   update() {
@@ -189,19 +189,16 @@ export default class GameScene extends Phaser.Scene {
    */
   dealCardToPlayer(card) {
     let cardToTween = new Card(this, 400, 300, card.suit, card.value, card.name);
-    this.player.hand.push(cardToTween);
+
+    // Add the card to the player's hand.
+    this.player.addCardToHand(cardToTween);
 
     this.tweens.add({
       targets: cardToTween,
       x: this.calculateCardX(),
-      y: '+=200',
+      y: 500,
       ease: 'Linear',
-      duration: 250,
-      onComplete: () => {
-        if (this.checkCardPlayable(cardToTween)) {
-          this.makeCardInteractive(cardToTween);
-        }
-      }
+      duration: 250
     });
   }
 
@@ -209,68 +206,66 @@ export default class GameScene extends Phaser.Scene {
    * Make a card playable by adding click/hover listeners.
    */
   makeCardInteractive(card) {
-    if (this.yourTurn) {
-      card.setInteractive();
+    card.setInteractive();
 
-      card.on('pointerdown', () => {
-        // Notify players that a card has been played.
-        this.socket.emit('card played', card);
+    card.on('pointerdown', () => {
+      // Remove the turn text.
+      this.player.turnText.destroy();
 
-        // Remove the turn text.
-        this.player.turnText.destroy();
+      // Remove tint.
+      card.clearTint();
 
-        // Remove tint.
-        card.clearTint();
+      // Remove the listeners on all cards.
+      for (let card of this.player.hand) {
+        card.removeAllListeners();
+      }
 
-        // Remove the listeners on all cards.
-        for (let card of this.player.hand) {
-          card.removeAllListeners();
-        }
+      // Remove the card from the player's hand array.
+      this.player.removeCardFromHand(card, this.deck);
 
-        // Remove the card from the player's hand array.
-        this.player.removeCardFromHand(card, this.deck);
+      // Play a sound.
+      this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
 
-        // Play a sound.
-        this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
-
-        // Move the card to the play pile.
-        this.tweens.add({
-          targets: card,
-          x: 400,
-          y: 300,
-          ease: 'Linear',
-          duration: 250,
-        });
+      // Move the card to the play pile.
+      this.tweens.add({
+        targets: card,
+        x: 400,
+        y: 300,
+        ease: 'Linear',
+        duration: 250,
       });
 
-      // When the user hovers the cursor over the card, set a tint and raise y.
-      card.on('pointerover', () => {
-        // Set a tint to show card is playable.
-        card.setTint(0xe3e3e3);
+      // Notify players that a card has been played.
+      this.socket.emit('card played', card);
+    });
 
-        // Move card up slightly.
-        this.tweens.add({
-          targets: card,
-          y: 450,
-          ease: 'Linear',
-          duration: 250,
-        });
+    // When the user hovers the cursor over the card, set a tint and raise y.
+    card.on('pointerover', () => {
+      // Set a tint to show card is playable.
+      card.setTint(0xe3e3e3);
+
+      // Move card up slightly.
+      this.tweens.add({
+        targets: card,
+        y: 450,
+        ease: 'Linear',
+        duration: 250,
       });
+    });
 
-      // When the user's cursor leaves the card, remove the tint and lower y.
-      card.on('pointerout', () => {
-        // Remove tint.
-        card.clearTint();
+    // When the user's cursor leaves the card, remove the tint and lower y.
+    card.on('pointerout', () => {
+      // Remove tint.
+      card.clearTint();
 
-        // Move the card back into hand.
-        this.tweens.add({
-          targets: card,
-          y: 500,
-          ease: 'Linear',
-          duration: 250,
-        });
+      // Move the card back into hand.
+      this.tweens.add({
+        targets: card,
+        y: 500,
+        ease: 'Linear',
+        duration: 250,
       });
-    }
+    });
   }
 
   /**
@@ -370,7 +365,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Add a ready button to the scene to ready up.
+   * Add a ready button to the scene.
    *
    * TODO: only show button when more than one player present in the room.
    */
@@ -401,9 +396,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Add room code text to the scene.
+   * Add room code button to the scene.
    */
-  addRoomCode() {
+  addRoomCodeButton() {
     this.roomCodeText = this.add.text(700, 580, `ROOM CODE: ${this.socket.roomCode.toUpperCase()}`, {
       fontFamily: 'Helvetica, "sans-serif"',
       fontSize: '14px',
@@ -424,6 +419,33 @@ export default class GameScene extends Phaser.Scene {
 
     this.roomCodeText.on('pointerout', () => {
       this.roomCodeText.clearTint();
+    });
+  }
+
+  /**
+   * Add draw card button to the scene.
+   */
+  addDrawCardButton() {
+    this.drawCardButton = this.add.text(700, 550, 'DRAW CARD', {
+      fontFamily: 'Helvetica, "sans-serif"',
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: '#000000'
+    });
+    this.drawCardButton.setOrigin(0.5);
+    this.drawCardButton.setInteractive();
+
+    this.drawCardButton.on('pointerdown', () => {
+      this.socket.emit('draw card');
+      this.drawCardButton.destroy();
+    });
+
+    this.drawCardButton.on('pointerover', () => {
+      this.drawCardButton.setTintFill(0x8b8b8b);
+    });
+
+    this.drawCardButton.on('pointerout', () => {
+      this.drawCardButton.clearTint();
     });
   }
 }

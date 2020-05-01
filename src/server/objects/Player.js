@@ -18,31 +18,12 @@ export default class Player {
    *
    * @param {Card} cards - The card to be removed.
    * @param {Deck} deck - The deck which contains the play pile to add to.
-   *
-   * @return {Card} - The last card added to playPile.
    */
   removeCardFromHand(card, deck) {
     let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
-    deck.playPile.unshift(cardToRemove[0]);
+    deck.addCardToPlayPile(cardToRemove[0]);
 
-    return deck.getLastPlayCard();
-  }
-
-  /**
-   * Remove multiple cards from the player's hand, place it in play pile.
-   *
-   * @param {Card[]} cards - The cards to be removed.
-   * @param {Deck} deck - The deck which contains the play pile to add to.
-   *
-   * @return {Card} - The last card added to playPile.
-   */
-  removeCardsFromHand(cards, deck) {
-    for (let card of cards) {
-      let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
-      deck.playPile.unshift(cardToRemove[0]);
-    }
-
-    return deck.getLastPlayCard();
+    console.log(`${card.name} was removed from ${this.name}`);
   }
 
   /**
@@ -52,5 +33,7 @@ export default class Player {
    */
   addCardToHand(card) {
     this.hand.push(card);
+
+    console.log(`${card.name} was added to ${this.name}`);
   }
 }

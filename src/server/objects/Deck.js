@@ -51,12 +51,21 @@ export default class Deck {
   }
 
   /**
-   * Add array of card(s) to the deck.
+   * Add a card to the draw pile.
    *
-   * @param {Card[]} cards - The array of cards to add to the deck.
+   * @param {Card} card - The card to add to the play pile.
    */
-  addCardsToDeck(cards) {
-    this.drawPile = (this.drawPile, cards);
+  addCardToDrawPile(card) {
+    this.drawPile.unshift(card);
+  }
+
+  /**
+   * Add a card to the play pile.
+   *
+   * @param {Card} card - The card to add to the play pile.
+   */
+  addCardToPlayPile(card) {
+    this.playPile.unshift(card);
   }
 
   /**
