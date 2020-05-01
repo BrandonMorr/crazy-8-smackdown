@@ -51,16 +51,16 @@ export default class GameScene extends Phaser.Scene {
     this.socket.emit('new player', this.player.name, this.socket.roomCode);
 
     // Handle new player connections.
-    this.socket.on('new player', (player) => {
-      this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
+    this.socket.on('new player', (playerObj) => {
+      this.players.push(new Player(this, this.calculatePlayerX(), 100, playerObj.name));
 
       // NOTE: remove this at some point, will use more dynamic avatars.
       this.players[this.players.length - 1].setPlayerTexture(this.players.length);
     });
 
     // Show all the other players.
-    this.socket.on('get players', (players) => {
-      for (let player of players) {
+    this.socket.on('get players', (playerObjs) => {
+      for (let player of playerObjs) {
         // We only want to add other players.
         if (player.name !== this.player.name) {
           this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
@@ -72,8 +72,8 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // Show that a player is ready.
-    this.socket.on('show player ready', (playerName) => {
-      let player = this.getPlayerByName(playerName);
+    this.socket.on('show player ready', (playerObj) => {
+      let player = this.getPlayerByName(playerObj.name);
       player.showPlayerReady();
     });
 
@@ -84,9 +84,6 @@ export default class GameScene extends Phaser.Scene {
 
       // Add the card to the play pile.
       this.deck.addCardToPlayPile(card);
-
-      // Set the new card in play.
-      this.currentCardInPlay = card;
 
       // Play a sound.
       this.sound.play(`card_slide_${Phaser.Math.RND.between(1, 3)}`);
@@ -153,16 +150,19 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // Tween cards to the player.
-    this.socket.on('add card to hand', (card) => {
-      this.dealCardToPlayer(card);
+    this.socket.on('add card to hand', (cardObj) => {
+      this.dealCardToPlayer(cardObj);
     });
 
     // Update the card in play (card to play on).
     this.socket.on('show first card in play', (cardObj) => {
       let card = new Card(this, 400, 300, cardObj.suit, cardObj.value, cardObj.name);
 
-      this.currentCardInPlay = card;
       this.deck.addCardToPlayPile(card);
+    });
+
+    this.socket.on('update card in play', (cardObj) => {
+      this.currentCardInPlay = cardObj;
     });
 
     // Handle removing a player who has disconnected.

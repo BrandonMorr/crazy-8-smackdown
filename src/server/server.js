@@ -138,7 +138,7 @@ function onPlayerReady() {
   this.player.ready = true;
 
   // Let everyone else know the player is ready.
-  this.broadcast.to(roomCode).emit('show player ready', this.player.name);
+  this.broadcast.to(roomCode).emit('show player ready', this.player);
 
   // Check to see if all players are ready.
   if (checkAllPlayersReady(roomCode)) {
@@ -162,6 +162,9 @@ function onPlayerReady() {
     // TODO: do this after the cards are dealt
     // Shift out a card from the draw pile...
     let firstCardInPlay = rooms[roomCode].deck.drawPile.shift();
+
+    // Notify all players that there is a card in play.
+    io.to(roomCode).emit('update card in play', firstCardInPlay);
 
     // ...and place said card on the top of the play pile.
     rooms[roomCode].deck.playPile.unshift(firstCardInPlay);
@@ -197,6 +200,9 @@ function onCardPlayed(card) {
 
   // Update the card in play.
   rooms[this.player.roomCode].cardInPlay = card;
+
+  // Notify all players that there is a card in play change.
+  io.to(roomCode).emit('update card in play', card);
 
   // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player, card);
