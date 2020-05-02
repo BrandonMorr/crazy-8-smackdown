@@ -174,7 +174,7 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('update countdown score', (playerObj) => {
       let player = this.getPlayerByName(playerObj.name);
 
-      player.lowerPlayerCountdown();
+      player.updatePlayerCountdown();
     });
 
     // Handle removing a player who has disconnected.

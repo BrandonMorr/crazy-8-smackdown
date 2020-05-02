@@ -77,7 +77,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Update player's countdown text to reflect current countdown score.
    */
-  lowerPlayerCountdown() {
+  updatePlayerCountdown() {
     this.countdown--;
     this.countdownText.setText(`COUNTDOWN: ${this.countdown}`);
   }

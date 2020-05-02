@@ -113,7 +113,13 @@ export default class MainMenuScene extends Phaser.Scene {
         if (roomCode !== '') {
           // Room codes must be 4 characters long.
           if (roomCode.length === 4) {
-            this.socket.emit('new game', roomCode);
+            // Room code cannot contain spaces.
+            if (!roomCode.includes(' ')) {
+              this.socket.emit('new game', roomCode);
+            }
+            else {
+              this.showErrorMessage('ROOM CODE MUST NOT CONTAIN SPACES');
+            }
           }
           else {
             this.showErrorMessage('ROOM CODE MUST CONTAIN 4 CHARACTERS');
