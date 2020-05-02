@@ -26,6 +26,24 @@ div {
   user-select: none;
 }
 
+/* Container for the wildcard */
+.wildcard-menu-container {
+  height: 100px;
+  width: 530px;
+  padding: 20px;
+  border-radius: 8px;
+  color: #505050;
+  background-color: #e0e0e0;
+  text-align: center;
+
+  -webkit-animation: whacky-colors 1s infinite;
+  -moz-animation: whacky-colors 1s infinite;
+  -o-animation: whacky-colors 1s infinite;
+  -ms-animation: whacky-colors 1s infinite;
+  animation: whacky-colors 1s infinite;
+}
+
+/* Name tag */
 .name {
   color: #505050;
   background-color: #e0e0e0;
@@ -36,6 +54,7 @@ div {
   box-shadow: 0 4px 0 0 #505050;
 }
 
+/* Connection status */
 .status {
   color: white;
   background-color: #99ff99;
@@ -46,6 +65,7 @@ div {
   box-shadow: 0 4px 0 0 #7fdf7f;
 }
 
+/* Countdown score */
 .countdown {
   color: white;
   background-color: #39A0ED;
@@ -56,6 +76,7 @@ div {
   box-shadow: 0 4px 0 0 #3772FF;
 }
 
+/* Title badge */
 .badge {
   color: white;
   background-color: #ff88dc;
@@ -66,6 +87,7 @@ div {
   box-shadow: 0 4px 0 0 #d06eb3;
 }
 
+/* Error message */
 .error {
   color: white;
   background-color: #ff0040;
@@ -76,21 +98,23 @@ div {
   box-shadow: 0 4px 0 0 #c12048;
 }
 
-.button {
+/* Any buttons within the menu scene */
+.menu-button {
   color: #505050;
   font-weight: bold;
-  height: 48px;
+  height: 36px;
   width: 150px;
-  border-radius: 12px;
+  border-radius: 8px;
   border-color: #e0e0e0;
   border-right: none;
   border-left: none;
   background-color: #e0e0e0;
-  -webkit-box-shadow: 0 4px 0 0 #505050;
-  -moz-box-shadow: 0 4px 0 0 #505050;
+  -webkit-box-shadow: 0 4px 0 0 #757575;
+  -moz-box-shadow: 0 4px 0 0 #757575;
   box-shadow: 0 4px 0 0 #757575;;
 }
 
+/* Any buttons within the game scene */
 .game-button {
   color: #505050;
   font-weight: bold;
@@ -101,7 +125,83 @@ div {
   border-right: none;
   border-left: none;
   background-color: #e0e0e0;
-  -webkit-box-shadow: 0 4px 0 0 #505050;
-  -moz-box-shadow: 0 4px 0 0 #505050;
+  -webkit-box-shadow: 0 4px 0 0 #757575;
+  -moz-box-shadow: 0 4px 0 0 #757575;
   box-shadow: 0 4px 0 0 #757575;;
+}
+
+/* Wildcard suit button stuff */
+.suit-button {
+  color: white;
+  font-weight: bold;
+  padding: 6px;
+  width: 120px;
+  border-radius: 4px;
+  border-right: none;
+  border-left: none;
+  background-color: #aaaaaa;
+  border-color: #aaaaaa;
+  -webkit-box-shadow: 0 4px 0 0 #797979;
+  -moz-box-shadow: 0 4px 0 0 #797979;
+  box-shadow: 0 4px 0 0 #797979;
+}
+
+.suit-button:nth-last-of-type(1) {
+  background-color: #55ffff;
+  border-color: #55ffff;
+  -webkit-box-shadow: 0 4px 0 0 #3bb0b0;
+  -moz-box-shadow: 0 4px 0 0 #3bb0b0;
+  box-shadow: 0 4px 0 0 #3bb0b0;
+}
+
+.suit-button:nth-last-of-type(2) {
+  background-color: #ff55ff;
+  border-color: #ff55ff;
+  -webkit-box-shadow: 0 4px 0 0 #ae34ae;
+  -moz-box-shadow: 0 4px 0 0 #ae34ae;
+  box-shadow: 0 4px 0 0 #ae34ae;
+}
+
+.suit-button:nth-last-of-type(3) {
+  background-color: #eaea0e;
+  border-color: #eaea0e;
+  -webkit-box-shadow: 0 4px 0 0 #a2a225;
+  -moz-box-shadow: 0 4px 0 0 #a2a225;
+  box-shadow: 0 4px 0 0 #a2a225;
+}
+
+/* Tumblr-level color animation... lovely */
+@-webkit-keyframes whacky-colors {
+  0% { border: solid 4px #ffffff; }
+	50% { border: solid 4px #55ffff; }
+	75% { border: solid 4px #ff55ff; }
+  100% { border: solid 4px #ffff55 }
+}
+
+@-moz-keyframes whacky-colors {
+  0% { border: solid 4px #ffffff; }
+	50% { border: solid 4px #55ffff; }
+	75% { border: solid 4px #ff55ff; }
+  100% { border: solid 4px #ffff55 }
+}
+
+@-ms-keyframes whacky-colors {
+  0% { border: solid 4px #ffffff; }
+	50% { border: solid 4px #55ffff; }
+	75% { border: solid 4px #ff55ff; }
+  100% { border: solid 4px #ffff55 }
+}
+
+@-o-keyframes whacky-colors {
+  0% { border: solid 4px #ffffff; }
+	50% { border: solid 4px #55ffff; }
+	75% { border: solid 4px #ff55ff; }
+  100% { border: solid 4px #ffff55 }
+}
+
+@keyframes whacky-colors {
+  0% { border: solid 4px #ffffff; }
+	50% { border: solid 4px #55ffff; }
+	75% { border: solid 4px #ff55ff; }
+  100% { border: solid 4px #ffff55 }
 }

@@ -247,6 +247,11 @@ export default class GameScene extends Phaser.Scene {
         duration: 250,
       });
 
+      // Check to see if a wildcard was played.
+      if (card.value == this.player.countdown) {
+        this.showWildCardMenu();
+      }
+
       // Notify players that a card has been played.
       this.socket.emit('card played', card);
     });
@@ -278,54 +283,6 @@ export default class GameScene extends Phaser.Scene {
         duration: 250,
       });
     });
-  }
-
-  /**
-   * Constructs a wildcard dialog box.
-   */
-  buildWildCardDialog() {
-    // initialize container object to hold all the dialogue text.
-    this.wildCardDialogContainer = this.add.container(0, 0);
-    this.wildCardDialogContainer.visible = false;
-
-    // Add a background for the message box.
-    let wildCardDialogBackground = this.add.graphics();
-    wildCardDialogBackground.fillStyle(0xbdbdbd, 0.8);
-    wildCardDialogBackground.fillRoundedRect(200, 250, 400, 150, 4);
-
-    this.wildCardDialogContainer.add(wildCardDialogBackground);
-
-    // Show message text in the center of the screen.
-    let wildCardText = this.add.text((this.sys.game.config.width / 2), (this.sys.game.config.height / 2) - 20, 'Wild card played, choose a new suit:');
-    wildCardText.setOrigin(0.5);
-
-    this.wildCardDialogContainer.add(wildCardText);
-
-    const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
-    let offset = 10;
-
-    for (let suit of suits) {
-      let wildCardOption = this.add.text(this.sys.game.config.width / 2, (this.sys.game.config.height / 2) + offset, suit);
-      wildCardOption.setOrigin(0.5);
-      wildCardOption.setInteractive();
-
-      wildCardOption.on('pointerdown', () => {
-        this.currentSuitInPlay = suit;
-        this.wildCardDialogContainer.visible = false;
-      });
-
-      wildCardOption.on('pointerover', () => {
-        wildCardOption.setTint(0xe3e3e3);
-      });
-
-      wildCardOption.on('pointerout', () => {
-        wildCardOption.clearTint();
-      });
-
-      this.wildCardDialogContainer.add(wildCardOption);
-
-      offset += 20;
-    }
   }
 
   /**
@@ -377,14 +334,44 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Show the everso flashy & wonderful wildcard menu.
+   */
+  showWildCardMenu() {
+    this.suitCardButtons = [];
+    this.wildCardMenu = this.add.dom(400, 300, 'div', 'font-size: 20px;', 'CHOOSE A NEW SUIT');
+    this.wildCardMenu.setClassName('wildcard-menu-container');
+
+    const suits = [ '♥ HEARTS', '♦ DIAMONDS', '♠ SPADES', '♣ CLUBS' ];
+    let offset = 0;
+
+    for (let suit of suits) {
+      let suitButton = this.add.dom(200 + offset, 310, 'button', 'font-size: 16px;', suit);
+      suitButton.setClassName('suit-button');
+      suitButton.addListener('click');
+
+      suitButton.on('click', () => {
+        // Change the suit in play here.
+        this.wildCardMenu.destroy();
+        this.suitCardButtons.forEach((button) => {
+          button.destroy();
+        });
+      });
+
+      this.suitCardButtons.push(suitButton);
+
+      offset += 135;
+    }
+  }
+
+  /**
    * Add room code button to the scene.
    */
   addRoomCodeButton() {
     this.roomCodeButton = this.add.dom(710, 550, 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
     this.roomCodeButton.setClassName('game-button');
-    this.roomCodeButton.setInteractive();
+    this.roomCodeButton.addListener('click');
 
-    this.roomCodeButton.on('pointerdown', () => {
+    this.roomCodeButton.on('click', () => {
       // Copy room code to the clipboard.
       navigator.clipboard.writeText(this.socket.roomCode);
     });
@@ -398,9 +385,9 @@ export default class GameScene extends Phaser.Scene {
   addReadyButton() {
     this.readyButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'READY');
     this.readyButton.setClassName('game-button');
-    this.readyButton.setInteractive();
+    this.readyButton.addListener('click');
 
-    this.readyButton.on('pointerdown', () => {
+    this.readyButton.on('click', () => {
      this.socket.emit('player ready');
      this.player.showPlayerReady();
      // TODO: toggle ready/unready.
@@ -414,9 +401,9 @@ export default class GameScene extends Phaser.Scene {
   addDrawCardButton() {
     this.drawCardButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'DRAW CARD');
     this.drawCardButton.setClassName('game-button');
-    this.drawCardButton.setInteractive();
+    this.drawCardButton.addListener('click');
 
-    this.drawCardButton.on('pointerdown', () => {
+    this.drawCardButton.on('click', () => {
       this.socket.emit('draw card');
       this.drawCardButton.destroy();
     });

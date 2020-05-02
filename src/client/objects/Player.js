@@ -14,7 +14,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.ready = false;
 
     // Add player's name above the avatar.
-    this.nameText = this.scene.add.dom(x, y - 60, 'div', 'font-size: 16px;', this.name);
+    this.nameText = this.scene.add.dom(x, y - 50, 'div', 'font-size: 16px;', this.name);
     this.nameText.setClassName('name');
 
     this.scene.add.existing(this);

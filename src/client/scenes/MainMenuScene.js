@@ -99,10 +99,10 @@ export default class MainMenuScene extends Phaser.Scene {
    */
   addCreateGameButton() {
     let createGameButton = this.add.dom(310, 380, 'button', 'font-size: 16px;', 'CREATE GAME');
-    createGameButton.setClassName('button');
-    createGameButton.setInteractive();
+    createGameButton.setClassName('menu-button');
+    createGameButton.addListener('click');
 
-    createGameButton.on('pointerdown', () => {
+    createGameButton.on('click', () => {
       let playerName = document.querySelector('.name-input').value;
       let roomCode = document.querySelector('.room-code-input').value;
 
@@ -134,10 +134,10 @@ export default class MainMenuScene extends Phaser.Scene {
    */
   addJoinButton() {
     let joinButton = this.add.dom(490, 380, 'button', 'font-size: 16px;', 'JOIN');
-    joinButton.setClassName('button');
-    joinButton.setInteractive();
+    joinButton.setClassName('menu-button');
+    joinButton.addListener('click');
 
-    joinButton.on('pointerdown', () => {
+    joinButton.on('click', () => {
       let playerName = document.querySelector('.name-input').value;
       let roomCode = document.querySelector('.room-code-input').value;
 
