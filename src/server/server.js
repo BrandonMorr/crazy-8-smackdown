@@ -203,6 +203,9 @@ function onCardPlayed(card) {
   if (this.player.checkHandEmpty()) {
     this.player.countdown--;
 
+    // Notify everyone that a player's countdown score is being updated.
+    io.to(roomCode).emit('update countdown score', this.player);
+
     // Check to see if the game is over.
     if (this.player.countdown === 0) {
       // Notify players that the game is over and who the winner is.
@@ -239,7 +242,7 @@ function onCardPlayed(card) {
   }
 
   // If a queen of spades was played, deal 5 cards to the next player.
-  if (card.value === 'q of spades') {
+  if (card.name === 'q of spades') {
     dealCardsToPlayer(player, 5);
   }
 

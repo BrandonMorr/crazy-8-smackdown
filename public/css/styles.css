@@ -26,6 +26,16 @@ div {
   user-select: none;
 }
 
+.name {
+  color: #505050;
+  background-color: #e0e0e0;
+  padding: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 4px 0 0 #505050;
+  -moz-box-shadow: 0 4px 0 0 #505050;
+  box-shadow: 0 4px 0 0 #505050;
+}
+
 .status {
   color: white;
   background-color: #99ff99;
@@ -36,14 +46,14 @@ div {
   box-shadow: 0 4px 0 0 #7fdf7f;
 }
 
-.name {
-  color: #505050;
-  background-color: #e0e0e0;
+.countdown {
+  color: white;
+  background-color: #39A0ED;
   padding: 4px;
   border-radius: 4px;
-  -webkit-box-shadow: 0 4px 0 0 #505050;
-  -moz-box-shadow: 0 4px 0 0 #505050;
-  box-shadow: 0 4px 0 0 #505050;
+  -webkit-box-shadow: 0 4px 0 0 #3772FF;
+  -moz-box-shadow: 0 4px 0 0 #3772FF;
+  box-shadow: 0 4px 0 0 #3772FF;
 }
 
 .badge {
@@ -86,7 +96,7 @@ div {
   font-weight: bold;
   padding: 6px;
   width: 150px;
-  border-radius: 6px;
+  border-radius: 4px;
   border-color: #e0e0e0;
   border-right: none;
   border-left: none;

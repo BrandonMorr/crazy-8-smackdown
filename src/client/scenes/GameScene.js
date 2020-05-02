@@ -142,9 +142,12 @@ export default class GameScene extends Phaser.Scene {
     // Flag that the game has started, remove player text.
     this.socket.on('game started', () => {
       this.gameStarted = true;
+      this.sound.play('bell', { volume: 0.25 });
+
       // Remove the 'READY' text on each player.
       for (let player of this.players) {
         player.readyText.destroy();
+        player.showPlayerCountdown();
       }
     });
 
@@ -153,15 +156,23 @@ export default class GameScene extends Phaser.Scene {
       this.dealCardToPlayer(cardObj);
     });
 
-    // Update the card in play (card to play on).
-    this.socket.on('show first card in play', (cardObj) => {
-      let card = new Card(this, 400, 300, cardObj.suit, cardObj.value, cardObj.name);
+    // Update the current card in play.
+    this.socket.on('update card in play', (cardObj) => {
+      // If a card in play hasn't been set, we need to add the first one to the
+      // scene.
+      if (!this.currentCardInPlay) {
+        let card = new Card(this, 400, 300, cardObj.suit, cardObj.value, cardObj.name);
+        this.deck.addCardToPlayPile(card);
+      }
 
-      this.deck.addCardToPlayPile(card);
+      this.currentCardInPlay = cardObj;
     });
 
-    this.socket.on('update card in play', (cardObj) => {
-      this.currentCardInPlay = cardObj;
+    // Update a player's countdown score.
+    this.socket.on('update countdown score', (playerObj) => {
+      let player = this.getPlayerByName(playerObj.name);
+
+      player.lowerPlayerCountdown();
     });
 
     // Handle removing a player who has disconnected.
@@ -367,7 +378,7 @@ export default class GameScene extends Phaser.Scene {
    * Add room code button to the scene.
    */
   addRoomCodeButton() {
-    this.roomCodeButton = this.add.dom(710, 550, 'button', 'font-size: 16px; border-radius: 4px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
+    this.roomCodeButton = this.add.dom(710, 550, 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
     this.roomCodeButton.setClassName('game-button');
     this.roomCodeButton.setInteractive();
 
@@ -383,7 +394,7 @@ export default class GameScene extends Phaser.Scene {
    * TODO: only show button when more than one player present in the room.
    */
   addReadyButton() {
-    this.readyButton = this.add.dom(710, 490, 'button', 'font-size: 16px; border-radius: 4px;', 'READY');
+    this.readyButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'READY');
     this.readyButton.setClassName('game-button');
     this.readyButton.setInteractive();
 
@@ -399,7 +410,7 @@ export default class GameScene extends Phaser.Scene {
    * Add draw card button to the scene.
    */
   addDrawCardButton() {
-    this.drawCardButton = this.add.dom(710, 480, 'button', 'font-size: 16px; border-radius: 4px;', 'DRAW CARD');
+    this.drawCardButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'DRAW CARD');
     this.drawCardButton.setClassName('game-button');
     this.drawCardButton.setInteractive();
 
