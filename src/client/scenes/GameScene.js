@@ -182,7 +182,7 @@ export default class GameScene extends Phaser.Scene {
       // Remove the player from the scene.
       this.getPlayerByName(playerObj.name).removePlayer();
       // Remove player from players array.
-      this.players = this.players.filter((player) => player.name !== playerName);
+      this.players = this.players.filter((player) => player.name !== playerObj.name);
     });
 
     // TODO: only show this button when there are two or more players in room.
