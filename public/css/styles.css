@@ -36,6 +36,16 @@ div {
   box-shadow: 0 4px 0 0 #7fdf7f;
 }
 
+.name {
+  color: #505050;
+  background-color: #e0e0e0;
+  padding: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 4px 0 0 #505050;
+  -moz-box-shadow: 0 4px 0 0 #505050;
+  box-shadow: 0 4px 0 0 #505050;
+}
+
 .badge {
   color: white;
   background-color: #ff88dc;
@@ -62,6 +72,21 @@ div {
   height: 48px;
   width: 150px;
   border-radius: 12px;
+  border-color: #e0e0e0;
+  border-right: none;
+  border-left: none;
+  background-color: #e0e0e0;
+  -webkit-box-shadow: 0 4px 0 0 #505050;
+  -moz-box-shadow: 0 4px 0 0 #505050;
+  box-shadow: 0 4px 0 0 #757575;;
+}
+
+.game-button {
+  color: #505050;
+  font-weight: bold;
+  padding: 6px;
+  width: 150px;
+  border-radius: 6px;
   border-color: #e0e0e0;
   border-right: none;
   border-left: none;

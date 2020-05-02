@@ -13,13 +13,8 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.hand = [];
     this.ready = false;
 
-    this.nameText = this.scene.add.text(x, y + 60, name, {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '20px',
-      fontStyle: 'bold',
-      color: '#000000'
-    });
-    this.nameText.setOrigin(0.5);
+    this.nameText = this.scene.add.dom(x, y - 60, 'div', 'font-size: 20px;', name)
+    this.nameText.setClassName('name');
 
     this.scene.add.existing(this);
   }
@@ -48,12 +43,8 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * Add text to show player is ready smack down.
    */
   showPlayerReady() {
-    this.readyText = this.scene.add.text(this.x, this.y + 85, 'READY', {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '14px',
-      color: '#99ff99'
-    });
-    this.readyText.setOrigin(0.5);
+    this.readyText = this.scene.add.dom(this.x, this.y + 55, 'div', 'font-size: 14px;', 'READY');
+    this.readyText.setClassName('status');
 
     this.ready = true;
   }
@@ -62,12 +53,8 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * Add text to show player is ready smack down.
    */
   showPlayerTurn() {
-    this.turnText = this.scene.add.text(this.x, this.y + 85, 'MAKING TURN', {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '14px',
-      color: '#99ff99'
-    });
-    this.turnText.setOrigin(0.5);
+    this.turnText = this.scene.add.dom(this.x, this.y + 55, 'div', 'font-size: 14px;', 'MAKING TURN');
+    this.turnText.setClassName('status');
   }
 
   /**

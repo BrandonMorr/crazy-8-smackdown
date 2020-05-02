@@ -364,60 +364,34 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Add room code button to the scene.
+   */
+  addRoomCodeButton() {
+    this.roomCodeButton = this.add.dom(710, 550, 'button', 'font-size: 16px; border-radius: 4px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
+    this.roomCodeButton.setClassName('game-button');
+    this.roomCodeButton.setInteractive();
+
+    this.roomCodeButton.on('pointerdown', () => {
+      // Copy room code to the clipboard.
+      navigator.clipboard.writeText(this.socket.roomCode);
+    });
+  }
+
+  /**
    * Add a ready button to the scene.
    *
    * TODO: only show button when more than one player present in the room.
    */
   addReadyButton() {
-   this.readyButton = this.add.text(700, 550, 'READY', {
-     fontFamily: 'Helvetica, "sans-serif"',
-     fontSize: '20px',
-     fontStyle: 'bold',
-     color: '#000000'
-   });
-   this.readyButton.setOrigin(0.5);
-   this.readyButton.setInteractive();
+    this.readyButton = this.add.dom(710, 490, 'button', 'font-size: 16px; border-radius: 4px;', 'READY');
+    this.readyButton.setClassName('game-button');
+    this.readyButton.setInteractive();
 
-   this.readyButton.on('pointerdown', () => {
+    this.readyButton.on('pointerdown', () => {
      this.socket.emit('player ready');
      this.player.showPlayerReady();
      // TODO: toggle ready/unready.
      this.readyButton.destroy();
-   });
-
-   this.readyButton.on('pointerover', () => {
-     this.readyButton.setTintFill(0x8b8b8b);
-   });
-
-   this.readyButton.on('pointerout', () => {
-     this.readyButton.clearTint();
-   });
-  }
-
-  /**
-   * Add room code button to the scene.
-   */
-  addRoomCodeButton() {
-    this.roomCodeText = this.add.text(700, 580, `ROOM CODE: ${this.socket.roomCode.toUpperCase()}`, {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '14px',
-      fontStyle: 'bold',
-      color: '#000000'
-    });
-    this.roomCodeText.setOrigin(0.5);
-    this.roomCodeText.setInteractive();
-
-    this.roomCodeText.on('pointerdown', () => {
-      // Copy room code to the clipboard.
-      navigator.clipboard.writeText(this.socket.roomCode);
-    });
-
-    this.roomCodeText.on('pointerover', () => {
-      this.roomCodeText.setTintFill(0x8b8b8b);
-    });
-
-    this.roomCodeText.on('pointerout', () => {
-      this.roomCodeText.clearTint();
     });
   }
 
@@ -425,26 +399,13 @@ export default class GameScene extends Phaser.Scene {
    * Add draw card button to the scene.
    */
   addDrawCardButton() {
-    this.drawCardButton = this.add.text(700, 550, 'DRAW CARD', {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '20px',
-      fontStyle: 'bold',
-      color: '#000000'
-    });
-    this.drawCardButton.setOrigin(0.5);
+    this.drawCardButton = this.add.dom(710, 480, 'button', 'font-size: 16px; border-radius: 4px;', 'DRAW CARD');
+    this.drawCardButton.setClassName('game-button');
     this.drawCardButton.setInteractive();
 
     this.drawCardButton.on('pointerdown', () => {
       this.socket.emit('draw card');
       this.drawCardButton.destroy();
-    });
-
-    this.drawCardButton.on('pointerover', () => {
-      this.drawCardButton.setTintFill(0x8b8b8b);
-    });
-
-    this.drawCardButton.on('pointerout', () => {
-      this.drawCardButton.clearTint();
     });
   }
 }

@@ -112,7 +112,7 @@ export default class MainMenuScene extends Phaser.Scene {
         this.socket.emit('new game');
       }
       else {
-        this.showErrorMessage('NAME CANNOT BE EMPTY');
+        this.showErrorMessage('NAME MUST NOT BE EMPTY');
       }
     });
   }
@@ -121,11 +121,11 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
   addJoinButton() {
-    let playButton = this.add.dom(490, 380, 'button', 'font-size: 16px;', 'JOIN');
-    playButton.setClassName('button');
-    playButton.setInteractive();
+    let joinButton = this.add.dom(490, 380, 'button', 'font-size: 16px;', 'JOIN');
+    joinButton.setClassName('button');
+    joinButton.setInteractive();
 
-    playButton.on('pointerdown', () => {
+    joinButton.on('pointerdown', () => {
       let playerName = document.querySelector('.name-input').value;
       let roomCode = document.querySelector('.room-code-input').value;
 
@@ -137,7 +137,7 @@ export default class MainMenuScene extends Phaser.Scene {
         this.socket.emit('join request', roomCode);
       }
       else {
-        this.showErrorMessage('NAME & ROOM CODE CANNOT BE EMPTY');
+        this.showErrorMessage('NAME & ROOM CODE MUST NOT BE EMPTY');
       }
     });
   }
