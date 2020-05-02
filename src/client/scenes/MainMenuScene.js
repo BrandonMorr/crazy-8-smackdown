@@ -38,7 +38,7 @@ export default class MainMenuScene extends Phaser.Scene {
       this.scene.start('GameScene', this.socket);
     });
 
-    this.socket.on('join error', (errorMessage) => {
+    this.socket.on('room error', (errorMessage) => {
       this.showErrorMessage(errorMessage);
     });
   }
@@ -104,12 +104,24 @@ export default class MainMenuScene extends Phaser.Scene {
 
     createGameButton.on('pointerdown', () => {
       let playerName = document.querySelector('.name-input').value;
+      let roomCode = document.querySelector('.room-code-input').value;
 
       if (playerName !== '') {
-        // Tell the server who we are and that we're creating a new game.
         this.socket.name = playerName.toUpperCase();
 
-        this.socket.emit('new game');
+        // If the user provides a room code, lets just go with that one.
+        if (roomCode !== '') {
+          // Room codes must be 4 characters long.
+          if (roomCode.length === 4) {
+            this.socket.emit('new game', roomCode);
+          }
+          else {
+            this.showErrorMessage('ROOM CODE MUST CONTAIN 4 CHARACTERS');
+          }
+        }
+        else {
+          this.socket.emit('new game');
+        }
       }
       else {
         this.showErrorMessage('NAME MUST NOT BE EMPTY');

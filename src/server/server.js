@@ -58,21 +58,41 @@ function setServerHandlers() {
 /**
  * Handle creating a new game.
  */
-function onNewGame() {
-  // Generate a random token to be used as room code.
-  Crypto.randomBytes(2, (err, buf) => {
-    // Generate a random room code.
-    let roomCode = buf.toString('hex');
+function onNewGame(roomCode) {
+  // If no room code has been provided, generate a random one.
+  if (!roomCode) {
+    Crypto.randomBytes(2, (err, buf) => {
+      // Generate a random room code.
+      let roomCode = buf.toString('hex');
 
-    // Add room to rooms array.
-    rooms[roomCode] = new Room(roomCode);
+      // Add room to rooms array.
+      rooms[roomCode] = new Room(roomCode);
 
-    // Connect the user to the room.
-    this.join(roomCode);
+      // Connect the user to the room.
+      this.join(roomCode);
 
-    // Send the room code back to the client.
-    this.emit('new game', roomCode);
-  });
+      // Send the room code back to the client.
+      this.emit('new game', roomCode);
+    });
+  }
+  else {
+    let foundRoom = Object.keys(rooms).find(room => room === roomCode);
+
+    if (foundRoom) {
+      // Notify the user that the room already exists.
+      this.emit('room error', 'ROOM ALREADY EXISTS');
+    }
+    else {
+      // Add room to rooms array.
+      rooms[roomCode] = new Room(roomCode);
+
+      // Connect the user to the room.
+      this.join(roomCode);
+
+      // Send the room code back to the client.
+      this.emit('new game', roomCode);
+    }
+  }
 }
 
 /**
@@ -97,17 +117,17 @@ function onJoinRequest(roomCode) {
       }
       else {
         // Notify the user that the room's game is in progress.
-        this.emit('join error', 'GAME IS IN PROGRESS');
+        this.emit('room error', 'GAME IS IN PROGRESS');
       }
     }
     else {
       // Notify the user that the room is full.
-      this.emit('join error', 'ROOM IS FULL');
+      this.emit('room error', 'ROOM IS FULL');
     }
   }
   else {
     // Notify the user that the room does not exist.
-    this.emit('join error', 'GAME DOES NOT EXIST');
+    this.emit('room error', 'GAME DOES NOT EXIST');
   }
 }
 
