@@ -22,6 +22,8 @@ export default class PlayerSetupScene extends Phaser.Scene {
     this.selectedSizeOption = 6;
     this.selectedColorOption = '0x000000';
 
+    this.strokeMap = [];
+
     this.addTitleText();
     this.addPaintCanvas();
     this.addPaintOptions();
@@ -49,10 +51,10 @@ export default class PlayerSetupScene extends Phaser.Scene {
 
     // Add a pointer down event which draws a circle where the cursor is.
     canvas.on('pointerdown', (pointer) => {
-        let dot = this.add.graphics();
-        dot.fillStyle(this.selectedColorOption);
-        dot.fillCircle(pointer.x, pointer.y, this.selectedSizeOption);
-    }, this);
+      let dot = this.add.graphics();
+      dot.fillStyle(this.selectedColorOption);
+      dot.fillCircle(pointer.x, pointer.y, this.selectedSizeOption);
+    });
 
     // Add a pointer move event which draws a circle where the pointer moves to
     // and draws a line between the last known dot location to give a smoothed
@@ -63,14 +65,18 @@ export default class PlayerSetupScene extends Phaser.Scene {
         dot.fillStyle(this.selectedColorOption);
         dot.fillCircle(pointer.x, pointer.y, this.selectedSizeOption);
 
+        this.strokeMap.push(dot);
+
         // If there is a known last dot, draw a line between the current dot and
         // the last.
         if (this.lastDot) {
           let lineShape = new Phaser.Geom.Line(this.lastDot.x, this.lastDot.y, pointer.x, pointer.y);
 
-          this.line = this.add.graphics();
-          this.line.lineStyle(this.selectedSizeOption * 2, this.selectedColorOption);
-          this.line.strokeLineShape(lineShape);
+          let line = this.add.graphics();
+          line.lineStyle(this.selectedSizeOption * 2, this.selectedColorOption);
+          line.strokeLineShape(lineShape);
+
+          this.strokeMap.push(line)
         }
 
         // Set the current dot as the last known dot.
@@ -79,17 +85,17 @@ export default class PlayerSetupScene extends Phaser.Scene {
           y: pointer.y
         }
       }
-    }, this);
+    });
 
     // When the user is done drawing, remove any last known dot information.
     canvas.on('pointerup', () => {
       this.lastDot = false;
-    }, this);
+    });
 
     // When the cursor leaves the canvas, remove any last known dot information.
     canvas.on('pointerout', () => {
       this.lastDot = false;
-    }, this);
+    });
   }
 
   /**
@@ -109,15 +115,15 @@ export default class PlayerSetupScene extends Phaser.Scene {
     const sizes = [ 6, 9, 12 ];
     let offsetX = 0;
 
-    for (let i = 0; i < sizes.length; i++) {
+    for (let size of sizes) {
       let brushSizeOption = this.add.graphics();
       brushSizeOption.fillStyle(0x000000);
-      brushSizeOption.fillCircle(650 + offsetX, 500, sizes[i]);
-      brushSizeOption.setInteractive(new Phaser.Geom.Circle(650 + offsetX, 500, sizes[i]), Phaser.Geom.Circle.Contains);
+      brushSizeOption.fillCircle(650 + offsetX, 500, size);
+      brushSizeOption.setInteractive(new Phaser.Geom.Circle(650 + offsetX, 500, size), Phaser.Geom.Circle.Contains);
 
       // When the user clicks on the graphic, change the size of the brush.
       brushSizeOption.on('pointerdown', () => {
-        this.selectedSizeOption = sizes[i];
+        this.selectedSizeOption = size;
       });
 
       offsetX += 50;
