@@ -31,11 +31,11 @@ export default class MainMenuScene extends Phaser.Scene {
 
     this.socket.on('new game', (roomCode) => {
       this.socket.roomCode = roomCode;
-      this.scene.start('GameScene', this.socket);
+      this.scene.start('PlayerSetupScene', this.socket);
     });
 
     this.socket.on('join game', () => {
-      this.scene.start('GameScene', this.socket);
+      this.scene.start('PlayerSetupScene', this.socket);
     });
 
     this.socket.on('room error', (errorMessage) => {

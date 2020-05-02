@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
 
 /**
- * @class - Player setup scene, where the user will enter a username and draw
- *  their avatar.
+ * @class - Player setup scene where the player draws their avatar.
  */
 export default class PlayerSetupScene extends Phaser.Scene {
 
@@ -10,28 +9,23 @@ export default class PlayerSetupScene extends Phaser.Scene {
     super({
       key: 'PlayerSetupScene',
     });
-
-    this.buttonTextStyle = {
-      fontFamily: 'Helvetica, "sans-serif"',
-      fontSize: '18px',
-      fontStyle: 'bold',
-      color: '0x000000'
-    };
   }
 
   preload() {
 
   }
 
-  create() {
-    // Initialize some default properties.
+  create(socket) {
+    this.socket = socket;
+
     this.lastDot = false;
     this.selectedSizeOption = 6;
     this.selectedColorOption = '0x000000';
 
+    this.addTitleText();
     this.addPaintCanvas();
     this.addPaintOptions();
-    this.addConnectButton();
+    this.addPlayButton();
     this.addClearButton();
   }
 
@@ -49,8 +43,8 @@ export default class PlayerSetupScene extends Phaser.Scene {
   addPaintCanvas() {
     // Create the canvas for players to draw on.
     let canvas = this.add.graphics();
-    canvas.lineStyle(4, 0x000000);
-    canvas.strokeRoundedRect(200 - 5, 100 - 5, 400 + 10, 400 + 10, 8);
+    canvas.fillStyle(0xe0e0e0, 1.0);
+    canvas.fillRoundedRect(200, 100, 400 + 10, 400 + 10, 8);
     canvas.setInteractive(new Phaser.Geom.Rectangle(200, 100, 400, 400), Phaser.Geom.Rectangle.Contains);
 
     // Add a pointer down event which draws a circle where the cursor is.
@@ -121,7 +115,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
       brushSizeOption.fillCircle(650 + offsetX, 500, sizes[i]);
       brushSizeOption.setInteractive(new Phaser.Geom.Circle(650 + offsetX, 500, sizes[i]), Phaser.Geom.Circle.Contains);
 
-      // When the user clicks on the graphic, change the size of the brush..
+      // When the user clicks on the graphic, change the size of the brush.
       brushSizeOption.on('pointerdown', () => {
         this.selectedSizeOption = sizes[i];
       });
@@ -154,44 +148,36 @@ export default class PlayerSetupScene extends Phaser.Scene {
   }
 
   /**
-   * Add a start button which loads the connection scene.
+   * Add title text to the scene.
    */
-  addConnectButton() {
-    let connectButton = this.add.text(400, 550, 'PLAY', this.buttonTextStyle);
-    connectButton.setOrigin(0.5);
-    connectButton.setInteractive();
+  addTitleText() {
+    let titleText = this.add.dom(400, 70, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
+    titleText.setClassName('title');
+  }
 
-    connectButton.on('pointerdown', () => {
-      this.scene.start('GameScene');
-    });
+  /**
+   * Add a play button to the scene.
+   */
+  addPlayButton() {
+    let playButton = this.add.dom(400, 550, 'button', 'font-size: 16px;', 'SAVE & PLAY');
+    playButton.setClassName('game-button');
+    playButton.addListener('click');
 
-    connectButton.on('pointerover', () => {
-      connectButton.setTintFill(0x8b8b8b);
-    });
-
-    connectButton.on('pointerout', () => {
-      connectButton.clearTint();
+    playButton.on('click', () => {
+      this.scene.start('GameScene', this.socket);
     });
   }
 
   /**
-   * Add a clear button to the scene which clears the paint canvas.
+   * Add a clear button to the scene which jsut resets the MFing scene.
    */
   addClearButton() {
-    let clearButton = this.add.text(700, 550, 'CLEAR', this.buttonTextStyle);
-    clearButton.setOrigin(0.5);
-    clearButton.setInteractive();
+    let clearButton = this.add.dom(700, 550, 'button', 'font-size: 16px;', 'CLEAR');
+    clearButton.setClassName('game-button');
+    clearButton.addListener('click');
 
-    clearButton.on('pointerdown', () => {
+    clearButton.on('click', () => {
       this.scene.restart();
-    });
-
-    clearButton.on('pointerover', () => {
-      clearButton.setTintFill(0x8b8b8b);
-    });
-
-    clearButton.on('pointerout', () => {
-      clearButton.clearTint();
     });
   }
 }
