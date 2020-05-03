@@ -55,25 +55,39 @@ export default class GameScene extends Phaser.Scene {
 
       // NOTE: remove this at some point, will use more dynamic avatars.
       this.players[this.players.length - 1].setPlayerTexture(this.players.length);
+
+      // Show the ready button.
+      this.toggleReadyButton();
     });
 
     // Show all the other players.
     this.socket.on('get players', (playerObjs) => {
-      for (let player of playerObjs) {
+      for (let playerObj of playerObjs) {
         // We only want to add other players.
-        if (player.name !== this.player.name) {
-          this.players.push(new Player(this, this.calculatePlayerX(), 100, player.name));
+        if (playerObj.name !== this.player.name) {
+          let player = new Player(this, this.calculatePlayerX(), 100, playerObj.name);
+
+          // Add the player to the players array.
+          this.players.push(player);
+
+          // Check to see if the player is ready.
+          if (playerObj.ready) {
+            player.showReady();
+          }
 
           // NOTE: remove this at some point, will use more dynamic avatars.
           this.players[this.players.length - 1].setPlayerTexture(this.players.length);
         }
       }
+
+      // Check to see if the ready button needs to be hidden.
+      this.toggleReadyButton();
     });
 
     // Show that a player is ready.
     this.socket.on('show player ready', (playerObj) => {
       let player = this.getPlayerByName(playerObj.name);
-      player.showPlayerReady();
+      player.showReady();
     });
 
     // When a turn has been made, remove the 'Making Turn' text.
@@ -106,14 +120,14 @@ export default class GameScene extends Phaser.Scene {
 
       if (this.player.name === playerObj.name) {
         // It's your turn!
-        this.player.showPlayerTurn();
+        this.player.showTurn();
         this.yourTurn = true;
       }
       else {
         // It's someone elses turn!
         let player = this.getPlayerByName(playerObj.name);
 
-        player.showPlayerTurn();
+        player.showTurn();
         this.yourTurn = false;
       }
     });
@@ -149,7 +163,7 @@ export default class GameScene extends Phaser.Scene {
       // Remove the 'READY' text on each player.
       for (let player of this.players) {
         player.readyText.destroy();
-        player.showPlayerCountdown();
+        player.showCountdown();
       }
     });
 
@@ -174,19 +188,30 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('update countdown score', (playerObj) => {
       let player = this.getPlayerByName(playerObj.name);
 
-      player.updatePlayerCountdown();
+      player.updateCountdown();
     });
 
     // Handle removing a player who has disconnected.
     this.socket.on('player quit', (playerObj) => {
       // Remove the player from the scene.
-      this.getPlayerByName(playerObj.name).removePlayer();
+      this.getPlayerByName(playerObj.name).remove();
+
       // Remove player from players array.
       this.players = this.players.filter((player) => player.name !== playerObj.name);
+
+      // If the game hasn't started, clear out the ready stuff when someone
+      // leaves the room.
+      for (let player of this.players) {
+        if (player.ready) {
+          player.showUnready();
+        }
+      }
+
+      // Check to see if the ready button needs to be hidden.
+      this.toggleReadyButton();
     });
 
-    // TODO: only show this button when there are two or more players in room.
-    this.addReadyButton();
+    // Show a clickable room code button.
     this.addRoomCodeButton();
   }
 
@@ -334,6 +359,37 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Toggle a ready button when there are 2 or more players in the room.
+   */
+  toggleReadyButton() {
+    // We only want to show the ready button when there are more than 2 players
+    // in the room.
+    if (this.players.length >= 2) {
+      // If the button isn't present and the player isn't ready, add it
+      // to the scene.
+      if (!this.readyButton && !this.player.ready) {
+        this.readyButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'READY');
+        this.readyButton.setClassName('game-button');
+        this.readyButton.addListener('click');
+
+        this.readyButton.on('click', () => {
+         this.socket.emit('player ready');
+         this.player.showReady();
+         this.readyButton.destroy();
+         this.readyButton = false;
+        });
+      }
+    }
+    else {
+      // Check if the ready button is present and if so remove it.
+      if (this.readyButton) {
+        this.readyButton.destroy();
+        this.readyButton = false;
+      }
+    }
+  }
+
+  /**
    * Show the everso flashy & wonderful wildcard menu.
    */
   showWildCardMenu() {
@@ -374,24 +430,6 @@ export default class GameScene extends Phaser.Scene {
     this.roomCodeButton.on('click', () => {
       // Copy room code to the clipboard.
       navigator.clipboard.writeText(this.socket.roomCode);
-    });
-  }
-
-  /**
-   * Add a ready button to the scene.
-   *
-   * TODO: only show button when more than one player present in the room.
-   */
-  addReadyButton() {
-    this.readyButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'READY');
-    this.readyButton.setClassName('game-button');
-    this.readyButton.addListener('click');
-
-    this.readyButton.on('click', () => {
-     this.socket.emit('player ready');
-     this.player.showPlayerReady();
-     // TODO: toggle ready/unready.
-     this.readyButton.destroy();
     });
   }
 

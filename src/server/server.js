@@ -303,13 +303,26 @@ function onDrawCard() {
  * TODO:
  *  - handle reomving the player from the playerOrder property in the rooms
  *  array.
- *  - check the room to see if there are no players, remove the room if so.
  */
 function onDisconnect() {
   // Check to see if the socket has a player data object.
   if ('player' in this) {
-    // Alert others of the disconnected player.
-    io.to(this.player.roomCode).emit('player quit', this.player);
+    let roomCode = this.player.roomCode;
+    let players = getPlayersInRoom(roomCode);
+
+    // Check to see if the room is empty.
+    if (players.length > 0) {
+      // Alert others of the disconnected player.
+      io.to(roomCode).emit('player quit', this.player);
+
+      // Unready all the players.
+      for (let player of players) {
+        player.ready = false;
+      }
+    }
+    else {
+      delete rooms[roomCode];
+    }
   }
 }
 
@@ -359,14 +372,17 @@ function shufflePlayerOrder(roomCode) {
 function getPlayersInRoom(roomCode) {
   let players = [];
 
-  // Loop over sockets connected to a room, return all players found.
-  Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(socket => {
-    let player = io.sockets.connected[socket].player;
+  // Check to see if anyone is even in the room.
+  if (io.sockets.adapter.rooms[roomCode] !== undefined) {
+    // Loop over sockets connected to a room, return all players found.
+    Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(socket => {
+      let player = io.sockets.connected[socket].player;
 
-    if (player) {
-      players.push(player);
-    }
-  });
+      if (player) {
+        players.push(player);
+      }
+    });
+  }
 
   return players;
 }
