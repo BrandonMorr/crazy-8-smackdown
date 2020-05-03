@@ -41,19 +41,28 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
-   * Add text to show player is ready smack down.
+   * Add text to show player is ready to smack down.
    */
-  showPlayerReady() {
+  showReady() {
+    this.ready = true;
+
     this.readyText = this.scene.add.dom(this.x, this.y + 60, 'div', 'font-size: 14px;', 'READY');
     this.readyText.setClassName('status');
+  }
 
-    this.ready = true;
+  /**
+   * Remove ready text to show player is unready to smack down.
+   */
+  showUnready() {
+    this.ready = false;
+
+    this.readyText.destroy();
   }
 
   /**
    * Add text to show player is ready smack down.
    */
-  showPlayerTurn() {
+  showTurn() {
     this.turnText = this.scene.add.dom(this.x, this.y + 80, 'div', 'font-size: 14px;', 'MAKING TURN');
     this.turnText.setClassName('status');
   }
@@ -61,7 +70,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Add text to show player's countdown score.
    */
-  showPlayerCountdown() {
+  showCountdown() {
     // Add player's countdown score on the bottom right corner of the avatar.
     this.countdownText = this.scene.add.dom(this.x, this.y + 50, 'div', 'font-size: 12px;', `COUNTDOWN: ${this.countdown}`);
     this.countdownText.setClassName('countdown');
@@ -77,7 +86,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Update player's countdown text to reflect current countdown score.
    */
-  updatePlayerCountdown() {
+  updateCountdown() {
     this.countdown--;
     this.countdownText.setText(`COUNTDOWN: ${this.countdown}`);
   }
@@ -85,7 +94,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Clean up any player stuff from scene.
    */
-  removePlayer() {
+  remove() {
     if (this.nameText) {
       this.nameText.destroy();
     }
