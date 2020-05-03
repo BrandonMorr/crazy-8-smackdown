@@ -1,7 +1,7 @@
 const path      = require('path');
 const externals = require('webpack-node-externals');
 
-const public        = path.join(__dirname, 'public');
+const dist          = path.join(__dirname, 'dist');
 const client        = path.join(__dirname, 'src/client');
 const nodeModules   = path.join(__dirname, 'node_modules');
 
@@ -14,7 +14,7 @@ module.exports = {
   },
   entry: './src/server/server.js',
   output: {
-    path: path.join(public, 'js'),
+    path: path.join(dist),
     filename: 'server.bundle.js'
   },
   resolve: {

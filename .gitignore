@@ -7,4 +7,5 @@ node_modules/
 
 # Build
 public/js/
+dist/
 npm-debug.log

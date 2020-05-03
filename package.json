@@ -12,10 +12,12 @@
   ],
   "main": "src/index.js",
   "scripts": {
+    "build": "webpack --config webpack.client.config.js && webpack --config webpack.server.config.js",
+    "start": "node dist/server.bundle.js",
     "client": "webpack --config webpack.client.config.js --watch",
     "server": "npm-run-all --parallel server:*",
     "server:build": "webpack --config webpack.server.config.js --watch",
-    "server:watch": "nodemon public/js/server.bundle.js"
+    "server:watch": "nodemon dist/server.bundle.js"
   },
   "repository": {
     "type": "git",
