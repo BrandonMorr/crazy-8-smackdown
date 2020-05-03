@@ -15,7 +15,7 @@ export default class Card extends Phaser.GameObjects.Sprite {
 
     this.setOrigin(0.5);
     this.setScale(0.75);
-    this.faceCardUp();
+    this.faceUp();
 
     this.scene.add.existing(this);
   }
@@ -23,14 +23,14 @@ export default class Card extends Phaser.GameObjects.Sprite {
   /**
    * Load the corresponding texture for this card.
    */
-   faceCardUp() {
+   faceUp() {
      this.setTexture(`${this.suit}_${this.value}`);
    }
 
   /**
    * Load the card back texture to face card down.
    */
-  faceCardDown() {
+  faceDown() {
     this.setTexture(`back_${this.cardBack}`);
   }
 

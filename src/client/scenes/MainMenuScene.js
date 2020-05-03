@@ -166,18 +166,18 @@ export default class MainMenuScene extends Phaser.Scene {
   showErrorMessage(errorMessage) {
     // Only display one error message at a time.
     if (!this.errorMessage) {
-      this.errorMessage = this.add.dom(400, 450, 'div', 'font-size: 18px;', errorMessage);
-      this.errorMessage.setClassName('error');
+      this.errorMessage = this.add.dom(400, 440, 'div', 'font-size: 16px;', errorMessage);
+      this.errorMessage.setClassName('error-message');
 
       this.tweens.add({
         targets: this.errorMessage,
-        delay: 3000,
+        delay: 2000,
         alpha: 0,
         ease: 'linear',
         duration: 400,
         onComplete: () => {
           this.errorMessage.destroy();
-          delete this.errorMessage;
+          this.errorMessage = false;
         }
       });
     }

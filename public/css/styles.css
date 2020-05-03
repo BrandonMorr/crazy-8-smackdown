@@ -33,7 +33,7 @@ div {
   padding: 20px;
   border-radius: 8px;
   color: #505050;
-  background-color: #e0e0e0;
+  background-color: #f5f5f5;
   text-align: center;
 
   -webkit-animation: whacky-colors 1s infinite;
@@ -45,13 +45,13 @@ div {
 
 /* Name tag */
 .name {
-  color: #505050;
-  background-color: #e0e0e0;
+  color: white;
+  background-color: #ff88dc;
   padding: 4px;
   border-radius: 4px;
-  -webkit-box-shadow: 0 4px 0 0 #505050;
-  -moz-box-shadow: 0 4px 0 0 #505050;
-  box-shadow: 0 4px 0 0 #505050;
+  -webkit-box-shadow: 0 4px 0 0 #d06eb3;
+  -moz-box-shadow: 0 4px 0 0 #d06eb3;
+  box-shadow: 0 4px 0 0 #d06eb3;
 }
 
 /* Connection status */
@@ -88,7 +88,7 @@ div {
 }
 
 /* Error message */
-.error {
+.error-message {
   color: white;
   background-color: #ff0040;
   padding: 6px;
@@ -96,6 +96,17 @@ div {
   -webkit-box-shadow: 0 4px 0 0 #c12048;
   -moz-box-shadow: 0 4px 0 0 #c12048;
   box-shadow: 0 4px 0 0 #c12048;
+}
+
+/* Error message */
+.message {
+  color: white;
+  background-color: #A663CC;;
+  padding: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 4px 0 0 #824D9F;
+  -moz-box-shadow: 0 4px 0 0 #824D9F;
+  box-shadow: 0 4px 0 0 #824D9F;
 }
 
 /* Any buttons within the menu scene */

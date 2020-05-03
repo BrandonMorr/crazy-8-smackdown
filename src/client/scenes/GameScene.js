@@ -90,7 +90,7 @@ export default class GameScene extends Phaser.Scene {
       player.showReady();
     });
 
-    // When a turn has been made, remove the 'Making Turn' text.
+    // Show when a player plays a card.
     this.socket.on('show card played', (playerObj, cardObj) => {
       let player = this.getPlayerByName(playerObj.name);
       let card = new Card(this, player.x, player.y, cardObj.suit, cardObj.value, cardObj.name);
@@ -107,6 +107,26 @@ export default class GameScene extends Phaser.Scene {
         y: 300,
         ease: 'Linear',
         duration: 250
+      });
+    });
+
+    // Show when a player draws a card.
+    this.socket.on('show card draw', (playerObj) => {
+      let player = this.getPlayerByName(playerObj.name);
+      let card = new Card(this, 400, 300, 'spades', 'a', 'a of spades');
+
+      // Load the back of the card.
+      card.faceDown();
+
+      this.tweens.add({
+        targets: card,
+        x: player.x,
+        y: player.y,
+        ease: 'Linear',
+        duration: 250,
+        onComplete: () => {
+          card.destroy();
+        }
       });
     });
 
@@ -189,6 +209,11 @@ export default class GameScene extends Phaser.Scene {
       let player = this.getPlayerByName(playerObj.name);
 
       player.updateCountdown();
+    });
+
+    // Show messages from the server.
+    this.socket.on('message', (message) => {
+      this.showMessage(message);
     });
 
     // Handle removing a player who has disconnected.
@@ -406,7 +431,7 @@ export default class GameScene extends Phaser.Scene {
       suitButton.addListener('click');
 
       suitButton.on('click', () => {
-        // Change the suit in play here.
+        // Remove the menu & buttons.
         this.wildCardMenu.destroy();
         this.suitCardButtons.forEach((button) => {
           button.destroy();
@@ -416,6 +441,29 @@ export default class GameScene extends Phaser.Scene {
       this.suitCardButtons.push(suitButton);
 
       offset += 135;
+    }
+  }
+
+  /**
+   * Display error message to the use, fade it out after a few seconds.
+   */
+  showMessage(message) {
+    // Only display one message at a time.
+    if (!this.message) {
+      this.message = this.add.dom(400, 400, 'div', 'font-size: 16px;', message);
+      this.message.setClassName('message');
+
+      this.tweens.add({
+        targets: this.message,
+        delay: 2000,
+        alpha: 0,
+        ease: 'linear',
+        duration: 400,
+        onComplete: () => {
+          this.message.destroy();
+          this.message = false;
+        }
+      });
     }
   }
 
@@ -430,6 +478,7 @@ export default class GameScene extends Phaser.Scene {
     this.roomCodeButton.on('click', () => {
       // Copy room code to the clipboard.
       navigator.clipboard.writeText(this.socket.roomCode);
+      this.showMessage('CODE COPIED TO CLIPBOARD')
     });
   }
 

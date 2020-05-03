@@ -250,6 +250,11 @@ function onCardPlayed(card) {
 
   // If a jack was played skip the next players turn.
   if (card.value === 'j') {
+    let skippedPlayer = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
+
+    // Notify player that their turn was skipped.
+    io.to(skippedPlayer.id).emit('message', 'SKIPPED YOUR TURN');
+
     rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
   }
 
@@ -258,11 +263,13 @@ function onCardPlayed(card) {
 
   // If a 2 was played, deal two cards to the next player.
   if (card.value === '2') {
+    io.to(player.id).emit('message', 'PICKUP 2 CARDS')
     dealCardsToPlayer(player, 2);
   }
 
   // If a queen of spades was played, deal 5 cards to the next player.
   if (card.name === 'q of spades') {
+    io.to(player.id).emit('message', 'PICKUP 5 CARDS')
     dealCardsToPlayer(player, 5);
   }
 
@@ -282,6 +289,9 @@ function onDrawCard() {
 
   // Deal a new card to the player.
   dealCardsToPlayer(this.player);
+
+  // Let everyone know that the player has played a card.
+  this.broadcast.to(roomCode).emit('show card draw', this.player);
 
   // If the player in last position has played, reset back to first player.
   // Otherwise move position to next player.
