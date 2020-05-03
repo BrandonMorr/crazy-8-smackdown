@@ -113,6 +113,7 @@ export default class GameScene extends Phaser.Scene {
     // Show when a player draws a card.
     this.socket.on('show card draw', (playerObj) => {
       let player = this.getPlayerByName(playerObj.name);
+      // Create an arbitrary card.
       let card = new Card(this, 400, 300, 'spades', 'a', 'a of spades');
 
       // Load the back of the card.
@@ -299,11 +300,12 @@ export default class GameScene extends Phaser.Scene {
 
       // Check to see if a wildcard was played.
       if (card.value == this.player.countdown) {
-        this.showWildCardMenu();
+        this.showWildCardMenu(card);
       }
-
-      // Notify players that a card has been played.
-      this.socket.emit('card played', card);
+      else {
+        // Notify players that a card has been played.
+        this.socket.emit('card played', card);
+      }
     });
 
     // When the user hovers the cursor over the card, set a tint and raise y.
@@ -417,22 +419,26 @@ export default class GameScene extends Phaser.Scene {
   /**
    * Show the everso flashy & wonderful wildcard menu.
    */
-  showWildCardMenu() {
+  showWildCardMenu(card) {
     this.suitCardButtons = [];
     this.wildCardMenu = this.add.dom(400, 300, 'div', 'font-size: 20px;', 'CHOOSE A NEW SUIT');
     this.wildCardMenu.setClassName('wildcard-menu-container');
 
-    const suits = [ '♥ HEARTS', '♦ DIAMONDS', '♠ SPADES', '♣ CLUBS' ];
+    const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
+    const buttonText = [ '♥ HEARTS', '♦ DIAMONDS', '♠ SPADES', '♣ CLUBS' ];
     let offset = 0;
 
-    for (let suit of suits) {
-      let suitButton = this.add.dom(200 + offset, 310, 'button', 'font-size: 16px;', suit);
+    for (let i = 0; i <= 3; i++) {
+      let suitButton = this.add.dom(200 + offset, 310, 'button', 'font-size: 16px;', buttonText[i]);
       suitButton.setClassName('suit-button');
       suitButton.addListener('click');
 
       suitButton.on('click', () => {
+        this.socket.emit('card played', card, suits[i]);
+
         // Remove the menu & buttons.
         this.wildCardMenu.destroy();
+
         this.suitCardButtons.forEach((button) => {
           button.destroy();
         });

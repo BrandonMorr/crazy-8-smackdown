@@ -210,7 +210,7 @@ function onPlayerReady() {
 /**
  * Notify players that a turn has been made, move to next player.
  */
-function onCardPlayed(card) {
+function onCardPlayed(card, wildcardSuit = false) {
   let roomCode = this.player.roomCode;
   let deck = rooms[roomCode].deck;
   let playerTurnLast = rooms[roomCode].playerOrder.length - 1;
@@ -223,23 +223,46 @@ function onCardPlayed(card) {
   if (this.player.checkHandEmpty()) {
     this.player.countdown--;
 
-    // Notify everyone that a player's countdown score is being updated.
-    io.to(roomCode).emit('update countdown score', this.player);
-
     // Check to see if the game is over.
     if (this.player.countdown === 0) {
       // Notify players that the game is over and who the winner is.
       this.emit('game over', this.player);
     }
 
+    // Notify everyone that a player's countdown score is being updated.
+    io.to(roomCode).emit('update countdown score', this.player);
+
+    // Send a message to the player about the new countdown score.
+    io.to(this.player.id).emit('message', `YOUR COUNTDOWN SCORE IS NOW ${this.player.countdown}`)
+
+    // Send a different message to everyone about the change in player's
+    // countdown score.
+    this.broadcast.to(roomCode).emit('message', `${this.player.name}'S COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
+
     dealCardsToPlayer(this.player, this.player.countdown);
+  }
+
+  // If a wildcard was played, notify the players that the suit has changed.
+  if (wildcardSuit) {
+    // Create a wildcard that we set as the current card in play.
+    let wildcard = {
+      value: false,
+      suit: wildcardSuit
+    }
+
+    // Notfiy all players that the suit has changed.
+    io.to(roomCode).emit('message', `THE SUIT HAS CHANGED TO ${wildcardSuit.toUpperCase()}`);
+
+    // Update the card in play to our wildcard choice.
+    io.to(roomCode).emit('update card in play', wildcard);
+  }
+  else {
+    // Update the card in play to the card that was last played.
+    io.to(roomCode).emit('update card in play', card);
   }
 
   // Update the card in play.
   rooms[this.player.roomCode].cardInPlay = card;
-
-  // Notify all players that there is a card in play change.
-  io.to(roomCode).emit('update card in play', card);
 
   // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player, card);
@@ -253,7 +276,7 @@ function onCardPlayed(card) {
     let skippedPlayer = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
 
     // Notify player that their turn was skipped.
-    io.to(skippedPlayer.id).emit('message', 'SKIPPED YOUR TURN');
+    io.to(skippedPlayer.id).emit('message', `${this.player.name} SKIPPED YOUR TURN`);
 
     rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
   }
