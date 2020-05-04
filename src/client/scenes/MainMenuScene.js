@@ -17,12 +17,6 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   create() {
-    this.addTitleText();
-    this.addRoomCodeInput();
-    this.addNameInput();
-    this.addCreateGameButton();
-    this.addJoinButton();
-
     this.socket = new SocketIO();
 
     this.socket.on('connect', () => {
@@ -41,6 +35,12 @@ export default class MainMenuScene extends Phaser.Scene {
     this.socket.on('room error', (errorMessage) => {
       this.showErrorMessage(errorMessage);
     });
+
+    this.addTitleText();
+    this.addRoomCodeInput();
+    this.addNameInput();
+    this.addCreateGameButton();
+    this.addJoinButton();
   }
 
   update() {
@@ -161,7 +161,7 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   /**
-   * Display error message to the use, fade it out after a few seconds.
+   * Display error message to the user, fade it out after a few seconds.
    */
   showErrorMessage(errorMessage) {
     // Only display one error message at a time.

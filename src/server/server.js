@@ -180,16 +180,16 @@ function onPlayerReady() {
     rooms[roomCode].deck = new Deck();
 
     // TODO: do this after the cards are dealt
-    // Shift out a card from the draw pile...
+    // Shift out a card from the draw pile, the first card in play.
     let firstCardInPlay = rooms[roomCode].deck.drawPile.shift();
 
-    // Notify all players that there is a card in play.
+    // Notify all players players of the first card in play.
     io.to(roomCode).emit('update card in play', firstCardInPlay);
 
-    // ...and place said card on the top of the play pile.
+    // Move the card to the play pile.
     rooms[roomCode].deck.playPile.unshift(firstCardInPlay);
 
-    // Set the first card in play pile as the last card played.
+    // Set the first card in play.
     rooms[roomCode].cardInPlay = firstCardInPlay;
 
     // Notify all players what the first card to play is.

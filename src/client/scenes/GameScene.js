@@ -55,9 +55,10 @@ export default class GameScene extends Phaser.Scene {
 
       // NOTE: remove this at some point, will use more dynamic avatars.
       this.players[this.players.length - 1].setPlayerTexture(this.players.length);
+      this.showMessage(`${playerObj.name} HAS CONNECTED`);
 
       // Show the ready button.
-      this.toggleReadyButton();
+      this.showReadyButton();
     });
 
     // Show all the other players.
@@ -81,7 +82,7 @@ export default class GameScene extends Phaser.Scene {
       }
 
       // Check to see if the ready button needs to be hidden.
-      this.toggleReadyButton();
+      this.showReadyButton();
     });
 
     // Show that a player is ready.
@@ -106,7 +107,11 @@ export default class GameScene extends Phaser.Scene {
         x: 400,
         y: 300,
         ease: 'Linear',
-        duration: 250
+        duration: 250,
+        onStart: () => {
+          // When the card is clicked, give it a slight rotation.
+          this.giveCardRandomAngle(card);
+        }
       });
     });
 
@@ -234,7 +239,7 @@ export default class GameScene extends Phaser.Scene {
       }
 
       // Check to see if the ready button needs to be hidden.
-      this.toggleReadyButton();
+      this.showReadyButton();
     });
 
     // Show a clickable room code button.
@@ -258,10 +263,13 @@ export default class GameScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: cardToTween,
-      x: this.calculateCardX(),
+      x: 400,
       y: 500,
       ease: 'Linear',
-      duration: 250
+      duration: 250,
+      onComplete: () => {
+        this.moveCardsInHand();
+      }
     });
   }
 
@@ -296,7 +304,12 @@ export default class GameScene extends Phaser.Scene {
         y: 300,
         ease: 'Linear',
         duration: 250,
+        onStart: () => {
+          this.giveCardRandomAngle(card);
+        }
       });
+
+      this.moveCardsInHand();
 
       // Check to see if a wildcard was played.
       if (card.value == this.player.countdown) {
@@ -339,6 +352,8 @@ export default class GameScene extends Phaser.Scene {
 
   /**
    * Return an x position to place a player.
+   *
+   * TODO: work this into something more dynamic.
    */
   calculatePlayerX() {
     if (this.players.length === 1) {
@@ -353,14 +368,48 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Return an x position to place a card in player's hand.
+   * Update the position of every card so that they're sorted evenly & visible.
    */
-  calculateCardX() {
-    let startingX = 170;
+  moveCardsInHand() {
+    let hand = this.player.hand;
     let handSize = this.player.hand.length;
-    let offset = handSize * 50;
 
-    return startingX + offset;
+    // If the hand is bigger than 8 cards, we should reduce the offset in half.
+    let offset = (handSize <= 8) ? 50 : 25;
+
+    // Start X represents where the first card in the hand should go, every
+    // card after that will be offset by 50 (or less).
+    let startX;
+
+    // If there is an odd number of cards, the starting position is in the
+    // middle of the x axis.
+    if (handSize % 2 === 1) {
+      // To figure out where the first card will go, divide the number of
+      // cards in the hand by two & floor the value to determine the amount
+      // of cards that could be drawn from the middle point of the screen.
+      // Multiply the number of cards by the offset (in px.) and you get
+      // starting x position (I don't actually know why this works ^_^).
+      let distanceFromMiddle = Math.floor(handSize / 2) * offset;
+      startX = 400 - distanceFromMiddle;
+    }
+    // If there is an even number of cards, the starting position is slightly
+    // off to the left of the middle.
+    else {
+      // Same craziness as before, but this time we need to reduce the floored
+      // value by one (again, not sure why this works but it totally does).
+      let distanceFromMiddle = Math.floor(handSize / 2 - 1) * offset;
+      startX = 375 - distanceFromMiddle;
+    }
+
+    // Loop through every card in the hand, tween them to new x positions.
+    for (let i = 0; i <= handSize; i++) {
+      this.tweens.add({
+        targets: hand[i],
+        x: startX + (offset * i),
+        ease: 'Linear',
+        duration: 250
+      });
+    }
   }
 
   /**
@@ -378,6 +427,18 @@ export default class GameScene extends Phaser.Scene {
      return isPlayable;
    }
 
+   /**
+    * Rotate a card within a random range (and animate the rotation).
+    */
+   giveCardRandomAngle(card) {
+     this.tweens.add({
+       targets: card,
+       angle: Phaser.Math.RND.between(-10, 10),
+       ease: 'Linear',
+       duration: 100
+     })
+   }
+
   /**
    * Return a player by their name property.
    */
@@ -388,7 +449,7 @@ export default class GameScene extends Phaser.Scene {
   /**
    * Toggle a ready button when there are 2 or more players in the room.
    */
-  toggleReadyButton() {
+  showReadyButton() {
     // We only want to show the ready button when there are more than 2 players
     // in the room.
     if (this.players.length >= 2) {
@@ -463,7 +524,7 @@ export default class GameScene extends Phaser.Scene {
         targets: this.message,
         delay: 2000,
         alpha: 0,
-        ease: 'linear',
+        ease: 'Linear',
         duration: 400,
         onComplete: () => {
           this.message.destroy();
