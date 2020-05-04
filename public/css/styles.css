@@ -120,9 +120,9 @@ div {
   border-right: none;
   border-left: none;
   background-color: #e0e0e0;
-  -webkit-box-shadow: 0 4px 0 0 #757575;
-  -moz-box-shadow: 0 4px 0 0 #757575;
-  box-shadow: 0 4px 0 0 #757575;;
+  -webkit-box-shadow: 0 4px 0 0 #9b9b9b;
+  -moz-box-shadow: 0 4px 0 0 #9b9b9b;
+  box-shadow: 0 4px 0 0 #9b9b9b;;
 }
 
 /* Any buttons within the game scene */
@@ -136,9 +136,9 @@ div {
   border-right: none;
   border-left: none;
   background-color: #e0e0e0;
-  -webkit-box-shadow: 0 4px 0 0 #757575;
-  -moz-box-shadow: 0 4px 0 0 #757575;
-  box-shadow: 0 4px 0 0 #757575;;
+  -webkit-box-shadow: 0 4px 0 0 #9b9b9b;
+  -moz-box-shadow: 0 4px 0 0 #9b9b9b;
+  box-shadow: 0 4px 0 0 #9b9b9b;;
 }
 
 /* Wildcard suit button stuff */
