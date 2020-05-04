@@ -46,7 +46,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   showReady() {
     this.ready = true;
 
-    this.readyText = this.scene.add.dom(this.x, this.y + 60, 'div', 'font-size: 14px;', 'READY');
+    this.readyText = this.scene.add.dom(this.x, this.y - 80, 'div', 'font-size: 14px;', 'READY');
     this.readyText.setClassName('status');
   }
 
@@ -63,7 +63,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * Add text to show player is ready smack down.
    */
   showTurn() {
-    this.turnText = this.scene.add.dom(this.x, this.y + 80, 'div', 'font-size: 14px;', 'MAKING TURN');
+    this.turnText = this.scene.add.dom(this.x, this.y - 80, 'div', 'font-size: 14px;', 'MAKING TURN');
     this.turnText.setClassName('status');
   }
 
@@ -71,9 +71,18 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * Add text to show player's countdown score.
    */
   showCountdown() {
-    // Add player's countdown score on the bottom right corner of the avatar.
+    // Add player's countdown score below the players avatar.
     this.countdownText = this.scene.add.dom(this.x, this.y + 50, 'div', 'font-size: 12px;', `COUNTDOWN: ${this.countdown}`);
     this.countdownText.setClassName('countdown');
+  }
+
+  /**
+   * Add text to show how many cards are in a player's hand.
+   */
+  showHandCount() {
+    // Add player's hand count below the countdown score.
+    this.handCountText = this.scene.add.dom(this.x, this.y + 65, 'div', 'font-size: 12px;', `CARDS: ${this.hand.length}`);
+    this.handCountText.setClassName('hand-count');
   }
 
   /**
@@ -89,6 +98,14 @@ export default class Player extends Phaser.GameObjects.Sprite {
   updateCountdown() {
     this.countdown--;
     this.countdownText.setText(`COUNTDOWN: ${this.countdown}`);
+  }
+
+  /**
+   * Update player's hand count text to reflect total cards in hand.
+   */
+  updateHandCount(numberOfCards) {
+    this.handCountText.setText(`CARDS: ${numberOfCards}`);
+    }
   }
 
   /**
@@ -109,6 +126,10 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     if (this.countdownText) {
       this.countdownText.destroy();
+    }
+
+    if (this.handCountText) {
+      this.handCountText.destroy();
     }
 
     this.destroy(); // Cya dood!

@@ -66,6 +66,17 @@ div {
 }
 
 /* Countdown score */
+.hand-count {
+  color: white;
+  background-color: #ff0040;
+  padding: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 3px 0 0 #c12048;
+  -moz-box-shadow: 0 3px 0 0 #c12048;
+  box-shadow: 0 3px 0 0 #c12048;
+}
+
+/* Countdown score */
 .countdown {
   color: white;
   background-color: #39A0ED;

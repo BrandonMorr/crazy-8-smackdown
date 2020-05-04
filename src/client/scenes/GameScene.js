@@ -190,6 +190,7 @@ export default class GameScene extends Phaser.Scene {
       for (let player of this.players) {
         player.readyText.destroy();
         player.showCountdown();
+        player.showHandCount();
       }
     });
 
@@ -216,6 +217,13 @@ export default class GameScene extends Phaser.Scene {
 
       player.updateCountdown();
     });
+
+    // Update a player's hand count.
+    this.socket.on('update hand count', (playerObj, numberOfCards) => {
+      let player = this.getPlayerByName(playerObj.name);
+
+      player.updateHandCount(numberOfCards);
+    })
 
     // Show messages from the server.
     this.socket.on('message', (message) => {

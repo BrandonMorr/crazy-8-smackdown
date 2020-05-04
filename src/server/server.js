@@ -218,6 +218,9 @@ function onCardPlayed(card, wildcardSuit = false) {
   // Remove the card from the player's hand.
   this.player.removeCardFromHand(card, deck);
 
+  // Notify all clients how many cards a player has.
+  io.to(roomCode).emit('update hand count', this.player, this.player.hand.length);
+
   // Check if the player's hand is empty, if so lower score and deal out more
   // cards.
   if (this.player.checkHandEmpty()) {
@@ -435,6 +438,9 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
 
       // Send the card to the player's client.
       io.to(player.id).emit('add card to hand', cardToDeal);
+
+      // Notify all clients how many cards a player has.
+      io.to(player.roomCode).emit('update hand count', player, player.hand.length);
     }
     else {
       // No cards left to draw, shuffle and try again.
