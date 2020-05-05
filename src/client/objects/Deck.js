@@ -117,8 +117,12 @@ export default class Deck extends Phaser.GameObjects.Group {
             card.faceDown();
           },
           onComplete: () => {
-            // Destroy every card but the last.
-            if (i !== pileSize) {
+            if (i === pileSize) {
+              // Move the last card to the draw pile.
+              this.addCardToDrawPile(card);
+            }
+            else {
+              // Destroy every other card.
               card.destroy();
             }
           }
@@ -128,5 +132,20 @@ export default class Deck extends Phaser.GameObjects.Group {
 
     // We only want to hold onto the last card played for the play pile.
     this.playPile = [this.playPile[0]];
+  }
+
+  /**
+   * Remove the deck of cards from scene.
+   */
+  remove() {
+    for (let card of this.playPile) {
+      card.destroy();
+    }
+
+    for (let card of this.drawPile) {
+      card.destroy();
+    }
+
+    this.drawPileCard.destroy();
   }
 }

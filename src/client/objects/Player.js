@@ -5,12 +5,14 @@ import Phaser from 'phaser';
  */
 export default class Player extends Phaser.GameObjects.Sprite {
 
-  constructor(scene, x, y, name) {
+  constructor(scene, x, y, id, name) {
     super(scene, x, y);
 
+    this.id = id;
     this.name = name;
-    this.countdown = 8;
+
     this.hand = [];
+    this.countdown = 8;
     this.ready = false;
 
     // Add player's name above the avatar.
@@ -108,7 +110,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
-   * Clean up any player stuff from scene.
+   * Remove all player stuff from scene.
    */
   remove() {
     if (this.nameText) {
@@ -129,6 +131,12 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     if (this.handCountText) {
       this.handCountText.destroy();
+    }
+
+    if (this.hand.length > 0) {
+      for (let card of this.hand) {
+        card.destroy();
+      }
     }
 
     this.destroy(); // Cya dood!

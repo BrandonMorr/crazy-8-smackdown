@@ -40,7 +40,7 @@ export default class GameScene extends Phaser.Scene {
     this.socket = socket;
 
     // Create local player's Player object and add it to players array.
-    this.player = new Player(this, 100, 500, this.socket.name);
+    this.player = new Player(this, 100, 500, this.socket.id, this.socket.name);
     this.players.push(this.player);
 
     // NOTE: remove this at some point, will use more dynamic avatars.
@@ -51,7 +51,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Handle new player connections.
     this.socket.on('new player', (playerObj) => {
-      this.players.push(new Player(this, this.calculatePlayerX(), 100, playerObj.name));
+      this.players.push(new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name));
 
       // NOTE: remove this at some point, will use more dynamic avatars.
       this.players[this.players.length - 1].setPlayerTexture(this.players.length);
@@ -66,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
       for (let playerObj of playerObjs) {
         // We only want to add other players.
         if (playerObj.name !== this.player.name) {
-          let player = new Player(this, this.calculatePlayerX(), 100, playerObj.name);
+          let player = new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name);
 
           // Add the player to the players array.
           this.players.push(player);
@@ -234,6 +234,44 @@ export default class GameScene extends Phaser.Scene {
       player.updateHandCount(numberOfCards);
     });
 
+    // End the game, show the winner.
+    this.socket.on('game over', (playerObj) => {
+      // Remove all the players from the screen.
+      for (let player of this.players) {
+        player.remove();
+      }
+
+      // Remove everything from the scene.
+      this.deck.remove();
+      this.roomCodeButton.destroy();
+      
+      if (this.messageText) {
+        this.messageText.destroy();
+      }
+
+      if (playerObj.name === this.player.name) {
+        this.sound.play('winner');
+
+        this.gameOverText = this.add.dom(400, 200, 'div', 'font-size: 30px;', 'CONGRATULATIONS, YOU WIN');
+        this.gameOverText.setClassName('winner');
+      }
+      else {
+        this.sound.play('loser');
+
+        this.gameOverText = this.add.dom(400, 200, 'div', 'font-size: 30px;', 'YOU LOSE');
+        this.gameOverText.setClassName('loser');
+      }
+
+      // Show a button that brings the player back to the main menu scene.
+      this.returnToMenuButton = this.add.dom(400, 300, 'button', 'font-size: 16px; width: 180px;', 'RETURN TO MENU');
+      this.returnToMenuButton.setClassName('game-button');
+      this.returnToMenuButton.addListener('click');
+
+      this.returnToMenuButton.on('click', () => {
+        this.scene.start('MainMenuScene');
+      });
+    });
+
     // Show messages from the server.
     this.socket.on('message', (message) => {
       this.showMessage(message);
@@ -326,10 +364,13 @@ export default class GameScene extends Phaser.Scene {
         }
       });
 
+      // Adjust the x position for all the cards in hand.
       this.moveCardsInHand();
 
-      // Check to see if a wildcard was played.
-      if (card.value == this.player.countdown) {
+      // Check to see if a wildcard was played. The wildcard corresponds to your
+      // countdown score. Since aces have a value of 'a', we have to perform a
+      // separate condition check for that wildcard.
+      if (card.value == this.player.countdown || ((card.value == 'a') && this.player.countdown == 1)) {
         this.showWildCardMenu(card);
       }
       else {
@@ -439,7 +480,9 @@ export default class GameScene extends Phaser.Scene {
        // Check if card matches the current value in play.
        card.value == this.currentCardInPlay.value ||
        // Check if the card is wild (wildcard = countdown score).
-       card.value == this.player.countdown;
+       card.value == this.player.countdown ||
+       // Check if the countdown is at one (wildcard is ace and 'a' != 1).
+       (this.player.countdown == 1 && card.value == 'a');
 
      return isPlayable;
    }
@@ -533,19 +576,19 @@ export default class GameScene extends Phaser.Scene {
    */
   showMessage(message) {
     // Only display one message at a time.
-    if (!this.message) {
-      this.message = this.add.dom(400, 400, 'div', 'font-size: 16px;', message);
-      this.message.setClassName('message');
+    if (!this.messageText) {
+      this.messageText = this.add.dom(400, 400, 'div', 'font-size: 16px;', message);
+      this.messageText.setClassName('message');
 
       this.tweens.add({
-        targets: this.message,
+        targets: this.messageText,
         delay: 2000,
         alpha: 0,
         ease: 'Linear',
         duration: 400,
         onComplete: () => {
-          this.message.destroy();
-          this.message = false;
+          this.messageText.destroy();
+          this.messageText = false;
         }
       });
     }

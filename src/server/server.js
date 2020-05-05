@@ -228,7 +228,9 @@ function onCardPlayed(card, wildcardSuit = false) {
     // Check to see if the game is over.
     if (this.player.countdown === 0) {
       // Notify players that the game is over and who the winner is.
-      this.emit('game over', this.player);
+      io.to(roomCode).emit('game over', this.player);
+      // Stop here.
+      return;
     }
 
     // Notify everyone that a player's countdown score is being updated.
@@ -239,7 +241,7 @@ function onCardPlayed(card, wildcardSuit = false) {
 
     // Send a different message to everyone about the change in player's
     // countdown score.
-    this.broadcast.to(roomCode).emit('message', `${this.player.name}'s COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
+    this.broadcast.to(roomCode).emit('message', `${this.player.name}'S COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
 
     dealCardsToPlayer(this.player, this.player.countdown);
   }
@@ -285,7 +287,7 @@ function onCardPlayed(card, wildcardSuit = false) {
     let skippedPlayer = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
 
     // Tell the client who's turn they skipped.
-    this.emit('message', `YOU SKIPPED ${skippedPlayer.name}'s TURN`);
+    this.emit('message', `YOU SKIPPED ${skippedPlayer.name}'S TURN`);
 
     // Notify player that their turn was skipped.
     io.to(skippedPlayer.id).emit('message', `${this.player.name} SKIPPED YOUR TURN`);
