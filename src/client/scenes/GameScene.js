@@ -232,7 +232,7 @@ export default class GameScene extends Phaser.Scene {
       let player = this.getPlayerByName(playerObj.name);
 
       player.updateHandCount(numberOfCards);
-    })
+    });
 
     // Show messages from the server.
     this.socket.on('message', (message) => {

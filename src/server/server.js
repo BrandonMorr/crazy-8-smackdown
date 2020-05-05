@@ -213,7 +213,6 @@ function onPlayerReady() {
 function onCardPlayed(card, wildcardSuit = false) {
   let roomCode = this.player.roomCode;
   let deck = rooms[roomCode].deck;
-  let playerTurnLast = rooms[roomCode].playerOrder.length - 1;
 
   // Remove the card from the player's hand.
   this.player.removeCardFromHand(card, deck);
@@ -270,33 +269,44 @@ function onCardPlayed(card, wildcardSuit = false) {
   // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player, card);
 
-  // If the player in last position has played, reset back to first player.
-  // Otherwise move position to next player.
-  rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
+  // If a king was played, we need to reverse the direction of play.
+  if (card.value === 'k') {
+    rooms[roomCode].reverseDirection = (rooms[roomCode].reverseDirection) ? false : true;
+
+    // Tell the client that they have reversed the direction.
+    this.emit('message', `YOU REVERSED THE DIRECTION OF PLAY`);
+
+    // Notify everyone else who reversed the direction.
+    this.broadcast.to(roomCode).emit('message', `${this.player.name} REVERSED THE DIRECTION PLAY`);
+  }
 
   // If a jack was played skip the next players turn.
   if (card.value === 'j') {
     let skippedPlayer = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
 
+    // Tell the client who's turn they skipped.
+    this.emit('message', `YOU SKIPPED ${skippedPlayer.name}'s TURN'`);
+
     // Notify player that their turn was skipped.
     io.to(skippedPlayer.id).emit('message', `${this.player.name} SKIPPED YOUR TURN`);
 
-    rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
+    // Skip the next player.
+    rooms[roomCode].getNextPlayer();
   }
 
   // Grab the next player to play.
-  let player = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
-
-  // If a 2 was played, deal two cards to the next player.
-  if (card.value === '2') {
-    io.to(player.id).emit('message', 'PICKUP 2 CARDS')
-    dealCardsToPlayer(player, 2);
-  }
+  let player = rooms[roomCode].getNextPlayer();
 
   // If a queen of spades was played, deal 5 cards to the next player.
   if (card.name === 'q of spades') {
     io.to(player.id).emit('message', 'PICKUP 5 CARDS')
     dealCardsToPlayer(player, 5);
+  }
+
+  // If a 2 was played, deal two cards to the next player.
+  if (card.value === '2') {
+    io.to(player.id).emit('message', 'PICKUP 2 CARDS')
+    dealCardsToPlayer(player, 2);
   }
 
   // Notify everyone who is going to play next.
@@ -311,7 +321,6 @@ function onCardPlayed(card, wildcardSuit = false) {
  */
 function onDrawCard() {
   let roomCode = this.player.roomCode;
-  let playerTurnLast = rooms[roomCode].playerOrder.length - 1;
 
   // Deal a new card to the player.
   dealCardsToPlayer(this.player);
@@ -319,12 +328,8 @@ function onDrawCard() {
   // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card draw', this.player);
 
-  // If the player in last position has played, reset back to first player.
-  // Otherwise move position to next player.
-  rooms[roomCode].playerTurn === playerTurnLast ? rooms[roomCode].playerTurn = 0 : rooms[roomCode].playerTurn++;
-
   // Grab the next player to play.
-  let player = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
+  let player = rooms[roomCode].getNextPlayer();
 
   // Notify everyone who is going to play next.
   io.to(roomCode).emit('show player turn', player);
@@ -344,19 +349,25 @@ function onDisconnect() {
   // Check to see if the socket has a player data object.
   if ('player' in this) {
     let roomCode = this.player.roomCode;
+    let deck = rooms[roomCode].deck;
     let players = getPlayersInRoom(roomCode);
 
     // Check to see if the room is empty.
     if (players.length > 0) {
-      // Alert others of the disconnected player.
-      io.to(roomCode).emit('player quit', this.player);
-
       // Unready all the players.
       for (let player of players) {
         player.ready = false;
       }
+
+      // Put the player's hand back in the play pile so that cards go back into
+      // circulation.
+      for (let card of this.player.hand) {
+        console.log(card.name + ' goes back into the play pile');
+        deck.addCardToPlayPile(card);
+      }
     }
     else {
+      // If the room is empty, remove it from the map.
       delete rooms[roomCode];
     }
   }
