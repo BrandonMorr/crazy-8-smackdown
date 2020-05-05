@@ -80,20 +80,53 @@ export default class Deck extends Phaser.GameObjects.Group {
 
     card.setDepth(1);
 
-    // Add card to playpile.
+    // Add card to play pile.
     this.playPile.unshift(card);
   }
 
   /**
+   * Show an arbitrary card in the scene that represents a draw pile.
+   */
+  addDrawPileCard(scene) {
+    // Create an arbitrary card.
+    this.drawPileCard = new Card(scene, 250, 300, 'spades', 'a', 'a of spades');
+    this.drawPileCard.faceDown();
+   }
+
+  /**
    * Shuffle the play pile, pass that back to the draw pile and clear playPile.
    */
-  shuffleDeck() {
-    this.drawPile = Phaser.Utils.Array.Shuffle(this.playPile);
+  shuffle(scene) {
+    // Get the size of the pile (subract one so the loop understands).
+    let pileSize = this.playPile.length - 1;
 
-    for (let card of this.drawPile) {
-      card.setFaceDown();
+    // Remove the draw pile card.
+    this.drawPileCard.destroy();
+
+    for (let i = 0; i <= pileSize; i++) {
+      let card = this.playPile[i];
+
+      // Skip the last card played (first in the play pile array).
+      if (i >= 1) {
+        scene.tweens.add({
+          targets: card,
+          x: 250,
+          ease: 'Linear',
+          duration: 250,
+          onStart: () => {
+            card.faceDown();
+          },
+          onComplete: () => {
+            // Destroy every card but the last.
+            if (i !== pileSize) {
+              card.destroy();
+            }
+          }
+        });
+      }
     }
 
-    this.playPile = [];
+    // We only want to hold onto the last card played for the play pile.
+    this.playPile = [this.playPile[0]];
   }
 }

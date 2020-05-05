@@ -446,13 +446,18 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
       // No cards left to draw, shuffle and try again.
       rooms[player.roomCode].deck.shuffleDeck();
 
+      console.log('\nShuffling deck!\n');
+
+      // Notify the players that the deck is being shuffled.
+      io.to(player.roomCode).emit('shuffle deck');
+
       // If there are enough cards left to deal, deal em'.
-      if (rooms[player.roomCode].deck.drawPile >= cardsLeftToDeal) {
+      if (rooms[player.roomCode].deck.drawPile.length >= cardsLeftToDeal) {
         // Make sure to only deal the remainder (if there is enough).
         dealCardsToPlayer(player, cardsLeftToDeal);
       }
       else {
-        console.log('No more cards left to deal! Wtf?');
+        console.log('\nNo more cards left to deal!\n');
       }
     }
   }

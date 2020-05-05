@@ -192,6 +192,15 @@ export default class GameScene extends Phaser.Scene {
         player.showCountdown();
         player.showHandCount();
       }
+
+      this.deck.addDrawPileCard(this);
+    });
+
+    // Show a shuffle
+    this.socket.on('shuffle deck', () => {
+      this.deck.shuffle(this);
+
+      this.showMessage('THE DECK HAS BEEN SHUFFLED');
     });
 
     // Tween cards to the player.
@@ -264,7 +273,7 @@ export default class GameScene extends Phaser.Scene {
    * @param {Card} card - The card to tween to our hand.
    */
   dealCardToPlayer(card) {
-    let cardToTween = new Card(this, 400, 300, card.suit, card.value, card.name);
+    let cardToTween = new Card(this, 300, 300, card.suit, card.value, card.name);
 
     // Add the card to the player's hand.
     this.player.addCardToHand(cardToTween);
@@ -553,7 +562,8 @@ export default class GameScene extends Phaser.Scene {
     this.roomCodeButton.on('click', () => {
       // Copy room code to the clipboard.
       navigator.clipboard.writeText(this.socket.roomCode);
-      this.showMessage('CODE COPIED TO CLIPBOARD')
+
+      this.showMessage('CODE COPIED TO CLIPBOARD');
     });
   }
 

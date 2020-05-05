@@ -105,7 +105,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
    */
   updateHandCount(numberOfCards) {
     this.handCountText.setText(`CARDS: ${numberOfCards}`);
-    }
   }
 
   /**
