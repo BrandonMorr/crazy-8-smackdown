@@ -235,11 +235,11 @@ function onCardPlayed(card, wildcardSuit = false) {
     io.to(roomCode).emit('update countdown score', this.player);
 
     // Send a message to the player about the new countdown score.
-    io.to(this.player.id).emit('message', `YOUR COUNTDOWN SCORE IS NOW ${this.player.countdown}`)
+    this.emit('message', `YOUR COUNTDOWN SCORE IS NOW ${this.player.countdown}`)
 
     // Send a different message to everyone about the change in player's
     // countdown score.
-    this.broadcast.to(roomCode).emit('message', `${this.player.name}'S COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
+    this.broadcast.to(roomCode).emit('message', `${this.player.name}'s COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
 
     dealCardsToPlayer(this.player, this.player.countdown);
   }
@@ -274,7 +274,7 @@ function onCardPlayed(card, wildcardSuit = false) {
     rooms[roomCode].reverseDirection = (rooms[roomCode].reverseDirection) ? false : true;
 
     // Tell the client that they have reversed the direction.
-    this.emit('message', `YOU REVERSED THE DIRECTION OF PLAY`);
+    this.emit('message', 'YOU REVERSED THE DIRECTION OF PLAY');
 
     // Notify everyone else who reversed the direction.
     this.broadcast.to(roomCode).emit('message', `${this.player.name} REVERSED THE DIRECTION PLAY`);
@@ -285,7 +285,7 @@ function onCardPlayed(card, wildcardSuit = false) {
     let skippedPlayer = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
 
     // Tell the client who's turn they skipped.
-    this.emit('message', `YOU SKIPPED ${skippedPlayer.name}'s TURN'`);
+    this.emit('message', `YOU SKIPPED ${skippedPlayer.name}'s TURN`);
 
     // Notify player that their turn was skipped.
     io.to(skippedPlayer.id).emit('message', `${this.player.name} SKIPPED YOUR TURN`);
