@@ -16,8 +16,8 @@ export default class PlayerSetupScene extends Phaser.Scene {
     Preload.loadBrush(this);
   }
 
-  create(socket) {
-    this.socket = socket;
+  create(data) {
+    this.socket = data.socket;
 
     this.textureMap = [];
 

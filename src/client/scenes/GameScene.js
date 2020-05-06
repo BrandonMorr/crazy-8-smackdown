@@ -39,6 +39,9 @@ export default class GameScene extends Phaser.Scene {
   create(data) {
     this.socket = data.socket;
 
+    // XXX: prevent connection message from appearing/
+    this.socket.off('connect');
+
     // Create local player's Player object and add it to players array.
     this.player = new Player(this, 100, 500, this.socket.id, this.socket.name, data.textureMap);
     this.player.setTexture('avatar');
@@ -64,7 +67,7 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('get players', (playerObjs) => {
       for (let playerObj of playerObjs) {
         // We only want to add other players.
-        if (playerObj.name !== this.player.name) {
+        if (playerObj.id !== this.player.id) {
           let player = new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
 
           // Add the player to the players array.
@@ -86,13 +89,13 @@ export default class GameScene extends Phaser.Scene {
 
     // Show that a player is ready.
     this.socket.on('show player ready', (playerObj) => {
-      let player = this.getPlayerByName(playerObj.name);
+      let player = this.getPlayerByID(playerObj.id);
       player.showReady();
     });
 
     // Show when a player plays a card.
     this.socket.on('show card played', (playerObj, cardObj) => {
-      let player = this.getPlayerByName(playerObj.name);
+      let player = this.getPlayerByID(playerObj.id);
       let card = new Card(this, player.x, player.y, cardObj.suit, cardObj.value, cardObj.name);
 
       // Add the card to the play pile.
@@ -116,7 +119,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Show when a player draws a card.
     this.socket.on('show card draw', (playerObj) => {
-      let player = this.getPlayerByName(playerObj.name);
+      let player = this.getPlayerByID(playerObj.id);
       // Create an arbitrary card.
       let card = new Card(this, 400, 300, 'spades', 'a', 'a of spades');
 
@@ -143,14 +146,14 @@ export default class GameScene extends Phaser.Scene {
         }
       }
 
-      if (this.player.name === playerObj.name) {
+      if (this.player.id === playerObj.id) {
         // It's your turn!
         this.player.showTurn();
         this.yourTurn = true;
       }
       else {
         // It's someone elses turn!
-        let player = this.getPlayerByName(playerObj.name);
+        let player = this.getPlayerByID(playerObj.id);
 
         player.showTurn();
         this.yourTurn = false;
@@ -221,14 +224,14 @@ export default class GameScene extends Phaser.Scene {
 
     // Update a player's countdown score.
     this.socket.on('update countdown score', (playerObj) => {
-      let player = this.getPlayerByName(playerObj.name);
+      let player = this.getPlayerByID(playerObj.id);
 
       player.updateCountdown();
     });
 
     // Update a player's hand count.
     this.socket.on('update hand count', (playerObj, numberOfCards) => {
-      let player = this.getPlayerByName(playerObj.name);
+      let player = this.getPlayerByID(playerObj.id);
 
       player.updateHandCount(numberOfCards);
     });
@@ -248,7 +251,7 @@ export default class GameScene extends Phaser.Scene {
         this.messageText.destroy();
       }
 
-      if (playerObj.name === this.player.name) {
+      if (playerObj.id === this.player.id) {
         this.sound.play('winner');
 
         this.gameOverText = this.add.dom(400, 200, 'div', 'font-size: 30px;', 'CONGRATULATIONS, YOU WIN');
@@ -279,10 +282,10 @@ export default class GameScene extends Phaser.Scene {
     // Handle removing a player who has disconnected.
     this.socket.on('player quit', (playerObj) => {
       // Remove the player from the scene.
-      this.getPlayerByName(playerObj.name).remove();
+      this.getPlayerByID(playerObj.id).remove();
 
       // Remove player from players array.
-      this.players = this.players.filter((player) => player.name !== playerObj.name);
+      this.players = this.players.filter((player) => player.id !== playerObj.id);
 
       // If the game hasn't started, clear out the ready stuff when someone
       // leaves the room.
@@ -519,10 +522,10 @@ export default class GameScene extends Phaser.Scene {
    }
 
   /**
-   * Return a player by their name property.
+   * Return a player by their ID property.
    */
-  getPlayerByName(playerName) {
-    return this.players.find((player) => player.name === playerName);
+  getPlayerByID(playerId) {
+    return this.players.find((player) => player.id === playerId);
   }
 
   /**
