@@ -360,10 +360,12 @@ function onDisconnect() {
         player.ready = false;
       }
 
+      // Tell everyone the player has disconnected.
+      io.to(roomCode).emit('player quit', this.player);
+
       // Put the player's hand back in the play pile so that cards go back into
       // circulation.
       for (let card of this.player.hand) {
-        console.log(card.name + ' goes back into the play pile');
         deck.addCardToPlayPile(card);
       }
     }

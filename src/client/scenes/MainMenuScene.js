@@ -67,7 +67,7 @@ export default class MainMenuScene extends Phaser.Scene {
    */
   addConnectionStatus() {
     // let statusText = this.add.dom(735, 570, 'div', 'font-size: 14px;', 'CONNECTED');
-    let statusText = this.add.dom(this.camera.width - 100, this.camera.height - 50, 'div', 'font-size: 14px;', 'CONNECTED');
+    let statusText = this.add.dom((this.camera.width / 4 * 3), (this.camera.height / 4  * 3), 'div', 'font-size: 14px;', 'CONNECTED');
     statusText.setClassName('status');
   }
 
