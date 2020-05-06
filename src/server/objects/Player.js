@@ -3,10 +3,11 @@
  */
 export default class Player {
 
-  constructor(id, name, roomCode) {
+  constructor(id, name, roomCode, textureMap) {
     this.id = id;
     this.name = name;
     this.roomCode = roomCode;
+    this.textureMap = textureMap;
 
     this.hand = [];
     this.countdown = 8;

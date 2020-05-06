@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import Preload from '../utilities/Preload.js';
 
 /**
  * @class - Player setup scene where the player draws their avatar.
@@ -12,17 +13,15 @@ export default class PlayerSetupScene extends Phaser.Scene {
   }
 
   preload() {
-
+    Preload.loadBrush(this);
   }
 
   create(socket) {
     this.socket = socket;
 
-    this.lastDot = false;
-    this.selectedSizeOption = 6;
+    this.textureMap = [];
+    
     this.selectedColorOption = '0x000000';
-
-    this.strokeMap = [];
 
     this.addTitleText();
     this.addPaintCanvas();
@@ -38,118 +37,85 @@ export default class PlayerSetupScene extends Phaser.Scene {
   /**
    * Creates a canvas for players to create their avatar and adds it to the
    * scene.
-   *
-   * @TODO: This could definitely stand to be optimized at some point, as it
-   * creates a Phaser.Grahpics object for every pointerdown & pointermove event.
    */
   addPaintCanvas() {
-    // Create the canvas for players to draw on.
-    let canvas = this.add.graphics();
-    canvas.fillStyle(0xe0e0e0, 1.0);
-    canvas.fillRoundedRect(200, 100, 400 + 10, 400 + 10, 8);
-    canvas.setInteractive(new Phaser.Geom.Rectangle(200, 100, 400, 400), Phaser.Geom.Rectangle.Contains);
+    // Create a background for the render texture.
+    let background = this.add.graphics();
+    background.fillStyle(0xe0e0e0, 1.0);
+    background.fillRoundedRect(200, 100, 400, 400, 8);
+
+    // Using a render texture, create the canvas for players to draw on.
+    this.renderTexture = this.add.renderTexture(200, 100, 400, 400);
+    this.renderTexture.setInteractive();
+
+    // The brush stroke.
+    this.brush = this.textures.getFrame('brush');
 
     // Add a pointer down event which draws a circle where the cursor is.
-    canvas.on('pointerdown', (pointer) => {
-      let dot = this.add.graphics();
-      dot.fillStyle(this.selectedColorOption);
-      dot.fillCircle(pointer.x, pointer.y, this.selectedSizeOption);
+    this.renderTexture.on('pointerdown', (pointer) => {
+      // Coordinates are relative to the render texture's size, so we have
+      // to account for this in our x/y positions.
+      let xPos = pointer.x - 200 - 16;
+      let yPos = pointer.y - 100 - 16;
+
+      this.renderTexture.draw(this.brush, xPos, yPos, 1, this.selectedColorOption);
+
+      // Store the stroke in the texture map.
+      this.textureMap.push({
+        x: xPos,
+        y: yPos,
+        color: this.selectedColorOption
+      });
     });
 
     // Add a pointer move event which draws a circle where the pointer moves to
-    // and draws a line between the last known dot location to give a smoothed
-    // brush stroke effect.
-    canvas.on('pointermove', (pointer) => {
+    // and draws dots for the interpolated values.
+    this.renderTexture.on('pointermove', (pointer) => {
       if (pointer.isDown) {
-        let dot = this.add.graphics();
-        dot.fillStyle(this.selectedColorOption);
-        dot.fillCircle(pointer.x, pointer.y, this.selectedSizeOption);
+        let dots = pointer.getInterpolatedPosition(15);
 
-        this.strokeMap.push(dot);
+        for (let dot of dots) {
+          // Coordinates are relative to the render texture's size, so we have
+          // to account for this in our x/y positions.
+          let xPos = dot.x - 200 - 16;
+          let yPos = dot.y - 100 - 16;
 
-        // If there is a known last dot, draw a line between the current dot and
-        // the last.
-        if (this.lastDot) {
-          let lineShape = new Phaser.Geom.Line(this.lastDot.x, this.lastDot.y, pointer.x, pointer.y);
+          this.renderTexture.draw(this.brush, xPos, yPos, 1, this.selectedColorOption);
 
-          let line = this.add.graphics();
-          line.lineStyle(this.selectedSizeOption * 2, this.selectedColorOption);
-          line.strokeLineShape(lineShape);
-
-          this.strokeMap.push(line)
-        }
-
-        // Set the current dot as the last known dot.
-        this.lastDot = {
-          x: pointer.x,
-          y: pointer.y
+          // Store the stroke in the texture map.
+          this.textureMap.push({
+            x: xPos,
+            y: yPos,
+            color: this.selectedColorOption
+          });
         }
       }
     });
-
-    // When the user is done drawing, remove any last known dot information.
-    canvas.on('pointerup', () => {
-      this.lastDot = false;
-    });
-
-    // When the cursor leaves the canvas, remove any last known dot information.
-    canvas.on('pointerout', () => {
-      this.lastDot = false;
-    });
   }
 
   /**
-   * Add the brush color and brush size options to the scene.
+   * Add the brush color options to the screen.
+   *
+   * TODO: add size options.
    */
   addPaintOptions() {
-    this.paintOptionsGroup = this.add.group();
-
-    this.addPaintBrushColorOptions();
-    this.addPaintBrushSizeOptions();
-  }
-
-  /**
-   * Add brush size options to the scene.
-   */
-  addPaintBrushSizeOptions() {
-    const sizes = [ 6, 9, 12 ];
-    let offsetX = 0;
-
-    for (let size of sizes) {
-      let brushSizeOption = this.add.graphics();
-      brushSizeOption.fillStyle(0x000000);
-      brushSizeOption.fillCircle(650 + offsetX, 500, size);
-      brushSizeOption.setInteractive(new Phaser.Geom.Circle(650 + offsetX, 500, size), Phaser.Geom.Circle.Contains);
-
-      // When the user clicks on the graphic, change the size of the brush.
-      brushSizeOption.on('pointerdown', () => {
-        this.selectedSizeOption = size;
-      });
-
-      offsetX += 50;
-    }
-  }
-
-  /**
-   * Add brush color options to the scene.
-   */
-  addPaintBrushColorOptions() {
     const colors = [ '0x000000', '0x6356c7', '0x87E0FF', '0x7FFFD4','0xFFB0B0', '0xFFAB76', '0xFCF3B0', '0xFFFFFF' ];
-    let offsetY= 0;
+    const colorHexs = [ '#000000', '#6356c7', '#87E0FF', '#7FFFD4','#FFB0B0', '#FFAB76', '#FCF3B0', '#FFFFFF' ];
+    let offset= 0;
 
-    for (let i = 0; i < colors.length; i++) {
-      let brushColorOption = this.add.graphics(700, 100 + offsetY);
-      brushColorOption.fillStyle(colors[i]);
-      brushColorOption.fillCircle(700, 100 + offsetY, 15);
-      brushColorOption.setInteractive(new Phaser.Geom.Circle(700, 100 + offsetY, 15), Phaser.Geom.Circle.Contains);
-      brushColorOption.setScale(1, 1);
+    for (let i = 0; i <= colors.length - 1; i++) {
+      // CSS style string.
+      let styleString = `background-color: ${colorHexs[i]}; border-color: ${colorHexs[i]};`;
+      let colorButton = this.add.dom(700, 125 + offset, 'button', styleString);
+      colorButton.setClassName('color-button');
+      colorButton.addListener('click');
 
-      // When the user clicks on the graphic, change the color of the brush.
-      brushColorOption.on('pointerdown', () => {
+      // Change the color of the brush when clicked.
+      colorButton.on('click', () => {
         this.selectedColorOption = colors[i];
       });
 
-      offsetY += 50;
+      offset += 50;
     }
   }
 
@@ -157,7 +123,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(400, 70, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
+    let titleText = this.add.dom(400, 60, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
     titleText.setClassName('title');
   }
 
@@ -170,7 +136,11 @@ export default class PlayerSetupScene extends Phaser.Scene {
     playButton.addListener('click');
 
     playButton.on('click', () => {
-      this.scene.start('GameScene', this.socket);
+      this.renderTexture.saveTexture('avatar');
+      this.scene.start('GameScene', {
+        socket: this.socket,
+        textureMap: this.textureMap
+      });
     });
   }
 

@@ -5,15 +5,18 @@ import Phaser from 'phaser';
  */
 export default class Player extends Phaser.GameObjects.Sprite {
 
-  constructor(scene, x, y, id, name) {
+  constructor(scene, x, y, id, name, textureMap) {
     super(scene, x, y);
 
     this.id = id;
     this.name = name;
+    this.textureMap = textureMap;
 
     this.hand = [];
     this.countdown = 8;
     this.ready = false;
+
+    this.setScale(0.25);
 
     // Add player's name above the avatar.
     this.nameText = this.scene.add.dom(x, y - 50, 'div', 'font-size: 16px;', this.name);
@@ -88,13 +91,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
-   * Will remove this in the future.
-   */
-  setPlayerTexture(playerNumber) {
-    this.setTexture(`player_${playerNumber}`);
-  }
-
-  /**
    * Update player's countdown text to reflect current countdown score.
    */
   updateCountdown() {
@@ -140,5 +136,20 @@ export default class Player extends Phaser.GameObjects.Sprite {
     }
 
     this.destroy(); // Cya dood!
+  }
+
+  /**
+   * Custom toJSON function.
+   *
+   * @return {string} - A JSON representation of the card object.
+   */
+  toJSON() {
+    let player = {
+      id: this.id,
+      name: this.name,
+      textureMap: this.textureMap
+    };
+
+    return player;
   }
 }

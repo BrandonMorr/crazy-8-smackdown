@@ -136,8 +136,8 @@ function onJoinRequest(roomCode) {
  *
  * Send the client back a list of existing players in the room.
  */
-function onNewPlayer(playerName, roomCode) {
-  this.player = new Player(this.id, playerName, roomCode);
+function onNewPlayer(playerObj, roomCode) {
+  this.player = new Player(this.id, playerObj.name, roomCode, playerObj.textureMap);
 
   // Build up a list of all current players, send the data to the client.
   this.emit('get players', getPlayersInRoom(roomCode));

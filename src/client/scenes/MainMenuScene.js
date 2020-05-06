@@ -145,7 +145,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
     joinButton.on('click', () => {
       let playerName = document.querySelector('.name-input').value;
-      let roomCode = document.querySelector('.room-code-input').value;
+      let roomCode = document.querySelector('.room-code-input').value.toLowerCase();
 
       if (playerName !== '' && roomCode !== '') {
         // Tell the server who we are and that we're joining an existing game.

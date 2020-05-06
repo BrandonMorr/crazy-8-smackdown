@@ -26,17 +26,6 @@ export default class Preload {
   }
 
   /**
-   * Load player assets.
-   *
-   * @param {Phaser.Scene} scene - The phaser scene object.
-   */
-  static loadPlayers(scene) {
-    for (let i = 1; i <= 4; i++) {
-      scene.load.image(`player_${i}`, `public/assets/player/player_${i}.png`);
-    }
-  }
-
-  /**
    * Load sound assets.
    *
    * @param {Phaser.Scene} scene - The phaser scene object.
@@ -49,5 +38,14 @@ export default class Preload {
     scene.load.audio('bell', 'public/assets/sounds/bell.ogg');
     scene.load.audio('winner', 'public/assets/sounds/winner.ogg');
     scene.load.audio('loser', 'public/assets/sounds/loser.ogg');
+  }
+
+  /**
+   * Load misc assets.
+   *
+   * @param {Phaser.Scene} scene - The phaser scene object.
+   */
+  static loadBrush(scene) {
+    scene.load.image('brush', 'public/assets/other/brush.png');
   }
 }

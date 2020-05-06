@@ -29,35 +29,34 @@ export default class GameScene extends Phaser.Scene {
    */
   preload() {
     Preload.loadCards(this);
-    Preload.loadPlayers(this);
     Preload.loadSounds(this);
+    Preload.loadBrush(this);
   }
 
   /**
    * Generate the deck, setup players and initialize the game.
    */
-  create(socket) {
-    this.socket = socket;
+  create(data) {
+    this.socket = data.socket;
 
     // Create local player's Player object and add it to players array.
-    this.player = new Player(this, 100, 500, this.socket.id, this.socket.name);
+    this.player = new Player(this, 100, 500, this.socket.id, this.socket.name, data.textureMap);
+    this.player.setTexture('avatar');
+
+    // Push this player to the players array.
     this.players.push(this.player);
 
-    // NOTE: remove this at some point, will use more dynamic avatars.
-    this.player.setPlayerTexture(1);
-
     // Notify other players that we are connected.
-    this.socket.emit('new player', this.player.name, this.socket.roomCode);
+    this.socket.emit('new player', this.player, this.socket.roomCode);
 
     // Handle new player connections.
     this.socket.on('new player', (playerObj) => {
-      this.players.push(new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name));
+      let player = new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
+      this.players.push(player);
 
-      // NOTE: remove this at some point, will use more dynamic avatars.
-      this.players[this.players.length - 1].setPlayerTexture(this.players.length);
+      this.drawPlayerAvatar(player);
+
       this.showMessage(`${playerObj.name} HAS CONNECTED`);
-
-      // Show the ready button.
       this.showReadyButton();
     });
 
@@ -66,18 +65,18 @@ export default class GameScene extends Phaser.Scene {
       for (let playerObj of playerObjs) {
         // We only want to add other players.
         if (playerObj.name !== this.player.name) {
-          let player = new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name);
+          let player = new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
 
           // Add the player to the players array.
           this.players.push(player);
+
+          // Draw player avatar
+          this.drawPlayerAvatar(player);
 
           // Check to see if the player is ready.
           if (playerObj.ready) {
             player.showReady();
           }
-
-          // NOTE: remove this at some point, will use more dynamic avatars.
-          this.players[this.players.length - 1].setPlayerTexture(this.players.length);
         }
       }
 
@@ -244,7 +243,7 @@ export default class GameScene extends Phaser.Scene {
       // Remove everything from the scene.
       this.deck.remove();
       this.roomCodeButton.destroy();
-      
+
       if (this.messageText) {
         this.messageText.destroy();
       }
@@ -406,6 +405,26 @@ export default class GameScene extends Phaser.Scene {
         duration: 250,
       });
     });
+  }
+
+  /**
+   * Draw a player's avatar using the player's texture map.
+   */
+  drawPlayerAvatar(player) {
+    let brush = this.textures.getFrame('brush');
+    let textureKey = `avatar_${player.id}`;
+    let renderTexture = this.add.renderTexture(0, 0, 400, 400);
+
+    // Hide the render texture from the scene.
+    renderTexture.setVisible(false);
+
+    for (let dot of player.textureMap) {
+      renderTexture.draw(brush, dot.x, dot.y, 1, dot.color);
+    }
+
+    // Save the render texture and apply it to the player.
+    renderTexture.saveTexture(textureKey);
+    player.setTexture(textureKey);
   }
 
   /**
