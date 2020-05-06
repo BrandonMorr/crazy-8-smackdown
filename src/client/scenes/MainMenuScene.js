@@ -66,7 +66,6 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add connection status text to the scene.
    */
   addConnectionStatus() {
-    // let statusText = this.add.dom(735, 570, 'div', 'font-size: 14px;', 'CONNECTED');
     let statusText = this.add.dom((this.camera.width / 4 * 3), (this.camera.height / 4  * 3), 'div', 'font-size: 14px;', 'CONNECTED');
     statusText.setClassName('status');
   }
@@ -150,7 +149,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
     joinButton.on('click', () => {
       let playerName = document.querySelector('.name-input').value;
-      let roomCode = document.querySelector('.room-code-input').value.toLowerCase();
+      let roomCode = document.querySelector('.room-code-input').value;
 
       if (playerName !== '' && roomCode !== '') {
         // Tell the server who we are and that we're joining an existing game.
