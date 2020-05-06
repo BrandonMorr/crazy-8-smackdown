@@ -58,7 +58,7 @@ export default class MainMenuScene extends Phaser.Scene {
     let titleText = this.add.dom(this.camera.centerX, 100, 'div', 'font-size: 28px', 'CRAZY 8 SMACKDOWN');
     titleText.setClassName('title');
 
-    let releaseBadge = this.add.dom(this.camera.centerX + 130, 130, 'div', 'font-size: 16px', 'ALPHA');
+    let releaseBadge = this.add.dom(this.camera.centerX + 135, 130, 'div', 'font-size: 16px', 'BETA');
     releaseBadge.setClassName('badge');
   }
 
