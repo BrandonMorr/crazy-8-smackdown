@@ -1,5 +1,11 @@
 * {
   outline: none;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: #F5F5F5;
 }
 
 input {
@@ -214,13 +220,21 @@ div {
     color: #55ffff;
     border: solid 4px #55ffff;
   }
-	50% {
+	25% {
     color: #ff55ff;
     border: solid 4px #ff55ff;
   }
-  100% {
+  50% {
     color: #ffff55;
     border: solid 4px #ffff55;
+  }
+  75% {
+    color: #55ff55;
+    border: solid 4px #55ff55;
+  }
+  100% {
+    color: #55ffff;
+    border: solid 4px #55ffff;
   }
 }
 
@@ -232,18 +246,32 @@ div {
     -moz-box-shadow: 0 4px 0 0 #3bb0b0;
     box-shadow: 0 4px 0 0 #3bb0b0;
   }
-	50% {
+	25% {
     background-color: #ff55ff;
     border-color: #ff55ff;
     -webkit-box-shadow: 0 4px 0 0 #ae34ae;
     -moz-box-shadow: 0 4px 0 0 #ae34ae;
     box-shadow: 0 4px 0 0 #ae34ae;
   }
-  100% {
+  50% {
     background-color: #eaea0e;
     border-color: #eaea0e;
     -webkit-box-shadow: 0 4px 0 0 #a2a225;
     -moz-box-shadow: 0 4px 0 0 #a2a225;
     box-shadow: 0 4px 0 0 #a2a225;
+  }
+  75% {
+    background-color: #55ff55;
+    border-color: #55ff55;
+    -webkit-box-shadow: 0 4px 0 0 #3db03d;
+    -moz-box-shadow: 0 4px 0 0 #3db03d;
+    box-shadow: 0 4px 0 0 #3db03d;
+  }
+  100% {
+    background-color: #55ffff;
+    border-color: #55ffff;
+    -webkit-box-shadow: 0 4px 0 0 #3bb0b0;
+    -moz-box-shadow: 0 4px 0 0 #3bb0b0;
+    box-shadow: 0 4px 0 0 #3bb0b0;
   }
 }

@@ -18,9 +18,13 @@ export default class MainMenuScene extends Phaser.Scene {
 
   create() {
     this.socket = new SocketIO();
+    this.camera = this.cameras.main;
+
+    console.log(this.camera);
 
     this.socket.on('connect', () => {
       this.addConnectionStatus();
+      this.socket.off('connect');
     });
 
     this.socket.on('new game', (roomCode) => {
@@ -51,10 +55,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(400, 100, 'div', 'font-size: 28px', 'CRAZY 8 SMACKDOWN');
+    let titleText = this.add.dom(this.camera.centerX, 100, 'div', 'font-size: 28px', 'CRAZY 8 SMACKDOWN');
     titleText.setClassName('title');
 
-    let releaseBadge = this.add.dom(530, 130, 'div', 'font-size: 16px', 'ALPHA');
+    let releaseBadge = this.add.dom(this.camera.centerX + 130, 130, 'div', 'font-size: 16px', 'ALPHA');
     releaseBadge.setClassName('badge');
   }
 
@@ -62,7 +66,8 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add connection status text to the scene.
    */
   addConnectionStatus() {
-    let statusText = this.add.dom(735, 570, 'div', 'font-size: 14px;', 'CONNECTED');
+    // let statusText = this.add.dom(735, 570, 'div', 'font-size: 14px;', 'CONNECTED');
+    let statusText = this.add.dom(this.camera.width - 100, this.camera.height - 50, 'div', 'font-size: 14px;', 'CONNECTED');
     statusText.setClassName('status');
   }
 
@@ -70,10 +75,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a player name input and label to the scene.
    */
   addNameInput() {
-    let nameLabel = this.add.dom(270, 205, 'div', 'font-size: 18px;', 'NAME');
+    let nameLabel = this.add.dom(this.camera.centerX - 130, 205, 'div', 'font-size: 18px;', 'NAME');
     nameLabel.setClassName('label');
 
-    let nameInput = this.add.dom(400, 240, 'input');
+    let nameInput = this.add.dom(this.camera.centerX, 240, 'input');
     nameInput.setClassName('name-input');
     nameInput.node.maxLength = 12;
     nameInput.node.placeholder = 'ENTER YOUR NAME';
@@ -84,10 +89,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a room code input and label to the scene.
    */
   addRoomCodeInput() {
-    let roomCodeLabel = this.add.dom(300, 285, 'div', 'font-size: 18px;', 'ROOM CODE');
+    let roomCodeLabel = this.add.dom(this.camera.centerX - 100, 285, 'div', 'font-size: 18px;', 'ROOM CODE');
     roomCodeLabel.setClassName('label');
 
-    let roomCodeInput = this.add.dom(400, 320, 'input');
+    let roomCodeInput = this.add.dom(this.camera.centerX, 320, 'input');
     roomCodeInput.setClassName('room-code-input');
     roomCodeInput.node.maxLength = 4;
     roomCodeInput.node.placeholder = 'ENTER 4 CHARACTER CODE';
@@ -98,7 +103,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.dom(310, 380, 'button', 'font-size: 16px;', 'CREATE GAME');
+    let createGameButton = this.add.dom(this.camera.centerX - 90, 380, 'button', 'font-size: 16px;', 'CREATE GAME');
     createGameButton.setClassName('menu-button');
     createGameButton.addListener('click');
 
@@ -139,7 +144,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
   addJoinButton() {
-    let joinButton = this.add.dom(490, 380, 'button', 'font-size: 16px;', 'JOIN');
+    let joinButton = this.add.dom(this.camera.centerX + 90, 380, 'button', 'font-size: 16px;', 'JOIN');
     joinButton.setClassName('menu-button');
     joinButton.addListener('click');
 
@@ -166,7 +171,7 @@ export default class MainMenuScene extends Phaser.Scene {
   showErrorMessage(errorMessage) {
     // Only display one error message at a time.
     if (!this.errorMessage) {
-      this.errorMessage = this.add.dom(400, 440, 'div', 'font-size: 16px;', errorMessage);
+      this.errorMessage = this.add.dom(this.camera.centerX, 440, 'div', 'font-size: 16px;', errorMessage);
       this.errorMessage.setClassName('error-message');
 
       this.tweens.add({

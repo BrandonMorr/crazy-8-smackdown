@@ -38,12 +38,10 @@ export default class GameScene extends Phaser.Scene {
    */
   create(data) {
     this.socket = data.socket;
-
-    // XXX: prevent connection message from appearing/
-    this.socket.off('connect');
+    this.camera = this.cameras.main;
 
     // Create local player's Player object and add it to players array.
-    this.player = new Player(this, 100, 500, this.socket.id, this.socket.name, data.textureMap);
+    this.player = new Player(this, this.camera.width / 4, 500, this.socket.id, this.socket.name, data.textureMap);
     this.player.setTexture('avatar');
 
     // Push this player to the players array.
@@ -54,7 +52,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Handle new player connections.
     this.socket.on('new player', (playerObj) => {
-      let player = new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
+      let player = new Player(this, this.getPlayerStartingX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
       this.players.push(player);
 
       this.drawPlayerAvatar(player);
@@ -68,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
       for (let playerObj of playerObjs) {
         // We only want to add other players.
         if (playerObj.id !== this.player.id) {
-          let player = new Player(this, this.calculatePlayerX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
+          let player = new Player(this, this.getPlayerStartingX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
 
           // Add the player to the players array.
           this.players.push(player);
@@ -106,7 +104,7 @@ export default class GameScene extends Phaser.Scene {
 
       this.tweens.add({
         targets: card,
-        x: 400,
+        x: this.camera.centerX,
         y: 300,
         ease: 'Linear',
         duration: 250,
@@ -121,7 +119,7 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('show card draw', (playerObj) => {
       let player = this.getPlayerByID(playerObj.id);
       // Create an arbitrary card.
-      let card = new Card(this, 400, 300, 'spades', 'a', 'a of spades');
+      let card = new Card(this, this.camera.centerX, 300, 'spades', 'a', 'a of spades');
 
       // Load the back of the card.
       card.faceDown();
@@ -215,7 +213,7 @@ export default class GameScene extends Phaser.Scene {
       // If a card in play hasn't been set, we need to add the first one to the
       // scene.
       if (!this.currentCardInPlay) {
-        let card = new Card(this, 400, 300, cardObj.suit, cardObj.value, cardObj.name);
+        let card = new Card(this, this.camera.centerX, 300, cardObj.suit, cardObj.value, cardObj.name);
         this.deck.addCardToPlayPile(card);
       }
 
@@ -254,18 +252,18 @@ export default class GameScene extends Phaser.Scene {
       if (playerObj.id === this.player.id) {
         this.sound.play('winner');
 
-        this.gameOverText = this.add.dom(400, 200, 'div', 'font-size: 30px;', 'CONGRATULATIONS, YOU WIN');
+        this.gameOverText = this.add.dom(this.camera.centerX, 200, 'div', 'font-size: 30px;', 'CONGRATULATIONS, YOU WIN');
         this.gameOverText.setClassName('winner');
       }
       else {
         this.sound.play('loser');
 
-        this.gameOverText = this.add.dom(400, 200, 'div', 'font-size: 30px;', 'YOU LOSE');
+        this.gameOverText = this.add.dom(this.camera.centerX, 200, 'div', 'font-size: 30px;', 'YOU LOSE');
         this.gameOverText.setClassName('loser');
       }
 
       // Show a button that brings the player back to the main menu scene.
-      this.returnToMenuButton = this.add.dom(400, 300, 'button', 'font-size: 16px; width: 180px;', 'RETURN TO MENU');
+      this.returnToMenuButton = this.add.dom(this.camera.centerX, this.camera.centerY, 'button', 'font-size: 16px; width: 180px;', 'RETURN TO MENU');
       this.returnToMenuButton.setClassName('game-button');
       this.returnToMenuButton.addListener('click');
 
@@ -313,14 +311,14 @@ export default class GameScene extends Phaser.Scene {
    * @param {Card} card - The card to tween to our hand.
    */
   dealCardToPlayer(card) {
-    let cardToTween = new Card(this, 300, 300, card.suit, card.value, card.name);
+    let cardToTween = new Card(this, this.camera.centerX - 100, this.camera.centerY, card.suit, card.value, card.name);
 
     // Add the card to the player's hand.
     this.player.addCardToHand(cardToTween);
 
     this.tweens.add({
       targets: cardToTween,
-      x: 400,
+      x: this.camera.centerX,
       y: 500,
       ease: 'Linear',
       duration: 250,
@@ -357,7 +355,7 @@ export default class GameScene extends Phaser.Scene {
       // Move the card to the play pile.
       this.tweens.add({
         targets: card,
-        x: 400,
+        x: this.camera.centerX,
         y: 300,
         ease: 'Linear',
         duration: 250,
@@ -431,19 +429,33 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Return an x position to place a player.
-   *
-   * TODO: work this into something more dynamic.
+   * Return an initial x position to place a player.
    */
-  calculatePlayerX() {
-    if (this.players.length === 1) {
-      return 100;
-    }
-    else if (this.players.length === 2) {
-      return 400;
-    }
-    else {
-      return 700;
+  getPlayerStartingX() {
+    let offset = this.camera.width / 4;
+
+    return offset * this.players.length;
+  }
+
+  /**
+   * Reorder the players
+   */
+  reorderPlayers() {
+    let startingX = this.camera.width / 4;
+    let offset = 0;
+
+    for (let player of this.players) {
+      if (player.id !== this.player.id) {
+        // Animate the player to the new x position.
+        this.tweens.add({
+          targets: player,
+          x: startingX + offset,
+          ease: 'Linear',
+          duration: 250
+        });
+
+        offset += startingX;
+      }
     }
   }
 
@@ -470,7 +482,7 @@ export default class GameScene extends Phaser.Scene {
       // Multiply the number of cards by the offset (in px.) and you get
       // starting x position (I don't actually know why this works ^_^).
       let distanceFromMiddle = Math.floor(handSize / 2) * offset;
-      startX = 400 - distanceFromMiddle;
+      startX = this.camera.centerX - distanceFromMiddle;
     }
     // If there is an even number of cards, the starting position is slightly
     // off to the left of the middle.
@@ -478,7 +490,7 @@ export default class GameScene extends Phaser.Scene {
       // Same craziness as before, but this time we need to reduce the floored
       // value by one (again, not sure why this works but it totally does).
       let distanceFromMiddle = Math.floor(handSize / 2 - 1) * offset;
-      startX = 375 - distanceFromMiddle;
+      startX = (this.camera.centerX - 25) - distanceFromMiddle;
     }
 
     // Loop through every card in the hand, tween them to new x positions.
@@ -538,7 +550,7 @@ export default class GameScene extends Phaser.Scene {
       // If the button isn't present and the player isn't ready, add it
       // to the scene.
       if (!this.readyButton && !this.player.ready) {
-        this.readyButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'READY');
+        this.readyButton = this.add.dom(this.camera.width / 4 * 3, 490, 'button', 'font-size: 16px;', 'READY');
         this.readyButton.setClassName('game-button');
         this.readyButton.addListener('click');
 
@@ -564,7 +576,7 @@ export default class GameScene extends Phaser.Scene {
    */
   showWildCardMenu(card) {
     this.suitCardButtons = [];
-    this.wildCardMenu = this.add.dom(400, 300, 'div', 'font-size: 20px;', 'CHOOSE A NEW SUIT');
+    this.wildCardMenu = this.add.dom(this.camera.centerX, 300, 'div', 'font-size: 20px;', 'CHOOSE A NEW SUIT');
     this.wildCardMenu.setClassName('wildcard-menu-container');
 
     const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
@@ -572,7 +584,7 @@ export default class GameScene extends Phaser.Scene {
     let offset = 0;
 
     for (let i = 0; i <= 3; i++) {
-      let suitButton = this.add.dom(200 + offset, 310, 'button', 'font-size: 16px;', buttonText[i]);
+      let suitButton = this.add.dom((this.camera.centerX - 200) + offset, 310, 'button', 'font-size: 16px;', buttonText[i]);
       suitButton.setClassName('suit-button');
       suitButton.addListener('click');
 
@@ -599,7 +611,7 @@ export default class GameScene extends Phaser.Scene {
   showMessage(message) {
     // Only display one message at a time.
     if (!this.messageText) {
-      this.messageText = this.add.dom(400, 400, 'div', 'font-size: 16px;', message);
+      this.messageText = this.add.dom(this.camera.centerX, this.camera.centerY + 100, 'div', 'font-size: 16px;', message);
       this.messageText.setClassName('message');
 
       this.tweens.add({
@@ -620,7 +632,7 @@ export default class GameScene extends Phaser.Scene {
    * Add room code button to the scene.
    */
   addRoomCodeButton() {
-    this.roomCodeButton = this.add.dom(710, 550, 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
+    this.roomCodeButton = this.add.dom(this.camera.width / 4 * 3, 550, 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
     this.roomCodeButton.setClassName('game-button');
     this.roomCodeButton.addListener('click');
 
@@ -636,7 +648,7 @@ export default class GameScene extends Phaser.Scene {
    * Add draw card button to the scene.
    */
   addDrawCardButton() {
-    this.drawCardButton = this.add.dom(710, 490, 'button', 'font-size: 16px;', 'DRAW CARD');
+    this.drawCardButton = this.add.dom(this.camera.width / 4 * 3, 490, 'button', 'font-size: 16px;', 'DRAW CARD');
     this.drawCardButton.setClassName('game-button');
     this.drawCardButton.addListener('click');
 

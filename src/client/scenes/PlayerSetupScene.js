@@ -18,6 +18,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
 
   create(data) {
     this.socket = data.socket;
+    this.camera = this.cameras.main;
 
     this.textureMap = [];
 
@@ -40,12 +41,13 @@ export default class PlayerSetupScene extends Phaser.Scene {
    */
   addPaintCanvas() {
     // Create a background for the render texture.
+    let borderOffset = 10;
     let background = this.add.graphics();
     background.fillStyle(0xe0e0e0, 1.0);
-    background.fillRoundedRect(200, 100, 400, 400, 8);
+    background.fillRoundedRect(this.camera.centerX - 200 - borderOffset, 100 - borderOffset, 400 + (borderOffset * 2), 400 + (borderOffset * 2), 8);
 
     // Using a render texture, create the canvas for players to draw on.
-    this.renderTexture = this.add.renderTexture(200, 100, 400, 400);
+    this.renderTexture = this.add.renderTexture(this.camera.centerX - 200, 100, 400, 400);
     this.renderTexture.setInteractive();
 
     // The brush stroke.
@@ -55,7 +57,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     this.renderTexture.on('pointerdown', (pointer) => {
       // Coordinates are relative to the render texture's size, so we have
       // to account for this in our x/y positions.
-      let xPos = pointer.x - 200 - 16;
+      let xPos = pointer.x - (this.camera.centerX - 200) - 16;
       let yPos = pointer.y - 100 - 16;
 
       this.renderTexture.draw(this.brush, xPos, yPos, 1, this.selectedColorOption);
@@ -77,7 +79,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
         for (let dot of dots) {
           // Coordinates are relative to the render texture's size, so we have
           // to account for this in our x/y positions.
-          let xPos = dot.x - 200 - 16;
+          let xPos = dot.x - (this.camera.centerX - 200) - 16;
           let yPos = dot.y - 100 - 16;
 
           this.renderTexture.draw(this.brush, xPos, yPos, 1, this.selectedColorOption);
@@ -106,7 +108,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     for (let i = 0; i <= colors.length - 1; i++) {
       // CSS style string.
       let styleString = `background-color: ${colorHexs[i]}; border-color: ${colorHexs[i]};`;
-      let colorButton = this.add.dom(700, 125 + offset, 'button', styleString);
+      let colorButton = this.add.dom(this.camera.centerX + 300, 125 + offset, 'button', styleString);
       colorButton.setClassName('color-button');
       colorButton.addListener('click');
 
@@ -123,7 +125,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(400, 60, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
+    let titleText = this.add.dom(this.camera.centerX, 60, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
     titleText.setClassName('title');
   }
 
@@ -131,7 +133,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add a play button to the scene.
    */
   addPlayButton() {
-    let playButton = this.add.dom(400, 550, 'button', 'font-size: 16px;', 'SAVE & PLAY');
+    let playButton = this.add.dom(this.camera.centerX, 550, 'button', 'font-size: 16px;', 'SAVE & PLAY');
     playButton.setClassName('game-button');
     playButton.addListener('click');
 
@@ -148,7 +150,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add a clear button to the scene which jsut resets the MFing scene.
    */
   addClearButton() {
-    let clearButton = this.add.dom(700, 550, 'button', 'font-size: 16px;', 'CLEAR');
+    let clearButton = this.add.dom(this.camera.centerX + 300, 550, 'button', 'font-size: 16px;', 'CLEAR');
     clearButton.setClassName('game-button');
     clearButton.addListener('click');
 

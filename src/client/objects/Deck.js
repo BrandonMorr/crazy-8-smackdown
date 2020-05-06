@@ -89,7 +89,7 @@ export default class Deck extends Phaser.GameObjects.Group {
    */
   addDrawPileCard(scene) {
     // Create an arbitrary card.
-    this.drawPileCard = new Card(scene, 250, 300, 'spades', 'a', 'a of spades');
+    this.drawPileCard = new Card(scene, scene.camera.centerX - 150, 300, 'spades', 'a', 'a of spades');
     this.drawPileCard.faceDown();
    }
 
@@ -110,7 +110,7 @@ export default class Deck extends Phaser.GameObjects.Group {
       if (i >= 1) {
         scene.tweens.add({
           targets: card,
-          x: 250,
+          x: scene.camera.centerX - 150,
           ease: 'Linear',
           duration: 250,
           onStart: () => {
