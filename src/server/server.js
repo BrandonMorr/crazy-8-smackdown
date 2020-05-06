@@ -8,7 +8,6 @@ import Compression from 'compression';
 
 import Room from './objects/Room';
 import Deck from './objects/Deck';
-import Card from './objects/Card';
 import Player from './objects/Player';
 
 // Array to track active rooms.

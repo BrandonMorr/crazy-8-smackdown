@@ -183,7 +183,7 @@ export default class GameScene extends Phaser.Scene {
       this.gameStarted = true;
 
       // Ring the bell, the match has begun.
-      let bellSound = this.sound.play('bell');
+      this.sound.play('bell');
 
       // Remove the 'READY' text on each player.
       for (let player of this.players) {

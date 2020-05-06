@@ -20,7 +20,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     this.socket = socket;
 
     this.textureMap = [];
-    
+
     this.selectedColorOption = '0x000000';
 
     this.addTitleText();

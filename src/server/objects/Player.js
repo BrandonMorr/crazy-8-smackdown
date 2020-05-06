@@ -1,5 +1,5 @@
 /**
- * @class - Player class to manage players.
+ * @class - Player class to manage player data.
  */
 export default class Player {
 
