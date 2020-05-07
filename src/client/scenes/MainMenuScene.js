@@ -20,8 +20,6 @@ export default class MainMenuScene extends Phaser.Scene {
     this.socket = new SocketIO();
     this.camera = this.cameras.main;
 
-    console.log(this.camera);
-
     this.socket.on('connect', () => {
       this.addConnectionStatus();
       this.socket.off('connect');
@@ -102,7 +100,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.dom(this.camera.centerX - 90, 380, 'button', 'font-size: 16px;', 'CREATE GAME');
+    let createGameButton = this.add.dom(this.camera.centerX - 85, 380, 'button', 'font-size: 16px;', 'CREATE GAME');
     createGameButton.setClassName('menu-button');
     createGameButton.addListener('click');
 
@@ -143,7 +141,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
   addJoinButton() {
-    let joinButton = this.add.dom(this.camera.centerX + 90, 380, 'button', 'font-size: 16px;', 'JOIN');
+    let joinButton = this.add.dom(this.camera.centerX + 85, 380, 'button', 'font-size: 16px;', 'JOIN');
     joinButton.setClassName('menu-button');
     joinButton.addListener('click');
 

@@ -263,7 +263,7 @@ export default class GameScene extends Phaser.Scene {
       }
 
       // Show a button that brings the player back to the main menu scene.
-      this.returnToMenuButton = this.add.dom(this.camera.centerX, this.camera.centerY, 'button', 'font-size: 16px; width: 180px;', 'RETURN TO MENU');
+      this.returnToMenuButton = this.add.dom(this.camera.centerX, 300, 'button', 'font-size: 16px; width: 180px;', 'RETURN TO MENU');
       this.returnToMenuButton.setClassName('game-button');
       this.returnToMenuButton.addListener('click');
 
@@ -426,6 +426,9 @@ export default class GameScene extends Phaser.Scene {
     // Save the render texture and apply it to the player.
     renderTexture.saveTexture(textureKey);
     player.setTexture(textureKey);
+
+    // Clear the tecture map as it bloats the JSON payload.
+    player.textureMap = [];
   }
 
   /**

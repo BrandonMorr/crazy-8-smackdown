@@ -164,8 +164,13 @@ function onPlayerReady() {
     // Flag that the room's game has started.
     rooms[roomCode].gameStarted = true;
 
+    // Clear the player's texture map to clean up JSON payload.
+    for (let player of getPlayersInRoom(roomCode)) {
+      player.textureMap = [];
+    }
+
     // Notify everyone that the game has started.
-    io.to(roomCode).emit('game started');
+    io.in(roomCode).emit('game started');
 
     // Determine the player order.
     rooms[roomCode].playerOrder = shufflePlayerOrder(roomCode);
@@ -173,7 +178,7 @@ function onPlayerReady() {
     let firstPlayer = rooms[roomCode].playerOrder[0];
 
     // Notify all players who's turn it is.
-    io.to(roomCode).emit('show player turn', firstPlayer);
+    io.in(roomCode).emit('show player turn', firstPlayer);
 
     // Generate a deck object, store it in the room data.
     rooms[roomCode].deck = new Deck();
@@ -183,7 +188,7 @@ function onPlayerReady() {
     let firstCardInPlay = rooms[roomCode].deck.drawPile.shift();
 
     // Notify all players players of the first card in play.
-    io.to(roomCode).emit('update card in play', firstCardInPlay);
+    io.in(roomCode).emit('update card in play', firstCardInPlay);
 
     // Move the card to the play pile.
     rooms[roomCode].deck.playPile.unshift(firstCardInPlay);
@@ -192,7 +197,7 @@ function onPlayerReady() {
     rooms[roomCode].cardInPlay = firstCardInPlay;
 
     // Notify all players what the first card to play is.
-    io.to(roomCode).emit('show first card in play', firstCardInPlay);
+    io.in(roomCode).emit('show first card in play', firstCardInPlay);
 
     // Deal out 8 cards to players.
     for (let i = 0; i <= 7; i++) {
@@ -217,7 +222,7 @@ function onCardPlayed(card, wildcardSuit = false) {
   this.player.removeCardFromHand(card, deck);
 
   // Notify all clients how many cards a player has.
-  io.to(roomCode).emit('update hand count', this.player, this.player.hand.length);
+  io.in(roomCode).emit('update hand count', this.player, this.player.hand.length);
 
   // Check if the player's hand is empty, if so lower score and deal out more
   // cards.
@@ -227,13 +232,13 @@ function onCardPlayed(card, wildcardSuit = false) {
     // Check to see if the game is over.
     if (this.player.countdown === 0) {
       // Notify players that the game is over and who the winner is.
-      io.to(roomCode).emit('game over', this.player);
+      io.in(roomCode).emit('game over', this.player);
       // Stop here.
       return;
     }
 
     // Notify everyone that a player's countdown score is being updated.
-    io.to(roomCode).emit('update countdown score', this.player);
+    io.in(roomCode).emit('update countdown score', this.player);
 
     // Send a message to the player about the new countdown score.
     this.emit('message', `YOUR COUNTDOWN SCORE IS NOW ${this.player.countdown}`)
@@ -254,14 +259,14 @@ function onCardPlayed(card, wildcardSuit = false) {
     }
 
     // Notfiy all players that the suit has changed.
-    io.to(roomCode).emit('message', `THE SUIT HAS CHANGED TO ${wildcardSuit.toUpperCase()}`);
+    io.in(roomCode).emit('message', `THE SUIT HAS CHANGED TO ${wildcardSuit.toUpperCase()}`);
 
     // Update the card in play to our wildcard choice.
-    io.to(roomCode).emit('update card in play', wildcard);
+    io.in(roomCode).emit('update card in play', wildcard);
   }
   else {
     // Update the card in play to the card that was last played.
-    io.to(roomCode).emit('update card in play', card);
+    io.in(roomCode).emit('update card in play', card);
   }
 
   // Update the card in play.
@@ -311,7 +316,7 @@ function onCardPlayed(card, wildcardSuit = false) {
   }
 
   // Notify everyone who is going to play next.
-  io.to(roomCode).emit('show player turn', player);
+  io.in(roomCode).emit('show player turn', player);
 
   // Notify the first player to start the turn.
   io.to(player.id).emit('turn start');
@@ -333,7 +338,7 @@ function onDrawCard() {
   let player = rooms[roomCode].getNextPlayer();
 
   // Notify everyone who is going to play next.
-  io.to(roomCode).emit('show player turn', player);
+  io.in(roomCode).emit('show player turn', player);
 
   // Notify the first player to start the turn.
   io.to(player.id).emit('turn start');
@@ -361,7 +366,7 @@ function onDisconnect() {
       }
 
       // Tell everyone the player has disconnected.
-      io.to(roomCode).emit('player quit', this.player);
+      io.in(roomCode).emit('player quit', this.player);
 
       // Put the player's hand back in the play pile so that cards go back into
       // circulation.
@@ -454,7 +459,7 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
       io.to(player.id).emit('add card to hand', cardToDeal);
 
       // Notify all clients how many cards a player has.
-      io.to(player.roomCode).emit('update hand count', player, player.hand.length);
+      io.in(player.roomCode).emit('update hand count', player, player.hand.length);
     }
     else {
       // No cards left to draw, shuffle and try again.
@@ -463,7 +468,7 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
       console.log('\nShuffling deck!\n');
 
       // Notify the players that the deck is being shuffled.
-      io.to(player.roomCode).emit('shuffle deck');
+      io.in(player.roomCode).emit('shuffle deck');
 
       // If there are enough cards left to deal, deal em'.
       if (rooms[player.roomCode].deck.drawPile.length >= cardsLeftToDeal) {
