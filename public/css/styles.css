@@ -104,8 +104,19 @@ div {
   box-shadow: 0 4px 0 0 #d06eb3;
 }
 
+/* Game message */
+.message {
+  color: white;
+  background-color: #A663CC;
+  padding: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 4px 0 0 #824D9F;
+  -moz-box-shadow: 0 4px 0 0 #824D9F;
+  box-shadow: 0 4px 0 0 #824D9F;
+}
+
 /* Error message */
-.error-message {
+.message-error {
   color: white;
   background-color: #ff0040;
   padding: 6px;
@@ -115,15 +126,15 @@ div {
   box-shadow: 0 4px 0 0 #c12048;
 }
 
-/* Error message */
-.message {
+/* Countdown message */
+.message-countdown {
   color: white;
-  background-color: #A663CC;;
+  background-color: #3185FC;
   padding: 6px;
   border-radius: 6px;
-  -webkit-box-shadow: 0 4px 0 0 #824D9F;
-  -moz-box-shadow: 0 4px 0 0 #824D9F;
-  box-shadow: 0 4px 0 0 #824D9F;
+  -webkit-box-shadow: 0 4px 0 0 #2161bb;
+  -moz-box-shadow: 0 4px 0 0 #2161bb;
+  box-shadow: 0 4px 0 0 #2161bb;
 }
 
 /* Any buttons within the menu scene */

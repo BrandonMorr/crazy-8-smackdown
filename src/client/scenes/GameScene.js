@@ -223,8 +223,15 @@ export default class GameScene extends Phaser.Scene {
     // Update a player's countdown score.
     this.socket.on('update countdown score', (playerObj) => {
       let player = this.getPlayerByID(playerObj.id);
-
       player.updateCountdown();
+
+      // Show a notification that a player's score has gone down.
+      if (player.id === this.player.id) {
+        this.showCountdownMessage(`YOUR COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
+      }
+      else {
+        this.showCountdownMessage(`${this.player.name}'S COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
+      }
     });
 
     // Update a player's hand count.
@@ -609,7 +616,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Display error message to the use, fade it out after a few seconds.
+   * Show a general message to the user, fade it out after a few seconds.
    */
   showMessage(message) {
     // Only display one message at a time.
@@ -626,6 +633,29 @@ export default class GameScene extends Phaser.Scene {
         onComplete: () => {
           this.messageText.destroy();
           this.messageText = false;
+        }
+      });
+    }
+  }
+
+  /**
+   * Show a message when a player's countdown score has updated.
+   */
+  showCountdownMessage(message) {
+    // Only display one message at a time.
+    if (!this.countdownMessageText) {
+      this.countdownMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 50, 'div', 'font-size: 16px;', message);
+      this.countdownMessageText.setClassName('message-countdown');
+
+      this.tweens.add({
+        targets: this.countdownMessageText,
+        delay: 2000,
+        alpha: 0,
+        ease: 'Linear',
+        duration: 400,
+        onComplete: () => {
+          this.countdownMessageText.destroy();
+          this.countdownMessageText = false;
         }
       });
     }

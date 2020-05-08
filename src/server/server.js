@@ -240,13 +240,6 @@ function onCardPlayed(card, wildcardSuit = false) {
     // Notify everyone that a player's countdown score is being updated.
     io.in(roomCode).emit('update countdown score', this.player);
 
-    // Send a message to the player about the new countdown score.
-    this.emit('message', `YOUR COUNTDOWN SCORE IS NOW ${this.player.countdown}`)
-
-    // Send a different message to everyone about the change in player's
-    // countdown score.
-    this.broadcast.to(roomCode).emit('message', `${this.player.name}'S COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
-
     dealCardsToPlayer(this.player, this.player.countdown);
   }
 

@@ -146,15 +146,17 @@ export default class MainMenuScene extends Phaser.Scene {
     joinButton.addListener('click');
 
     joinButton.on('click', () => {
-      let playerName = document.querySelector('.name-input').value;
-      let roomCode = document.querySelector('.room-code-input').value;
+      let playerName = document.querySelector('.name-input').value.toUpperCase();
+      let roomCode = document.querySelector('.room-code-input').value.toLowerCase();
 
       if (playerName !== '' && roomCode !== '') {
         // Tell the server who we are and that we're joining an existing game.
-        this.socket.name = playerName.toUpperCase();
+        this.socket.name = playerName;
         this.socket.roomCode = roomCode;
 
         this.socket.emit('join request', roomCode);
+
+        console.log(roomCode);
       }
       else {
         this.showErrorMessage('NAME & ROOM CODE MUST NOT BE EMPTY');
@@ -169,7 +171,7 @@ export default class MainMenuScene extends Phaser.Scene {
     // Only display one error message at a time.
     if (!this.errorMessage) {
       this.errorMessage = this.add.dom(this.camera.centerX, 440, 'div', 'font-size: 16px;', errorMessage);
-      this.errorMessage.setClassName('error-message');
+      this.errorMessage.setClassName('message-error');
 
       this.tweens.add({
         targets: this.errorMessage,
