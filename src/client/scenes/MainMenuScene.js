@@ -155,8 +155,6 @@ export default class MainMenuScene extends Phaser.Scene {
         this.socket.roomCode = roomCode;
 
         this.socket.emit('join request', roomCode);
-
-        console.log(roomCode);
       }
       else {
         this.showErrorMessage('NAME & ROOM CODE MUST NOT BE EMPTY');
