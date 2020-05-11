@@ -12,28 +12,30 @@ export default class MainMenuScene extends Phaser.Scene {
     });
   }
 
-  preload() {
-
-  }
+  preload() { }
 
   create() {
     this.socket = new SocketIO();
     this.camera = this.cameras.main;
 
+    // Show that the client has connected to the server.
     this.socket.on('connect', () => {
       this.addConnectionStatus();
       this.socket.off('connect');
     });
 
+    // New game handler.
     this.socket.on('new game', (roomCode) => {
       this.socket.roomCode = roomCode;
       this.scene.start('PlayerSetupScene', { socket: this.socket });
     });
 
+    // Join game handler.
     this.socket.on('join game', () => {
       this.scene.start('PlayerSetupScene', { socket: this.socket });
     });
 
+    // Show any errors when trying to create/join a room.
     this.socket.on('room error', (errorMessage) => {
       this.showErrorMessage(errorMessage);
     });
@@ -45,9 +47,7 @@ export default class MainMenuScene extends Phaser.Scene {
     this.addJoinButton();
   }
 
-  update() {
-
-  }
+  update() { }
 
   /**
    * Add title text to the scene.

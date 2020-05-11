@@ -41,7 +41,7 @@ export default class Preload {
   }
 
   /**
-   * Load misc assets.
+   * Load brush asset.
    *
    * @param {Phaser.Scene} scene - The phaser scene object.
    */

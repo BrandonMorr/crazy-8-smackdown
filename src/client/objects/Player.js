@@ -100,6 +100,8 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
   /**
    * Update player's hand count text to reflect total cards in hand.
+   *
+   * @param {number} numberOfCards - number of cards left in a player's hand.
    */
   updateHandCount(numberOfCards) {
     this.handCountText.setText(`CARDS: ${numberOfCards}`);

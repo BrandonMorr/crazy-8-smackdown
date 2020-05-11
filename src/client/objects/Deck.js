@@ -18,7 +18,6 @@ export default class Deck extends Phaser.GameObjects.Group {
    * Generate and randomly shuffle draw Deck.
    *
    * @param {Phaser.Scene} scene - The phaser scene object.
-   *
    */
   generateDeck(scene) {
     const values = [ 'a', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k' ];
@@ -95,6 +94,8 @@ export default class Deck extends Phaser.GameObjects.Group {
 
   /**
    * Shuffle the play pile, pass that back to the draw pile and clear playPile.
+   *
+   * @param {Phaser.Scene} scene - The phaser scene object.
    */
   shuffle(scene) {
     // Get the size of the pile (subract one so the loop understands).

@@ -139,9 +139,7 @@ export default class GameScene extends Phaser.Scene {
     this.addRoomCodeButton();
   }
 
-  update() {
-
-  }
+  update() { }
 
   /**
    * When a player connects to the room, add them to the game client.

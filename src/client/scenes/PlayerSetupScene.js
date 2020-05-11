@@ -12,6 +12,11 @@ export default class PlayerSetupScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Basically need to load any assets here.
+   *
+   * @see Preload.js for preload functions.
+   */
   preload() {
     Preload.loadBrush(this);
   }
@@ -31,9 +36,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     this.addClearButton();
   }
 
-  update() {
-
-  }
+  update() { }
 
   /**
    * Creates a canvas for players to create their avatar and adds it to the
