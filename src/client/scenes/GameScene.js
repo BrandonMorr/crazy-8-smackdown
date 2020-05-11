@@ -13,13 +13,6 @@ export default class GameScene extends Phaser.Scene {
     super({
       key: 'GameScene',
     });
-
-    this.players = [];
-    this.deck = new Deck();
-    this.yourTurn = false;
-    this.gameOver = false;
-    this.gameStarted = false;
-    this.currentCardInPlay = false;
   }
 
   /**
@@ -39,6 +32,13 @@ export default class GameScene extends Phaser.Scene {
   create(data) {
     this.socket = data.socket;
     this.camera = this.cameras.main;
+
+    this.players = [];
+    this.deck = new Deck();
+    this.yourTurn = false;
+    this.gameOver = false;
+    this.gameStarted = false;
+    this.currentCardInPlay = false;
 
     // Create local player's Player object and add it to players array.
     this.player = new Player(this, this.camera.width / 4, 500, this.socket.id, this.socket.name, data.textureMap);
