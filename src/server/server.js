@@ -230,6 +230,9 @@ function onCardPlayed(card, wildcardSuit = false) {
     if (this.player.countdown === 0) {
       // Notify players that the game is over and who the winner is.
       io.in(roomCode).emit('game over', this.player);
+
+      // Remove the game room.
+      delete rooms[roomCode];
       // Stop here.
       return;
     }

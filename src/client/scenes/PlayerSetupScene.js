@@ -129,7 +129,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    */
   addTitleText() {
     let titleText = this.add.dom(this.camera.centerX, 60, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
-    titleText.setClassName('title');
+    titleText.setClassName('title-setup');
   }
 
   /**

@@ -93,12 +93,12 @@ div {
   box-shadow: 0 4px 0 0 #3772FF;
 }
 
-/* Title badge */
-.badge {
+/* Title */
+.title-menu {
   color: white;
   background-color: #ff88dc;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 6px;
+  border-radius: 6px;
   -webkit-box-shadow: 0 4px 0 0 #d06eb3;
   -moz-box-shadow: 0 4px 0 0 #d06eb3;
   box-shadow: 0 4px 0 0 #d06eb3;
