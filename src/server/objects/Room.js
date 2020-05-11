@@ -37,4 +37,13 @@ export default class Room {
 
     return this.playerOrder[this.playerTurn];
   }
+
+  /**
+   * Remove a player from the player order array.
+   *
+   * @param {string} id - socket id of the player to remove from the game.
+   */
+  removePlayerByID(id) {
+    this.playerOrder = this.playerOrder.filter(player => player.id !== id);
+  }
 }

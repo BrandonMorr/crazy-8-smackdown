@@ -333,10 +333,6 @@ function onDrawCard() {
 
 /**
  * Handle user disconnection, notify others who left.
- *
- * TODO:
- *  - handle reomving the player from the playerOrder property in the rooms
- *  array.
  */
 function onDisconnect() {
   // Check to see if the socket has a player data object.
@@ -360,6 +356,9 @@ function onDisconnect() {
       for (let card of this.player.hand) {
         deck.addCardToPlayPile(card);
       }
+
+      // Remove player from room's player order array.
+      rooms[roomCode].removePlayerByID(this.id);
     }
     else {
       // If the room is empty, remove it from the map.
