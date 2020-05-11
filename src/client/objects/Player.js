@@ -19,7 +19,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.setScale(0.25);
 
     // Add player's name above the avatar.
-    this.nameText = this.scene.add.dom(x, y - 50, 'div', 'font-size: 16px;', this.name);
+    this.nameText = this.scene.add.dom(x, y - 60, 'div', 'font-size: 16px;', this.name);
     this.nameText.setClassName('name');
 
     this.scene.add.existing(this);
@@ -51,7 +51,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   showReady() {
     this.ready = true;
 
-    this.readyText = this.scene.add.dom(this.x, this.y - 80, 'div', 'font-size: 14px;', 'READY');
+    this.readyText = this.scene.add.dom(this.x, this.y - 90, 'div', 'font-size: 14px;', 'READY');
     this.readyText.setClassName('status');
   }
 
@@ -68,7 +68,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * Add text to show player is ready smack down.
    */
   showTurn() {
-    this.turnText = this.scene.add.dom(this.x, this.y - 80, 'div', 'font-size: 14px;', 'MAKING TURN');
+    this.turnText = this.scene.add.dom(this.x, this.y - 90, 'div', 'font-size: 14px;', 'MAKING TURN');
     this.turnText.setClassName('status');
   }
 
@@ -77,7 +77,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    */
   showCountdown() {
     // Add player's countdown score below the players avatar.
-    this.countdownText = this.scene.add.dom(this.x, this.y + 50, 'div', 'font-size: 12px;', `COUNTDOWN: ${this.countdown}`);
+    this.countdownText = this.scene.add.dom(this.x, this.y + 55, 'div', 'font-size: 12px;', `COUNTDOWN: ${this.countdown}`);
     this.countdownText.setClassName('countdown');
   }
 
@@ -86,7 +86,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    */
   showHandCount() {
     // Add player's hand count below the countdown score.
-    this.handCountText = this.scene.add.dom(this.x, this.y + 65, 'div', 'font-size: 12px;', `CARDS: ${this.hand.length}`);
+    this.handCountText = this.scene.add.dom(this.x, this.y + 70, 'div', 'font-size: 12px;', `CARDS: ${this.hand.length}`);
     this.handCountText.setClassName('hand-count');
   }
 

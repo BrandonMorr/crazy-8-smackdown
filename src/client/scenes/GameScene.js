@@ -147,7 +147,7 @@ export default class GameScene extends Phaser.Scene {
    * When a player connects to the room, add them to the game client.
    */
   onNewPlayer(playerObj) {
-    let player = new Player(this, this.getPlayerStartingX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
+    let player = new Player(this, this.getPlayerStartingX(), 120, playerObj.id, playerObj.name, playerObj.textureMap);
     this.players.push(player);
 
     this.drawPlayerAvatar(player);
@@ -163,7 +163,7 @@ export default class GameScene extends Phaser.Scene {
     for (let playerObj of playerObjs) {
       // We only want to add other players.
       if (playerObj.id !== this.player.id) {
-        let player = new Player(this, this.getPlayerStartingX(), 100, playerObj.id, playerObj.name, playerObj.textureMap);
+        let player = new Player(this, this.getPlayerStartingX(), 120, playerObj.id, playerObj.name, playerObj.textureMap);
 
         // Add the player to the players array.
         this.players.push(player);
