@@ -183,7 +183,13 @@ function onPlayerReady() {
     // Generate a deck object, store it in the room data.
     rooms[roomCode].deck = new Deck();
 
-    // TODO: do this after the cards are dealt
+    // Deal out 8 cards to players.
+    for (let i = 0; i <= 7; i++) {
+      for (let player of rooms[roomCode].playerOrder) {
+        dealCardsToPlayer(player);
+      }
+    }
+
     // Shift out a card from the draw pile, the first card in play.
     let firstCardInPlay = rooms[roomCode].deck.drawPile.shift();
 
@@ -193,18 +199,9 @@ function onPlayerReady() {
     // Move the card to the play pile.
     rooms[roomCode].deck.playPile.unshift(firstCardInPlay);
 
-    // Set the first card in play.
-    rooms[roomCode].cardInPlay = firstCardInPlay;
-
     // Notify all players what the first card to play is.
     io.in(roomCode).emit('show first card in play', firstCardInPlay);
 
-    // Deal out 8 cards to players.
-    for (let i = 0; i <= 7; i++) {
-      for (let player of rooms[roomCode].playerOrder) {
-        dealCardsToPlayer(player);
-      }
-    }
 
     // Notify the player that they can start their turn.
     io.to(firstPlayer.id).emit('turn start');
@@ -261,9 +258,6 @@ function onCardPlayed(card, wildcardSuit = false) {
     // Update the card in play to the card that was last played.
     io.in(roomCode).emit('update card in play', card);
   }
-
-  // Update the card in play.
-  rooms[this.player.roomCode].cardInPlay = card;
 
   // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player, card);
@@ -463,13 +457,22 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
       // Notify the players that the deck is being shuffled.
       io.in(player.roomCode).emit('shuffle deck');
 
-      // If there are enough cards left to deal, deal em'.
-      if (rooms[player.roomCode].deck.drawPile.length >= cardsLeftToDeal) {
-        // Make sure to only deal the remainder (if there is enough).
+      // Get the number of cards in the draw pile.
+      let cardsLeftInDeck = rooms[player.roomCode].deck.drawPile.length;
+
+      // Check if any cards are in the deck, this really should never
+      // happen.
+      if (cardsLeftInDeck === 0) {
+        console.log('\nNo more cards left to deal, wow!\n');
+      }
+      // Check if there are enough cards to finish dealing.
+      else if (cardsLeftInDeck >= cardsLeftToDeal) {
         dealCardsToPlayer(player, cardsLeftToDeal);
       }
+      // If there are not enough to deal the remainder, deal whatever remains in
+      // the deck.
       else {
-        console.log('\nNo more cards left to deal!\n');
+        dealCardsToPlayer(player, cardsLeftInDeck);
       }
     }
   }
