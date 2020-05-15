@@ -1,4 +1,4 @@
-A card game based on the popular 'Crazy 8s'.
+<img width="1080" alt="screenshot" src="https://user-images.githubusercontent.com/5700335/82046493-57f3bf00-96f4-11ea-9b20-b7e5902b5d53.png">
 
 ## Rules
 
@@ -6,11 +6,9 @@ Players start with a countdown score of 8 and are dealt that number of cards at 
 
 Similar to Crazy 8s, cards are played according to suit matching or number matching in clockwise fashion. When a player gets rid of all the cards in their hand, their countdown score decreases and are dealt that number of cards.
 
-Two is pick up 2, Queen of Spades is pick up 5, Jack is skip the next player's turn and King is reverse direction of play.
+Two is pick up 2, queen of spades is pick up 5, jack is skip the next player's turn and king is reverse direction of play. Wildcards correspond to a player's countdown score, this means fives are your wildcard when your countdown score is 5.
 
-Wildcards correspond to your countdown score, this means '5's are your wildcard when your countdown score is 5.
-
-The game ends once a player's countdown score reaches 0.
+The game ends once a player's countdown score reaches zero.
 
 ## How to setup
 
