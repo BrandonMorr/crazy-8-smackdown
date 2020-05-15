@@ -1,5 +1,9 @@
 <img width="1080" alt="screenshot" src="https://user-images.githubusercontent.com/5700335/82046493-57f3bf00-96f4-11ea-9b20-b7e5902b5d53.png">
 
+## Demo
+
+Check out the live demo [here](https://crazy8smackdown.herokuapp.com/).
+
 ## Rules
 
 Players start with a countdown score of 8 and are dealt that number of cards at the beginning of the game.
