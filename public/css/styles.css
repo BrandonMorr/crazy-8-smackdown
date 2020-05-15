@@ -96,12 +96,12 @@ div {
 /* Title */
 .title-menu {
   color: white;
-  background-color: #ff88dc;
+  background-color: #272635;
   padding: 6px;
   border-radius: 6px;
-  -webkit-box-shadow: 0 4px 0 0 #d06eb3;
-  -moz-box-shadow: 0 4px 0 0 #d06eb3;
-  box-shadow: 0 4px 0 0 #d06eb3;
+  -webkit-box-shadow: 0 4px 0 0 #000;
+  -moz-box-shadow: 0 4px 0 0 #000;
+  box-shadow: 0 4px 0 0 #000;
 }
 
 /* Game message */
