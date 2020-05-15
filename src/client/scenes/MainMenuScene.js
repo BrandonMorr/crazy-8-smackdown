@@ -102,8 +102,8 @@ export default class MainMenuScene extends Phaser.Scene {
     createGameButton.addListener('click');
 
     createGameButton.on('click', () => {
-      let playerName = document.querySelector('.name-input').value;
-      let roomCode = document.querySelector('.room-code-input').value;
+      let playerName = document.querySelector('.name-input').value.toUpperCase();
+      let roomCode = document.querySelector('.room-code-input').value.toLowerCase();
 
       if (playerName !== '') {
         this.socket.name = playerName.toUpperCase();
