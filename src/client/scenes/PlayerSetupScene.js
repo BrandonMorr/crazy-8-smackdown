@@ -77,7 +77,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     // and draws dots for the interpolated values.
     this.renderTexture.on('pointermove', (pointer) => {
       if (pointer.isDown) {
-        let dots = pointer.getInterpolatedPosition(15);
+        let dots = pointer.getInterpolatedPosition(30);
 
         for (let dot of dots) {
           // Coordinates are relative to the render texture's size, so we have
@@ -86,8 +86,21 @@ export default class PlayerSetupScene extends Phaser.Scene {
           let yPos = dot.y - 100 - 16;
 
           this.renderTexture.draw(this.brush, xPos, yPos, 1, this.selectedColorOption);
+        }
 
-          // Store the stroke in the texture map.
+        // Lower interpolated values to be stored in player's texture map.
+        // NOTE: did this to reduce the load time to recreate player avatars
+        // when a player connects.
+        let mapDots = pointer.getInterpolatedPosition(10);
+
+        for (let dot of mapDots) {
+          // Coordinates are relative to the render texture's size, so we have
+          // to account for this in our x/y positions.
+          let xPos = dot.x - (this.camera.centerX - 200) - 16;
+          let yPos = dot.y - 100 - 16;
+
+          // Store the stroke in the texture map (representation of the player
+          // drawn avatar).
           this.textureMap.push({
             x: xPos,
             y: yPos,
