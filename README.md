@@ -16,6 +16,10 @@ The game ends once a player's countdown score reaches zero.
 
 ## How to setup
 
+Requirements: [Node.js](https://nodejs.org/)
+
+Run the following commands from the project's root directory:
+
 ```bash
 # Install project dependencies
 npm install
@@ -31,4 +35,4 @@ npm run start
 🕺 server init complete, listening for connections on port 3000 🕺
 ```
 
-To load the client, hit whatever port the server is listening for connections on in your browser of choice.
+Then load the client by hitting whatever port the server is listening for connections on using your browser of choice.
