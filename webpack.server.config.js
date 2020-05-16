@@ -1,9 +1,7 @@
 const path      = require('path');
 const externals = require('webpack-node-externals');
 
-const dist          = path.join(__dirname, 'dist');
-const client        = path.join(__dirname, 'src/client');
-const nodeModules   = path.join(__dirname, 'node_modules');
+const NodemonPlugin = require('nodemon-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -14,22 +12,14 @@ module.exports = {
   },
   entry: './src/server/server.js',
   output: {
-    path: path.join(dist),
+    path: path.join(__dirname, 'dist'),
     filename: 'server.bundle.js'
   },
   resolve: {
     extensions: [ '.js' ]
   },
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: [ nodeModules, client ],
-        use: {
-          loader: 'babel-loader'
-        }
-      }
-    ]
-  },
+  plugins: [
+    new NodemonPlugin(),
+  ],
   externals: [ externals() ]
 }
