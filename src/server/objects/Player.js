@@ -26,8 +26,6 @@ export default class Player {
 
     // Add the card to the play pile.
     deck.addCardToPlayPile(cardToRemove[0]);
-
-    console.log(`${cardToRemove[0].name} was removed from ${this.name}`);
   }
 
   /**
@@ -37,8 +35,6 @@ export default class Player {
    */
   addCardToHand(card) {
     this.hand.push(card);
-
-    console.log(`${card.name} was added to ${this.name}`);
   }
 
   /**
