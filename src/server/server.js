@@ -278,16 +278,14 @@ function onCardPlayed(card, wildcardSuit = false) {
 
   // If a jack was played skip the next players turn.
   if (card.value === 'j') {
-    let skippedPlayer = rooms[roomCode].playerOrder[rooms[roomCode].playerTurn];
+    // Skip the next player, get the name of the skipped player.
+    let skippedPlayer = rooms[roomCode].getNextPlayer();
 
     // Tell the client who's turn they skipped.
     this.emit('message', `YOU SKIPPED ${skippedPlayer.name}'S TURN`);
 
     // Notify player that their turn was skipped.
     io.to(skippedPlayer.id).emit('message', `${this.player.name} SKIPPED YOUR TURN`);
-
-    // Skip the next player.
-    rooms[roomCode].getNextPlayer();
   }
 
   // Grab the next player to play.

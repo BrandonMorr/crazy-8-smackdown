@@ -324,7 +324,7 @@ export default class GameScene extends Phaser.Scene {
       this.showCountdownMessage(`YOUR COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
     }
     else {
-      this.showCountdownMessage(`${this.player.name}'S COUNTDOWN SCORE IS NOW ${this.player.countdown}`);
+      this.showCountdownMessage(`${player.name}'S COUNTDOWN SCORE IS NOW ${player.countdown}`);
     }
   }
 
