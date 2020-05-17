@@ -38,3 +38,7 @@ npm run start
 ```
 
 Then load the client by hitting whatever port the server is listening for connections on using your browser of choice.
+
+## Credits
+
+Card assets are a part of the [Boardgame Pack](https://www.kenney.nl/assets/boardgame-pack) provided by [Kenney Assets](https://www.kenney.nl/).
