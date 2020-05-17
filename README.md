@@ -2,7 +2,7 @@
 
 ## Demo
 
-Check out the live demo [here](https://crazy8smackdown.herokuapp.com/).
+Check out the [live demo](https://crazy8smackdown.herokuapp.com/).
 
 ## Rules
 
@@ -10,11 +10,13 @@ Players start with a countdown score of 8 and are dealt that number of cards at 
 
 Similar to Crazy 8s, cards are played according to suit matching or number matching in clockwise fashion. When a player gets rid of all the cards in their hand, their countdown score decreases and are dealt that number of cards.
 
-Two is pick up 2, queen of spades is pick up 5, jack is skip the next player's turn and king is reverse direction of play. Wildcards correspond to a player's countdown score, this means fives are your wildcard when your countdown score is 5.
+Two is pick up 2, queen of spades is pick up 5, jack is skip the next player's turn and king is reverse direction of play. 
+
+Wildcards correspond to a player's countdown score, this would mean fives are your wildcard when your countdown score is 5.
 
 The game ends once a player's countdown score reaches zero.
 
-## How to setup
+## Setup
 
 Requirements: [Node.js](https://nodejs.org/)
 
