@@ -72,8 +72,12 @@ export default class Deck {
    * Shuffle the play pile, pass that back to the draw pile and clear playPile.
    */
   shuffleDeck() {
+    // Keep the last played card.
+    let card = this.playPile.shift();
+    // Shuffle the play pile and move it back into the draw pile.
     this.drawPile = this.shuffle(this.playPile);
-    this.playPile = [];
+    // Reset the play pile.
+    this.playPile = [ card ];
   }
 
   /**

@@ -455,17 +455,13 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
       // Notify the players that the deck is being shuffled.
       io.in(player.roomCode).emit('shuffle deck');
 
-      // Get the number of cards in the draw pile.
-      let cardsLeftInDeck = rooms[player.roomCode].deck.drawPile.length;
-
-      // Check if there are enough cards to finish dealing.
-      if (cardsLeftInDeck >= cardsLeftToDeal) {
-        dealCardsToPlayer(player, cardsLeftToDeal);
+      // If there are no cards left in the draw pile, stop.
+      if (rooms[player.roomCode].deck.drawPile.length === 0) {
+        return;
       }
-      // If there are not enough to deal the remainder, deal whatever remains in
-      // the deck.
       else {
-        dealCardsToPlayer(player, cardsLeftInDeck);
+        // Retry dealing a card to the player.
+        cardsLeftToDeal++;
       }
     }
   }
