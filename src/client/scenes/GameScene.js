@@ -394,6 +394,9 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    // Reorder the players on the screen.
+    this.reorderPlayers();
+
     // Check to see if the ready button needs to be hidden.
     this.showReadyButton();
   }
@@ -547,7 +550,7 @@ export default class GameScene extends Phaser.Scene {
       if (player.id !== this.player.id) {
         // Animate the player to the new x position.
         this.tweens.add({
-          targets: player,
+          targets: player.getTweenTargets(),
           x: startingX + offset,
           ease: 'Linear',
           duration: 250
@@ -643,29 +646,31 @@ export default class GameScene extends Phaser.Scene {
    * Toggle a ready button when there are 2 or more players in the room.
    */
   showReadyButton() {
-    // We only want to show the ready button when there are more than 2 players
-    // in the room.
-    if (this.players.length >= 2) {
-      // If the button isn't present and the player isn't ready, add it
-      // to the scene.
-      if (!this.readyButton && !this.player.ready) {
-        this.readyButton = this.add.dom(this.camera.width / 4 * 3, 490, 'button', 'font-size: 16px;', 'READY');
-        this.readyButton.setClassName('game-button');
-        this.readyButton.addListener('click');
+    if (!this.gameStarted) {
+      // We only want to show the ready button when there are more than 2 players
+      // in the room.
+      if (this.players.length >= 2) {
+        // If the button isn't present and the player isn't ready, add it
+        // to the scene.
+        if (!this.readyButton && !this.player.ready) {
+          this.readyButton = this.add.dom(this.camera.width / 4 * 3, 490, 'button', 'font-size: 16px;', 'READY');
+          this.readyButton.setClassName('game-button');
+          this.readyButton.addListener('click');
 
-        this.readyButton.on('click', () => {
-         this.socket.emit('player ready');
-         this.player.showReady();
-         this.readyButton.destroy();
-         this.readyButton = false;
-        });
+          this.readyButton.on('click', () => {
+           this.socket.emit('player ready');
+           this.player.showReady();
+           this.readyButton.destroy();
+           this.readyButton = false;
+          });
+        }
       }
-    }
-    else {
-      // Check if the ready button is present and if so remove it.
-      if (this.readyButton) {
-        this.readyButton.destroy();
-        this.readyButton = false;
+      else {
+        // Check if the ready button is present and if so remove it.
+        if (this.readyButton) {
+          this.readyButton.destroy();
+          this.readyButton = false;
+        }
       }
     }
   }

@@ -108,27 +108,44 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
+   * Provide an array of player UI elements that are attached to the player.
+   *
+   * @return {Phaser.DomElement[]} - Player UI elements.
+   */
+  getPlayerTextObjects() {
+    let textObjects = [];
+
+    Object.keys(this).forEach((property) => {
+      if (property.includes('Text')) {
+        textObjects.push(this[property]);
+      }
+    });
+
+    return textObjects;
+  }
+
+  /**
+   * Provide an array of UI elements that can be modified from a tween.
+   *
+   * @return {Phaser.DomElement[]} - Player UI elements.
+   */
+  getTweenTargets() {
+    // Add the player reference to the targets list.
+    let targets = [ this ];
+
+    for (let textObj of this.getPlayerTextObjects()) {
+      targets.push(textObj);
+    }
+
+    return targets;
+  }
+
+  /**
    * Remove all player stuff from scene.
    */
   remove() {
-    if (this.nameText) {
-      this.nameText.destroy();
-    }
-
-    if (this.readyText) {
-      this.readyText.destroy();
-    }
-
-    if (this.turnText) {
-      this.turnText.destroy();
-    }
-
-    if (this.countdownText) {
-      this.countdownText.destroy();
-    }
-
-    if (this.handCountText) {
-      this.handCountText.destroy();
+    for (let textObj of this.getPlayerTextObjects()) {
+      textObj.destroy();
     }
 
     if (this.hand.length > 0) {
