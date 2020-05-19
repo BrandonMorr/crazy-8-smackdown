@@ -103,10 +103,10 @@ function onJoinRequest(roomCode) {
 
   // If room code is valid and the game hasn't started, connect the user.
   if (foundRoom) {
-    let playersInRoom = getPlayersInRoom(roomCode).length;
+    let socketsInRoom = getSocketsInRoom(roomCode).length;
 
-    // If there are less than 4 players in the room, connect the user.
-    if (playersInRoom < 4) {
+    // If there are less than 4 sockets connected to the room, connect.
+    if (socketsInRoom < 4) {
       if (rooms[foundRoom].gameStarted === false) {
         // Connect the user to the room.
         this.join(roomCode);
@@ -406,6 +406,23 @@ function shufflePlayerOrder(roomCode) {
   }
 
   return players;
+}
+
+/**
+ * Return all sockets currently connected to a room.
+ */
+function getSocketsInRoom(roomCode) {
+  let sockets = [];
+
+  // Check to see if anyone is even in the room.
+  if (io.sockets.adapter.rooms[roomCode] !== undefined) {
+    // Loop over sockets connected to a room, return all players found.
+    Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(socket => {
+      sockets.push(socket);
+    });
+  }
+
+  return sockets;
 }
 
 /**
