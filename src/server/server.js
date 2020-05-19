@@ -374,6 +374,7 @@ function onDisconnect() {
 function checkAllPlayersReady(roomCode) {
   let ready = true;
   let players = getPlayersInRoom(roomCode);
+  let sockets = getSocketsInRoom(roomCode);
 
   // Only continue if there is 2 or more players.
   if (players.length >= 2) {
@@ -385,6 +386,13 @@ function checkAllPlayersReady(roomCode) {
     }
   }
   else {
+    ready = false;
+  }
+
+  // Check to see if any players are still drawing their avatar by comparing
+  // the number of sockets in the room vs. players in the room (a player object
+  // isn't created until the GameScene, so this is pretty hacky).
+  if (players.length !== sockets.length) {
     ready = false;
   }
 
