@@ -339,7 +339,6 @@ function onDisconnect() {
   // Check to see if the socket has a player data object.
   if ('player' in this) {
     let roomCode = this.player.roomCode;
-    let deck = rooms[roomCode].deck;
     let players = getPlayersInRoom(roomCode);
 
     // Check to see if the room is empty.
@@ -354,8 +353,27 @@ function onDisconnect() {
 
       // Put the player's hand back in the play pile so that cards go back into
       // circulation.
+      let deck = rooms[roomCode].deck;
+
       for (let card of this.player.hand) {
         deck.addCardToPlayPile(card);
+      }
+
+      // Grab the player turn so we can check if player disconnected on their
+      // turn.
+      let playerTurn = rooms[roomCode].playerTurn;
+      
+      // If a player disconnected on their turn, move to the next player in
+      // order.
+      if (rooms[roomCode].playerOrder[playerTurn].id == this.id) {
+        // Grab the next player to play.
+        let player = rooms[roomCode].getNextPlayer();
+
+        // Notify everyone who is now playing.
+        io.in(roomCode).emit('show player turn', player);
+
+        // Notify the player to start the turn.
+        io.to(player.id).emit('turn start');
       }
 
       // Remove player from room's player order array.
