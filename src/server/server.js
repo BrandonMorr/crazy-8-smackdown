@@ -50,6 +50,7 @@ function setServerHandlers() {
     socket.on('player ready', onPlayerReady);
     socket.on('card played', onCardPlayed);
     socket.on('draw card', onDrawCard);
+    socket.on('player message', onPlayerMessage);
     socket.on('disconnect', onDisconnect);
   });
 }
@@ -252,7 +253,7 @@ function onCardPlayed(card, wildcardSuit = false) {
     }
 
     // Notfiy all players that the suit has changed.
-    io.in(roomCode).emit('message', `THE SUIT HAS CHANGED TO ${wildcardSuit.toUpperCase()}`);
+    io.in(roomCode).emit('game message', `THE SUIT HAS CHANGED TO ${wildcardSuit.toUpperCase()}`);
 
     // Update the card in play to our wildcard choice.
     io.in(roomCode).emit('update card in play', wildcard);
@@ -270,10 +271,10 @@ function onCardPlayed(card, wildcardSuit = false) {
     rooms[roomCode].reverseDirection = (rooms[roomCode].reverseDirection) ? false : true;
 
     // Tell the client that they have reversed the direction.
-    this.emit('message', 'YOU REVERSED THE DIRECTION OF PLAY');
+    this.emit('game message', 'YOU REVERSED THE DIRECTION OF PLAY');
 
     // Notify everyone else who reversed the direction.
-    this.broadcast.to(roomCode).emit('message', `${this.player.name} REVERSED THE DIRECTION PLAY`);
+    this.broadcast.to(roomCode).emit('game message', `${this.player.name} REVERSED THE DIRECTION PLAY`);
   }
 
   // If a jack was played skip the next players turn.
@@ -282,10 +283,10 @@ function onCardPlayed(card, wildcardSuit = false) {
     let skippedPlayer = rooms[roomCode].getNextPlayer();
 
     // Tell the client who's turn they skipped.
-    this.emit('message', `YOU SKIPPED ${skippedPlayer.name}'S TURN`);
+    this.emit('game message', `YOU SKIPPED ${skippedPlayer.name}'S TURN`);
 
     // Notify player that their turn was skipped.
-    io.to(skippedPlayer.id).emit('message', `${this.player.name} SKIPPED YOUR TURN`);
+    io.to(skippedPlayer.id).emit('game message', `${this.player.name} SKIPPED YOUR TURN`);
   }
 
   // Grab the next player to play.
@@ -293,13 +294,13 @@ function onCardPlayed(card, wildcardSuit = false) {
 
   // If a queen of spades was played, deal 5 cards to the next player.
   if (card.name === 'q of spades') {
-    io.to(player.id).emit('message', 'PICKUP 5 CARDS')
+    io.to(player.id).emit('game message', 'PICKUP 5 CARDS')
     dealCardsToPlayer(player, 5);
   }
 
   // If a 2 was played, deal two cards to the next player.
   if (card.value === '2') {
-    io.to(player.id).emit('message', 'PICKUP 2 CARDS')
+    io.to(player.id).emit('game message', 'PICKUP 2 CARDS')
     dealCardsToPlayer(player, 2);
   }
 
@@ -330,6 +331,15 @@ function onDrawCard() {
 
   // Notify the first player to start the turn.
   io.to(player.id).emit('turn start');
+}
+
+/**
+ * When a player sends a message, send it to everyone.
+ */
+function onPlayerMessage(message) {
+  const player = this.player;
+
+  io.in(player.roomCode).emit('player message', message, player);
 }
 
 /**

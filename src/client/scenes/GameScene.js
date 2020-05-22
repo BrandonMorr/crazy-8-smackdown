@@ -125,9 +125,14 @@ export default class GameScene extends Phaser.Scene {
       this.onGameOver(playerObj);
     });
 
-    // Show messages from the server.
-    this.socket.on('message', (message) => {
+    // Show game messages.
+    this.socket.on('game message', (message) => {
       this.showGameMessage(message);
+    });
+
+    // Show player messages.
+    this.socket.on('player message', (message, playerObj) => {
+      this.showPlayerMessage(message, playerObj);
     });
 
     // Handle removing a player who has disconnected.
@@ -137,6 +142,17 @@ export default class GameScene extends Phaser.Scene {
 
     // Show a clickable room code button.
     this.addRoomCodeButton();
+
+    // Show a clickable send message button.
+    this.addPlayerMessageButton()
+
+    // Show a message input which allows players to communicate with each
+    // other.
+    this.input.keyboard.on('keyup', (event) => {
+      if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) {
+        this.showPlayerMessageInput();
+      }
+    });
   }
 
   update() { }
@@ -651,7 +667,7 @@ export default class GameScene extends Phaser.Scene {
         // If the button isn't present and the player isn't ready, add it
         // to the scene.
         if (!this.readyButton && !this.player.ready) {
-          this.readyButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4) - 60, 'button', 'font-size: 16px;', 'READY');
+          this.readyButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4) - 80, 'button', 'font-size: 16px;', 'READY');
           this.readyButton.setClassName('game-button');
           this.readyButton.addListener('click');
 
@@ -708,6 +724,31 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Show the player message input which allows players to send short messages.
+   */
+  showPlayerMessageInput() {
+    if (!this.playerMessageInput) {
+      this.playerMessageInput = this.add.dom(this.camera.centerX, this.getGridColumnPosition(4), 'input');
+      this.playerMessageInput.setClassName('player-message-input');
+      this.playerMessageInput.node.maxLength = 36;
+      this.playerMessageInput.node.placeholder = 'SAY SOMETHING...';
+      this.playerMessageInput.setInteractive();
+
+      document.querySelector('.player-message-input').focus();
+    }
+    else {
+      const playerMessage = document.querySelector('.player-message-input').value;
+
+      if (playerMessage !== '') {
+        this.socket.emit('player message', playerMessage);
+      }
+
+      this.playerMessageInput.destroy();
+      this.playerMessageInput = false;
+    }
+  }
+
+  /**
    * Show a general message to the user, fade it out after a few seconds.
    */
   showGameMessage(message) {
@@ -754,10 +795,47 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Show a player message.
+   */
+  showPlayerMessage(message, playerObj) {
+    const player = this.getPlayerByID(playerObj.id);
+
+    if (!player.playerMessageText) {
+      player.playerMessageText = this.add.dom(player.x, player.y + 100, 'div', 'font-size: 14px;', message);
+      player.playerMessageText.setClassName('message-player');
+
+      this.tweens.add({
+        targets: player.playerMessageText,
+        delay: 2000,
+        alpha: 0,
+        ease: 'Linear',
+        duration: 400,
+        onComplete: () => {
+          player.playerMessageText.destroy();
+          player.playerMessageText = false;
+        }
+      });
+    }
+  }
+
+  /**
+   * Add a player message button to the scene.
+   */
+  addPlayerMessageButton() {
+    this.playerMessageButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4) - 30, 'button', 'font-size: 16px;', 'SEND MESSAGE');
+    this.playerMessageButton.setClassName('game-button');
+    this.playerMessageButton.addListener('click');
+
+    this.playerMessageButton.on('click', () => {
+      this.showPlayerMessageInput();
+    });
+  }
+
+  /**
    * Add room code button to the scene.
    */
   addRoomCodeButton() {
-    this.roomCodeButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4), 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
+    this.roomCodeButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4) + 30, 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
     this.roomCodeButton.setClassName('game-button');
     this.roomCodeButton.addListener('click');
 
@@ -773,7 +851,7 @@ export default class GameScene extends Phaser.Scene {
    * Add draw card button to the scene.
    */
   addDrawCardButton() {
-    this.drawCardButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4), 'button', 'font-size: 16px;', 'DRAW CARD');
+    this.drawCardButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4) - 80, 'button', 'font-size: 16px;', 'DRAW CARD');
     this.drawCardButton.setClassName('game-button');
     this.drawCardButton.addListener('click');
 

@@ -32,6 +32,12 @@ div {
   user-select: none;
 }
 
+/* Input for player messages */
+.player-message-input {
+  text-transform: none;
+  box-shadow: 0 0 6px #c1c1c1;
+}
+
 /* Container for the wildcard */
 .wildcard-menu-container {
   height: 80px;
@@ -111,15 +117,15 @@ div {
   box-shadow: 0 4px 0 0 #824D9F;
 }
 
-/* Error message */
-.message-error {
-  color: white;
-  background-color: #ff0040;
-  padding: 6px;
-  border-radius: 6px;
-  -webkit-box-shadow: 0 4px 0 0 #c12048;
-  -moz-box-shadow: 0 4px 0 0 #c12048;
-  box-shadow: 0 4px 0 0 #c12048;
+/* Player message */
+.message-player {
+  color: #505050;
+  background-color: #e6e6e6;
+  padding: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 4px 0 0 #b0b0b0;
+  -moz-box-shadow: 0 4px 0 0 #b0b0b0;
+  box-shadow: 0 4px 0 0 #b0b0b0;
 }
 
 /* Countdown message */
@@ -131,6 +137,17 @@ div {
   -webkit-box-shadow: 0 4px 0 0 #2161bb;
   -moz-box-shadow: 0 4px 0 0 #2161bb;
   box-shadow: 0 4px 0 0 #2161bb;
+}
+
+/* Error message */
+.message-error {
+  color: white;
+  background-color: #ff0040;
+  padding: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 4px 0 0 #c12048;
+  -moz-box-shadow: 0 4px 0 0 #c12048;
+  box-shadow: 0 4px 0 0 #c12048;
 }
 
 /* Any buttons within the menu scene */

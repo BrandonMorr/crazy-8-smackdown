@@ -97,7 +97,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
           // Coordinates are relative to the render texture's size, so we have
           // to account for this in our x/y positions.
           let xPos = dot.x - (this.camera.centerX - 200) - 16;
-          let yPos = dot.y - 100 - 16;
+          let yPos = dot.y - (this.camera.centerY - 200) - 16;
 
           // Store the stroke in the texture map (representation of the player
           // drawn avatar).
