@@ -47,10 +47,10 @@ export default class PlayerSetupScene extends Phaser.Scene {
     let borderOffset = 10;
     let background = this.add.graphics();
     background.fillStyle(0xe0e0e0, 1.0);
-    background.fillRoundedRect(this.camera.centerX - 200 - borderOffset, 100 - borderOffset, 400 + (borderOffset * 2), 400 + (borderOffset * 2), 8);
+    background.fillRoundedRect(this.camera.centerX - 200 - borderOffset, this.camera.centerY - 200 - borderOffset, 400 + (borderOffset * 2), 400 + (borderOffset * 2), 8);
 
     // Using a render texture, create the canvas for players to draw on.
-    this.renderTexture = this.add.renderTexture(this.camera.centerX - 200, 100, 400, 400);
+    this.renderTexture = this.add.renderTexture(this.camera.centerX - 200, this.camera.centerY - 200, 400, 400);
     this.renderTexture.setInteractive();
 
     // The brush stroke.
@@ -61,7 +61,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
       // Coordinates are relative to the render texture's size, so we have
       // to account for this in our x/y positions.
       let xPos = pointer.x - (this.camera.centerX - 200) - 16;
-      let yPos = pointer.y - 100 - 16;
+      let yPos = pointer.y - (this.camera.centerY - 200) - 16;
 
       this.renderTexture.draw(this.brush, xPos, yPos, 1, this.selectedColorOption);
 
@@ -83,7 +83,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
           // Coordinates are relative to the render texture's size, so we have
           // to account for this in our x/y positions.
           let xPos = dot.x - (this.camera.centerX - 200) - 16;
-          let yPos = dot.y - 100 - 16;
+          let yPos = dot.y - (this.camera.centerY - 200) - 16;
 
           this.renderTexture.draw(this.brush, xPos, yPos, 1, this.selectedColorOption);
         }
@@ -124,7 +124,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     for (let i = 0; i <= colors.length - 1; i++) {
       // CSS style string.
       let styleString = `background-color: ${colorHexs[i]}; border-color: ${colorHexs[i]};`;
-      let colorButton = this.add.dom(this.camera.centerX + 300, 125 + offset, 'button', styleString);
+      let colorButton = this.add.dom(this.camera.centerX + 300, this.getGridColumnPosition(1) + 65 + offset, 'button', styleString);
       colorButton.setClassName('color-button');
       colorButton.addListener('click');
 
@@ -141,7 +141,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(this.camera.centerX, 60, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
+    let titleText = this.add.dom(this.camera.centerX, this.getGridColumnPosition(1), 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
     titleText.setClassName('title-setup');
   }
 
@@ -149,7 +149,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add a play button to the scene.
    */
   addPlayButton() {
-    let playButton = this.add.dom(this.camera.centerX, 550, 'button', 'font-size: 16px;', 'SAVE & PLAY');
+    let playButton = this.add.dom(this.camera.centerX, this.getGridColumnPosition(4), 'button', 'font-size: 16px;', 'SAVE & PLAY');
     playButton.setClassName('game-button');
     playButton.addListener('click');
 
@@ -163,15 +163,29 @@ export default class PlayerSetupScene extends Phaser.Scene {
   }
 
   /**
-   * Add a clear button to the scene which jsut resets the MFing scene.
+   * Add a clear button to the scene which just resets the MFing scene.
    */
   addClearButton() {
-    let clearButton = this.add.dom(this.camera.centerX + 300, 550, 'button', 'font-size: 16px;', 'CLEAR');
+    let clearButton = this.add.dom(this.camera.centerX + 300, this.getGridColumnPosition(4), 'button', 'font-size: 16px; width: 82px', 'CLEAR');
     clearButton.setClassName('game-button');
     clearButton.addListener('click');
 
     clearButton.on('click', () => {
       this.scene.restart();
     });
+  }
+
+  /**
+   * Return the x position of a line for given row.
+   */
+  getGridRowPosition(row, numberOfRows = 4) {
+    return (this.camera.width / numberOfRows) * row;
+  }
+
+  /**
+   * Return the y position of a line for given column.
+   */
+  getGridColumnPosition(column, numberOfColumns = 5) {
+    return (this.camera.height / numberOfColumns) * column;
   }
 }

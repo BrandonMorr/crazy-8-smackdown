@@ -88,7 +88,7 @@ export default class Deck extends Phaser.GameObjects.Group {
    */
   addDrawPileCard(scene) {
     // Create an arbitrary card.
-    this.drawPileCard = new Card(scene, scene.camera.centerX - 150, 300, 'spades', 'a', 'a of spades');
+    this.drawPileCard = new Card(scene, scene.camera.centerX - 150, scene.camera.centerY, 'spades', 'a', 'a of spades');
     this.drawPileCard.faceDown();
    }
 

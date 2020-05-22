@@ -25,10 +25,6 @@ input ::placeholder {
   color: #8b8b8b;
 }
 
-canvas {
-  border-radius: 4px;
-}
-
 div {
   font-family: Helvetica, "sans-serif";
   font-weight: bold;
@@ -105,7 +101,7 @@ div {
 }
 
 /* Game message */
-.message {
+.message-game {
   color: white;
   background-color: #A663CC;
   padding: 6px;

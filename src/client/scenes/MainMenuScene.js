@@ -53,7 +53,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(this.camera.centerX, 125, 'div', 'font-size: 27px', 'CRAZY 8 SMACKDOWN');
+    let titleText = this.add.dom(this.camera.centerX, this.getGridColumnPosition(3, 12), 'div', 'font-size: 27px', 'CRAZY 8 SMACKDOWN');
     titleText.setClassName('title-menu');
   }
 
@@ -61,7 +61,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add connection status text to the scene.
    */
   addConnectionStatus() {
-    let statusText = this.add.dom((this.camera.width / 4 * 3), (this.camera.height / 4  * 3), 'div', 'font-size: 14px;', 'CONNECTED');
+    let statusText = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4), 'div', 'font-size: 14px;', 'CONNECTED');
     statusText.setClassName('status');
   }
 
@@ -69,10 +69,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a player name input and label to the scene.
    */
   addNameInput() {
-    let nameLabel = this.add.dom(this.camera.centerX - 130, 205, 'div', 'font-size: 18px;', 'NAME');
+    let nameLabel = this.add.dom(this.camera.centerX - 130, this.getGridColumnPosition(5, 12) - 10 - 35, 'div', 'font-size: 18px;', 'NAME');
     nameLabel.setClassName('label');
 
-    let nameInput = this.add.dom(this.camera.centerX, 240, 'input');
+    let nameInput = this.add.dom(this.camera.centerX, this.getGridColumnPosition(5, 12) - 10, 'input');
     nameInput.setClassName('name-input');
     nameInput.node.maxLength = 12;
     nameInput.node.placeholder = 'ENTER YOUR NAME';
@@ -83,10 +83,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a room code input and label to the scene.
    */
   addRoomCodeInput() {
-    let roomCodeLabel = this.add.dom(this.camera.centerX - 100, 285, 'div', 'font-size: 18px;', 'ROOM CODE');
+    let roomCodeLabel = this.add.dom(this.camera.centerX - 100, this.getGridColumnPosition(6, 12) - 35, 'div', 'font-size: 18px;', 'ROOM CODE');
     roomCodeLabel.setClassName('label');
 
-    let roomCodeInput = this.add.dom(this.camera.centerX, 320, 'input');
+    let roomCodeInput = this.add.dom(this.camera.centerX, this.getGridColumnPosition(6, 12), 'input');
     roomCodeInput.setClassName('room-code-input');
     roomCodeInput.node.maxLength = 4;
     roomCodeInput.node.placeholder = 'ENTER 4 CHARACTER CODE';
@@ -97,7 +97,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.dom(this.camera.centerX - 85, 380, 'button', 'font-size: 16px;', 'CREATE GAME');
+    let createGameButton = this.add.dom(this.camera.centerX - 85, this.getGridColumnPosition(7, 12), 'button', 'font-size: 16px;', 'CREATE GAME');
     createGameButton.setClassName('menu-button');
     createGameButton.addListener('click');
 
@@ -138,7 +138,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
   addJoinButton() {
-    let joinButton = this.add.dom(this.camera.centerX + 85, 380, 'button', 'font-size: 16px;', 'JOIN');
+    let joinButton = this.add.dom(this.camera.centerX + 85, this.getGridColumnPosition(7, 12), 'button', 'font-size: 16px;', 'JOIN');
     joinButton.setClassName('menu-button');
     joinButton.addListener('click');
 
@@ -165,7 +165,7 @@ export default class MainMenuScene extends Phaser.Scene {
   showErrorMessage(errorMessage) {
     // Only display one error message at a time.
     if (!this.errorMessage) {
-      this.errorMessage = this.add.dom(this.camera.centerX, 440, 'div', 'font-size: 16px;', errorMessage);
+      this.errorMessage = this.add.dom(this.camera.centerX, this.getGridColumnPosition(8, 12), 'div', 'font-size: 16px;', errorMessage);
       this.errorMessage.setClassName('message-error');
 
       this.tweens.add({
@@ -180,5 +180,19 @@ export default class MainMenuScene extends Phaser.Scene {
         }
       });
     }
+  }
+
+  /**
+   * Return the x position of a line for given row.
+   */
+  getGridRowPosition(row, numberOfRows = 4) {
+    return (this.camera.width / numberOfRows) * row;
+  }
+
+  /**
+   * Return the y position of a line for given column.
+   */
+  getGridColumnPosition(column, numberOfColumns = 5) {
+    return (this.camera.height / numberOfColumns) * column;
   }
 }

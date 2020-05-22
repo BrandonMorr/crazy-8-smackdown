@@ -41,7 +41,7 @@ export default class GameScene extends Phaser.Scene {
     this.currentCardInPlay = false;
 
     // Create local player's Player object and add it to players array.
-    this.player = new Player(this, this.camera.width / 4, 500, this.socket.id, this.socket.name, data.textureMap);
+    this.player = new Player(this, this.getGridRowPosition(1), this.getGridColumnPosition(4), this.socket.id, this.socket.name, data.textureMap);
     this.player.setTexture('avatar');
 
     // Push this player to the players array.
@@ -95,7 +95,7 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('shuffle deck', () => {
       this.deck.shuffle(this);
 
-      this.showMessage('THE DECK HAS BEEN SHUFFLED');
+      this.showGameMessage('THE DECK HAS BEEN SHUFFLED');
     });
 
     // Tween cards to the player.
@@ -127,7 +127,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Show messages from the server.
     this.socket.on('message', (message) => {
-      this.showMessage(message);
+      this.showGameMessage(message);
     });
 
     // Handle removing a player who has disconnected.
@@ -145,12 +145,12 @@ export default class GameScene extends Phaser.Scene {
    * When a player connects to the room, add them to the game client.
    */
   onNewPlayer(playerObj) {
-    let player = new Player(this, this.getPlayerStartingX(), 120, playerObj.id, playerObj.name, playerObj.textureMap);
+    let player = new Player(this, this.getPlayerStartingX(), this.getGridColumnPosition(1), playerObj.id, playerObj.name, playerObj.textureMap);
     this.players.push(player);
 
     this.drawPlayerAvatar(player);
 
-    this.showMessage(`${playerObj.name} HAS CONNECTED`);
+    this.showGameMessage(`${playerObj.name} HAS CONNECTED`);
     this.showReadyButton();
   }
 
@@ -161,7 +161,7 @@ export default class GameScene extends Phaser.Scene {
     for (let playerObj of playerObjs) {
       // We only want to add other players.
       if (playerObj.id !== this.player.id) {
-        let player = new Player(this, this.getPlayerStartingX(), 120, playerObj.id, playerObj.name, playerObj.textureMap);
+        let player = new Player(this, this.getPlayerStartingX(), this.getGridColumnPosition(1), playerObj.id, playerObj.name, playerObj.textureMap);
 
         // Add the player to the players array.
         this.players.push(player);
@@ -196,7 +196,7 @@ export default class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: card,
       x: this.camera.centerX,
-      y: 300,
+      y: this.camera.centerY,
       ease: 'Linear',
       duration: 250,
       onStart: () => {
@@ -212,7 +212,7 @@ export default class GameScene extends Phaser.Scene {
   onShowCardDraw(playerObj) {
     let player = this.getPlayerByID(playerObj.id);
     // Create an arbitrary card.
-    let card = new Card(this, this.camera.centerX, 300, 'spades', 'a', 'a of spades');
+    let card = new Card(this, this.camera.centerX, this.camera.centerY, 'spades', 'a', 'a of spades');
 
     // Load the back of the card.
     card.faceDown();
@@ -305,7 +305,7 @@ export default class GameScene extends Phaser.Scene {
     // If a card in play hasn't been set, we need to add the first one to the
     // scene.
     if (!this.currentCardInPlay) {
-      let card = new Card(this, this.camera.centerX, 300, cardObj.suit, cardObj.value, cardObj.name);
+      let card = new Card(this, this.camera.centerX, this.camera.centerY, cardObj.suit, cardObj.value, cardObj.name);
       this.deck.addCardToPlayPile(card);
     }
 
@@ -363,11 +363,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Notify whether the player won, or lost.
-    this.gameOverText = this.add.dom(this.camera.centerX, 200, 'div', 'font-size: 30px;', gameOverMessage);
+    this.gameOverText = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'div', 'font-size: 30px;', gameOverMessage);
     this.gameOverText.setClassName('game-over');
 
     // Show a button that brings the player back to the main menu scene.
-    this.returnToMenuButton = this.add.dom(this.camera.centerX, 300, 'button', 'font-size: 16px; width: 180px;', 'RETURN TO MENU');
+    this.returnToMenuButton = this.add.dom(this.camera.centerX, this.camera.centerY, 'button', 'font-size: 16px; width: 180px;', 'RETURN TO MENU');
     this.returnToMenuButton.setClassName('game-button');
     this.returnToMenuButton.addListener('click');
 
@@ -413,7 +413,7 @@ export default class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: cardToTween,
       x: this.camera.centerX,
-      y: 500,
+      y: this.getGridColumnPosition(4),
       ease: 'Linear',
       duration: 250,
       onComplete: () => {
@@ -450,7 +450,7 @@ export default class GameScene extends Phaser.Scene {
       this.tweens.add({
         targets: card,
         x: this.camera.centerX,
-        y: 300,
+        y: this.camera.centerY,
         ease: 'Linear',
         duration: 250,
         onStart: () => {
@@ -481,7 +481,7 @@ export default class GameScene extends Phaser.Scene {
       // Move card up slightly.
       this.tweens.add({
         targets: card,
-        y: 450,
+        y: this.getGridColumnPosition(4) - 50,
         ease: 'Linear',
         duration: 250,
       });
@@ -495,7 +495,7 @@ export default class GameScene extends Phaser.Scene {
       // Move the card back into hand.
       this.tweens.add({
         targets: card,
-        y: 500,
+        y: this.getGridColumnPosition(4),
         ease: 'Linear',
         duration: 250,
       });
@@ -531,9 +531,7 @@ export default class GameScene extends Phaser.Scene {
    * Return an initial x position to place a player.
    */
   getPlayerStartingX() {
-    let offset = this.camera.width / 4;
-
-    return offset * this.players.length;
+    return this.getGridRowPosition(this.players.length);
   }
 
   /**
@@ -653,7 +651,7 @@ export default class GameScene extends Phaser.Scene {
         // If the button isn't present and the player isn't ready, add it
         // to the scene.
         if (!this.readyButton && !this.player.ready) {
-          this.readyButton = this.add.dom(this.camera.width / 4 * 3, 490, 'button', 'font-size: 16px;', 'READY');
+          this.readyButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4) - 60, 'button', 'font-size: 16px;', 'READY');
           this.readyButton.setClassName('game-button');
           this.readyButton.addListener('click');
 
@@ -680,7 +678,7 @@ export default class GameScene extends Phaser.Scene {
    */
   showWildCardMenu(card) {
     this.suitCardButtons = [];
-    this.wildCardMenu = this.add.dom(this.camera.centerX, 300, 'div', 'font-size: 20px;', 'CHOOSE A NEW SUIT');
+    this.wildCardMenu = this.add.dom(this.camera.centerX, this.camera.centerY, 'div', 'font-size: 20px;', 'CHOOSE A NEW SUIT');
     this.wildCardMenu.setClassName('wildcard-menu-container');
 
     const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
@@ -688,7 +686,7 @@ export default class GameScene extends Phaser.Scene {
     let offset = 0;
 
     for (let i = 0; i <= 3; i++) {
-      let suitButton = this.add.dom((this.camera.centerX - 200) + offset, 310, 'button', 'font-size: 16px;', buttonText[i]);
+      let suitButton = this.add.dom((this.camera.centerX - 200) + offset, this.camera.centerY + 10, 'button', 'font-size: 16px;', buttonText[i]);
       suitButton.setClassName('suit-button');
       suitButton.addListener('click');
 
@@ -712,11 +710,11 @@ export default class GameScene extends Phaser.Scene {
   /**
    * Show a general message to the user, fade it out after a few seconds.
    */
-  showMessage(message) {
+  showGameMessage(message) {
     // Only display one message at a time.
     if (!this.messageText) {
       this.messageText = this.add.dom(this.camera.centerX, this.camera.centerY + 100, 'div', 'font-size: 16px;', message);
-      this.messageText.setClassName('message');
+      this.messageText.setClassName('message-game');
 
       this.tweens.add({
         targets: this.messageText,
@@ -759,7 +757,7 @@ export default class GameScene extends Phaser.Scene {
    * Add room code button to the scene.
    */
   addRoomCodeButton() {
-    this.roomCodeButton = this.add.dom(this.camera.width / 4 * 3, 550, 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
+    this.roomCodeButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4), 'button', 'font-size: 16px;', `CLICK TO COPY \n CODE ${this.socket.roomCode.toUpperCase()}`);
     this.roomCodeButton.setClassName('game-button');
     this.roomCodeButton.addListener('click');
 
@@ -767,7 +765,7 @@ export default class GameScene extends Phaser.Scene {
       // Copy room code to the clipboard.
       navigator.clipboard.writeText(this.socket.roomCode);
 
-      this.showMessage('CODE COPIED TO CLIPBOARD');
+      this.showGameMessage('CODE COPIED TO CLIPBOARD');
     });
   }
 
@@ -775,7 +773,7 @@ export default class GameScene extends Phaser.Scene {
    * Add draw card button to the scene.
    */
   addDrawCardButton() {
-    this.drawCardButton = this.add.dom(this.camera.width / 4 * 3, 490, 'button', 'font-size: 16px;', 'DRAW CARD');
+    this.drawCardButton = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4), 'button', 'font-size: 16px;', 'DRAW CARD');
     this.drawCardButton.setClassName('game-button');
     this.drawCardButton.addListener('click');
 
@@ -783,5 +781,19 @@ export default class GameScene extends Phaser.Scene {
       this.socket.emit('draw card');
       this.drawCardButton.destroy();
     });
+  }
+
+  /**
+   * Return the x position of a line for given row.
+   */
+  getGridRowPosition(row, numberOfRows = 4) {
+    return (this.camera.width / numberOfRows) * row;
+  }
+
+  /**
+   * Return the y position of a line for given column.
+   */
+  getGridColumnPosition(column, numberOfColumns = 5) {
+    return (this.camera.height / numberOfColumns) * column;
   }
 }
