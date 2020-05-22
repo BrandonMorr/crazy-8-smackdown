@@ -5,7 +5,7 @@ import PlayerSetupScene from './scenes/PlayerSetupScene';
 
 const config = {
   title:    'Crazy 8 Smackdown',
-  version:  '1.0',
+  version:  '1.1',
   type:     Phaser.AUTO,
   parent:   'game',
   input: {

@@ -1,6 +1,6 @@
 {
   "name": "crazy-8-smackdown",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "One hell of a card game",
   "main": "src/index.js",
   "scripts": {
