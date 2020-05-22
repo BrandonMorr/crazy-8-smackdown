@@ -362,18 +362,20 @@ function onDisconnect() {
       // Grab the player turn so we can check if player disconnected on their
       // turn.
       let playerTurn = rooms[roomCode].playerTurn;
-      
-      // If a player disconnected on their turn, move to the next player in
-      // order.
-      if (rooms[roomCode].playerOrder[playerTurn].id == this.id) {
-        // Grab the next player to play.
-        let player = rooms[roomCode].getNextPlayer();
 
-        // Notify everyone who is now playing.
-        io.in(roomCode).emit('show player turn', player);
+      if (rooms[roomCode].gameStarted) {
+        // If a player disconnected on their turn, move to the next player in
+        // order.
+        if (rooms[roomCode].playerOrder[playerTurn].id == this.id) {
+          // Grab the next player to play.
+          let player = rooms[roomCode].getNextPlayer();
 
-        // Notify the player to start the turn.
-        io.to(player.id).emit('turn start');
+          // Notify everyone who is now playing.
+          io.in(roomCode).emit('show player turn', player);
+
+          // Notify the player to start the turn.
+          io.to(player.id).emit('turn start');
+        }
       }
 
       // Remove player from room's player order array.
