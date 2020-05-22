@@ -801,8 +801,15 @@ export default class GameScene extends Phaser.Scene {
     const player = this.getPlayerByID(playerObj.id);
 
     if (!player.playerMessageText) {
-      player.playerMessageText = this.add.dom(player.x, player.y + 100, 'div', 'font-size: 14px;', message);
+      const yPos = (player.id === this.player.id) ? player.y - 120 : player.y + 100;
+
+      player.playerMessageText = this.add.dom(player.x, yPos, 'div', 'font-size: 14px;', message);
       player.playerMessageText.setClassName('message-player');
+
+      // Play a little sound when a message is received.
+      if (player.id !== this.player.id) {
+        this.sound.play('player_message');
+      }
 
       this.tweens.add({
         targets: player.playerMessageText,

@@ -121,11 +121,8 @@ div {
 .message-player {
   color: #505050;
   background-color: #e6e6e6;
-  padding: 4px;
-  border-radius: 4px;
-  -webkit-box-shadow: 0 4px 0 0 #b0b0b0;
-  -moz-box-shadow: 0 4px 0 0 #b0b0b0;
-  box-shadow: 0 4px 0 0 #b0b0b0;
+  padding: 6px;
+  border-radius: 6px;
 }
 
 /* Countdown message */
