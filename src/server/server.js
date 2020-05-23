@@ -322,17 +322,30 @@ function onDrawCard() {
   // Deal a new card to the player.
   dealCardsToPlayer(this.player);
 
-  // Let everyone know that the player has played a card.
+  // Let everyone know that the player has drawn a card a card.
   this.broadcast.to(roomCode).emit('show card draw', this.player);
 
-  // Grab the next player to play.
-  let player = rooms[roomCode].getNextPlayer();
+  // Grab the card was dealt to the player and the last card in play and check
+  // if the card is playable. If the card is playable, allow the card to be
+  // played. Otherwise, move on to the next player.
+  let cardDealt = this.player.getLastCardInHand();
+  let cardInPlay = rooms[roomCode].deck.getLastPlayCard();
+  let isPlayable = checkCardPlayable(cardDealt, cardInPlay, this.player);
 
-  // Notify everyone who is going to play next.
-  io.in(roomCode).emit('show player turn', player);
+  if (isPlayable) {
+    // Notify the first player to start the turn.
+    io.to(this.player.id).emit('turn start');
+  }
+  else {
+    // Grab the next player to play.
+    let player = rooms[roomCode].getNextPlayer();
 
-  // Notify the first player to start the turn.
-  io.to(player.id).emit('turn start');
+    // Notify everyone who is going to play next.
+    io.in(roomCode).emit('show player turn', player);
+
+    // Let the player start their turn.
+    io.to(player.id).emit('turn start');
+  }
 }
 
 /**
@@ -531,4 +544,21 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
       }
     }
   }
+}
+
+/**
+ * Check to see if a card is playable, otherwise return false.
+ */
+function checkCardPlayable(card, currentCardInPlay, player) {
+  let isPlayable =
+    // Check if card matches the current suit in play.
+    card.suit == currentCardInPlay.suit ||
+    // Check if card matches the current value in play.
+    card.value == currentCardInPlay.value ||
+    // Check if the card is wild (wildcard = countdown score).
+    card.value == player.countdown ||
+    // Check if the countdown is at one (wildcard is ace and 'a' != 1).
+    (player.countdown == 1 && card.value == 'a');
+
+  return isPlayable;
 }

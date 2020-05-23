@@ -45,4 +45,13 @@ export default class Player {
   checkHandEmpty() {
     return this.hand.length === 0;
   }
+
+  /**
+   * Return the last card in the players hand.
+   *
+   * @return {Card} - The last card in the players hand.
+   */
+  getLastCardInHand() {
+    return this.hand[this.hand.length - 1];
+  }
 }

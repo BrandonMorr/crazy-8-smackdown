@@ -92,7 +92,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
   addWinnerText() {
     // Add player's hand count below the countdown score.
-    this.winnerText = this.scene.add.dom(this.x, this.y + 70, 'div', 'font-size: 12px;', 'WINNER');
+    this.winnerText = this.scene.add.dom(this.x, this.y + 60, 'div', 'font-size: 14px;', 'WINNER');
     this.winnerText.setClassName('winner');
   }
 

@@ -149,7 +149,7 @@ export default class GameScene extends Phaser.Scene {
     this.addRoomCodeButton();
 
     // Show a clickable send message button.
-    this.addPlayerMessageButton()
+    this.addPlayerMessageButton();
 
     // Show a message input which allows players to communicate with each
     // other.
@@ -346,6 +346,18 @@ export default class GameScene extends Phaser.Scene {
     }
     else {
       this.showCountdownMessage(`${player.name}'S COUNTDOWN SCORE IS NOW ${player.countdown}`);
+    }
+  }
+
+  /**
+   * When a player has drawn a card that is playable, allow the player to play
+   * the card.
+   */
+  onPlayDrawnCard(cardObj) {
+    for (let card of this.player.hand) {
+      if (card.name === cardObj.name) {
+        this.makeCardInteractive(card);
+      }
     }
   }
 
