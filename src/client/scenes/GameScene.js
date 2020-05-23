@@ -120,6 +120,11 @@ export default class GameScene extends Phaser.Scene {
       player.updateHandCountText(numberOfCards);
     });
 
+    // Allow a player to play a drawn card.
+    this.socket.on('play drawn card', (cardObj) => {
+      this.onPlayDrawnCard(cardObj);
+    })
+
     // End the game, show the winner.
     this.socket.on('game over', (playerObj) => {
       this.onGameOver(playerObj);

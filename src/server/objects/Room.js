@@ -9,6 +9,7 @@ export default class Room {
     this.gameOver = false;
     this.gameStarted = false;
     this.reverseDirection = false;
+    this.cardInPlay = false;
 
     this.playerOrder = [];
     this.playerTurn = 0;

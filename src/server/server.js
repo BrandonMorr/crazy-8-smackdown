@@ -258,10 +258,12 @@ function onCardPlayed(card, wildcardSuit = false) {
 
     // Update the card in play to our wildcard choice.
     io.in(roomCode).emit('update card in play', wildcard);
+    rooms[roomCode].cardInPlay = wildcard;
   }
   else {
     // Update the card in play to the card that was last played.
     io.in(roomCode).emit('update card in play', card);
+    rooms[roomCode].cardInPlay = card;
   }
 
   // Let everyone know that the player has played a card.
@@ -325,16 +327,15 @@ function onDrawCard() {
   // Let everyone know that the player has drawn a card a card.
   this.broadcast.to(roomCode).emit('show card draw', this.player);
 
-  // Grab the card was dealt to the player and the last card in play and check
-  // if the card is playable. If the card is playable, allow the card to be
-  // played. Otherwise, move on to the next player.
+  // Grab the card that was dealt to the player and check to see if last card
+  // in play is playable. If the card is playable, allow the card to be played.
+  // Otherwise, move on to the next player.
   let cardDealt = this.player.getLastCardInHand();
-  let cardInPlay = rooms[roomCode].deck.getLastPlayCard();
-  let isPlayable = checkCardPlayable(cardDealt, cardInPlay, this.player);
+  let isPlayable = checkCardPlayable(cardDealt, rooms[roomCode].cardInPlay, this.player);
 
   if (isPlayable) {
-    // Notify the first player to start the turn.
-    io.to(this.player.id).emit('turn start');
+    // Notify the player they can play the card.
+    io.to(this.player.id).emit('play drawn card', cardDealt);
   }
   else {
     // Grab the next player to play.
