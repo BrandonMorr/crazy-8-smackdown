@@ -454,6 +454,14 @@ export default class GameScene extends Phaser.Scene {
 
     // Check to see if the ready button needs to be hidden.
     this.showReadyButton();
+
+    // If you're the last player standing and the game hasn't finished, you
+    // win by default! Woo
+    if (this.gameStarted && !this.gameOver) {
+      if (this.players.length === 1) {
+        this.onGameOver(this.player);
+      }
+    }
   }
 
   /**
