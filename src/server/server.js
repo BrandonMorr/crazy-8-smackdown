@@ -51,6 +51,7 @@ function setServerHandlers() {
     socket.on('card played', onCardPlayed);
     socket.on('draw card', onDrawCard);
     socket.on('player message', onPlayerMessage);
+    socket.on('player quit', onPlayerQuit);
     socket.on('disconnect', onDisconnect);
   });
 }
@@ -344,6 +345,15 @@ function onPlayerMessage(message) {
 }
 
 /**
+ * When a player quits, notify everyone else in the room.
+ */
+function onPlayerQuit() {
+  const player = this.player;
+
+  this.broadcast.to(player.roomCode).emit('player quit', player);
+}
+
+/**
  * Handle user disconnection, notify others who left.
  */
 function onDisconnect() {
@@ -360,7 +370,7 @@ function onDisconnect() {
       }
 
       // Tell everyone the player has disconnected.
-      io.in(roomCode).emit('player quit', this.player);
+      io.in(roomCode).emit('player disconnect', this.player);
 
       // Put the player's hand back in the play pile so that cards go back into
       // circulation.

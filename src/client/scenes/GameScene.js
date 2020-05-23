@@ -135,9 +135,14 @@ export default class GameScene extends Phaser.Scene {
       this.showPlayerMessage(message, playerObj);
     });
 
-    // Handle removing a player who has disconnected.
+    // Handle removing a player who has quit.
     this.socket.on('player quit', (playerObj) => {
       this.onPlayerQuit(playerObj);
+    });
+
+    // Handle removing a player who has disconnected.
+    this.socket.on('player disconnect', (playerObj) => {
+      this.onPlayerDisconnect(playerObj);
     });
 
     // Show a clickable room code button.
@@ -396,14 +401,23 @@ export default class GameScene extends Phaser.Scene {
     this.returnToMenuButton.addListener('click');
 
     this.returnToMenuButton.on('click', () => {
+      this.socket.emit('player quit');
       this.scene.start('MainMenuScene');
     });
   }
 
   /**
-   * Handle removing a player who has disconnected from the room.
+   * Handle removing a player who has quit after the game is over.
    */
   onPlayerQuit(playerObj) {
+    // Remove the player from the scene.
+    this.getPlayerByID(playerObj.id).removeAll();
+  }
+
+  /**
+   * Handle removing a player who has disconnected from the game.
+   */
+  onPlayerDisconnect(playerObj) {
     // Remove the player from the scene.
     this.getPlayerByID(playerObj.id).removeAll();
 
