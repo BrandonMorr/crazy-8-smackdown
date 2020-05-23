@@ -51,7 +51,7 @@ div {
   animation: whacky-colors-border 3s infinite;
 }
 
-/* Name tag */
+/* Name text */
 .name {
   color: white;
   background-color: #ff88dc;
@@ -60,6 +60,17 @@ div {
   -webkit-box-shadow: 0 4px 0 0 #d06eb3;
   -moz-box-shadow: 0 4px 0 0 #d06eb3;
   box-shadow: 0 4px 0 0 #d06eb3;
+}
+
+/* Winner text */
+.winner {
+  color: white;
+  background-color: #ffe45e;
+  padding: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 4px 0 0 #eed557;
+  -moz-box-shadow: 0 4px 0 0 #eed557;
+  box-shadow: 0 4px 0 0 #eed557;
 }
 
 /* Connection status */

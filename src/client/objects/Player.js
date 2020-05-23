@@ -48,7 +48,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Add text to show player is ready to smack down.
    */
-  showReady() {
+  addReadyText() {
     this.ready = true;
 
     this.readyText = this.scene.add.dom(this.x, this.y - 90, 'div', 'font-size: 14px;', 'READY');
@@ -58,7 +58,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Remove ready text to show player is unready to smack down.
    */
-  showUnready() {
+  removeReadyText() {
     this.ready = false;
 
     this.readyText.destroy();
@@ -67,7 +67,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Add text to show player is ready smack down.
    */
-  showTurn() {
+  addTurnText() {
     this.turnText = this.scene.add.dom(this.x, this.y - 90, 'div', 'font-size: 14px;', 'MAKING TURN');
     this.turnText.setClassName('status');
   }
@@ -75,7 +75,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Add text to show player's countdown score.
    */
-  showCountdown() {
+  addCountdownText() {
     // Add player's countdown score below the players avatar.
     this.countdownText = this.scene.add.dom(this.x, this.y + 55, 'div', 'font-size: 12px;', `COUNTDOWN: ${this.countdown}`);
     this.countdownText.setClassName('countdown');
@@ -84,16 +84,22 @@ export default class Player extends Phaser.GameObjects.Sprite {
   /**
    * Add text to show how many cards are in a player's hand.
    */
-  showHandCount() {
+  addHandCountText() {
     // Add player's hand count below the countdown score.
     this.handCountText = this.scene.add.dom(this.x, this.y + 70, 'div', 'font-size: 12px;', `CARDS: ${this.hand.length}`);
     this.handCountText.setClassName('hand-count');
   }
 
+  addWinnerText() {
+    // Add player's hand count below the countdown score.
+    this.winnerText = this.scene.add.dom(this.x, this.y + 70, 'div', 'font-size: 12px;', 'WINNER');
+    this.winnerText.setClassName('winner');
+  }
+
   /**
    * Update player's countdown text to reflect current countdown score.
    */
-  updateCountdown() {
+  updateCountdownText() {
     this.countdown--;
     this.countdownText.setText(`COUNTDOWN: ${this.countdown}`);
   }
@@ -103,7 +109,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    *
    * @param {number} numberOfCards - number of cards left in a player's hand.
    */
-  updateHandCount(numberOfCards) {
+  updateHandCountText(numberOfCards) {
     this.handCountText.setText(`CARDS: ${numberOfCards}`);
   }
 
@@ -141,14 +147,38 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
+   * Remove all the cards from a players hand.
+   */
+  removeHand() {
+    for (let card of this.hand) {
+      card.destroy();
+    }
+  }
+
+  /**
+   * Remove game related text elements.
+   */
+  removeGameText() {
+    if (this.countdownText) {
+      this.countdownText.destroy();
+    }
+    if (this.handCountText) {
+      this.handCountText.destroy();
+    }
+    if (this.turnText) {
+      this.turnText.destroy();
+    }
+  }
+
+  /**
    * Remove all player stuff from scene.
    */
-  remove() {
+  removeAll() {
     for (let textObj of this.getPlayerTextObjects()) {
       textObj.destroy();
     }
 
-    if (this.hand.length > 0) {
+    if (this.hand.length !== 0) {
       for (let card of this.hand) {
         card.destroy();
       }

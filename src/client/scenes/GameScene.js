@@ -63,7 +63,7 @@ export default class GameScene extends Phaser.Scene {
     // Show that a player is ready.
     this.socket.on('show player ready', (playerObj) => {
       let player = this.getPlayerByID(playerObj.id);
-      player.showReady();
+      player.addReadyText();
     });
 
     // Show when a player plays a card.
@@ -117,7 +117,7 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('update hand count', (playerObj, numberOfCards) => {
       let player = this.getPlayerByID(playerObj.id);
 
-      player.updateHandCount(numberOfCards);
+      player.updateHandCountText(numberOfCards);
     });
 
     // End the game, show the winner.
@@ -187,7 +187,7 @@ export default class GameScene extends Phaser.Scene {
 
         // Check to see if the player is ready.
         if (playerObj.ready) {
-          player.showReady();
+          player.addReadyText();
         }
       }
     }
@@ -257,14 +257,14 @@ export default class GameScene extends Phaser.Scene {
 
     if (this.player.id === playerObj.id) {
       // It's your turn!
-      this.player.showTurn();
+      this.player.addTurnText();
       this.yourTurn = true;
     }
     else {
       // It's someone elses turn!
       let player = this.getPlayerByID(playerObj.id);
 
-      player.showTurn();
+      player.addTurnText();
       this.yourTurn = false;
     }
   }
@@ -307,8 +307,8 @@ export default class GameScene extends Phaser.Scene {
     // Remove the 'READY' text on each player.
     for (let player of this.players) {
       player.readyText.destroy();
-      player.showCountdown();
-      player.showHandCount();
+      player.addCountdownText();
+      player.addHandCountText();
     }
 
     this.deck.addDrawPileCard(this);
@@ -333,7 +333,7 @@ export default class GameScene extends Phaser.Scene {
    */
   onUpdateCountdownScore(playerObj) {
     let player = this.getPlayerByID(playerObj.id);
-    player.updateCountdown();
+    player.updateCountdownText();
 
     // Show a notification that a player's score has gone down.
     if (player.id === this.player.id) {
@@ -349,19 +349,27 @@ export default class GameScene extends Phaser.Scene {
    */
   onGameOver(playerObj) {
     // Remove all the players from the screen.
+    this.player.removeHand();
+
     for (let player of this.players) {
-      player.remove();
+      player.removeGameText();
+
+      if (playerObj.id === player.id) {
+        player.addWinnerText();
+      }
     }
 
     // Remove the played cards from the scene.
     this.deck.remove();
 
     // Remove any UI elements from the scene.
-    this.roomCodeButton.destroy();
+    if (this.drawCardButton) {
+      this.drawCardButton.destroy();
+    }
 
     // Remove any messages from the scene.
-    if (this.messageText) {
-      this.messageText.destroy();
+    if (this.gameMessageText) {
+      this.gameMessageText.destroy();
     }
     if (this.countdownMessageText) {
       this.countdownMessageText.destroy();
@@ -379,7 +387,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Notify whether the player won, or lost.
-    this.gameOverText = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'div', 'font-size: 30px;', gameOverMessage);
+    this.gameOverText = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'div', 'font-size: 28px;', gameOverMessage);
     this.gameOverText.setClassName('game-over');
 
     // Show a button that brings the player back to the main menu scene.
@@ -397,7 +405,7 @@ export default class GameScene extends Phaser.Scene {
    */
   onPlayerQuit(playerObj) {
     // Remove the player from the scene.
-    this.getPlayerByID(playerObj.id).remove();
+    this.getPlayerByID(playerObj.id).removeAll();
 
     // Remove player from players array.
     this.players = this.players.filter((player) => player.id !== playerObj.id);
@@ -406,7 +414,7 @@ export default class GameScene extends Phaser.Scene {
     // leaves the room.
     for (let player of this.players) {
       if (player.ready) {
-        player.showUnready();
+        player.removeReadyText();
       }
     }
 
@@ -673,7 +681,7 @@ export default class GameScene extends Phaser.Scene {
 
           this.readyButton.on('click', () => {
            this.socket.emit('player ready');
-           this.player.showReady();
+           this.player.addReadyText();
            this.readyButton.destroy();
            this.readyButton = false;
           });
@@ -730,7 +738,7 @@ export default class GameScene extends Phaser.Scene {
     if (!this.playerMessageInput) {
       this.playerMessageInput = this.add.dom(this.camera.centerX, this.getGridColumnPosition(4), 'input');
       this.playerMessageInput.setClassName('player-message-input');
-      this.playerMessageInput.node.maxLength = 36;
+      this.playerMessageInput.node.maxLength = 52;
       this.playerMessageInput.node.placeholder = 'SAY SOMETHING...';
       this.playerMessageInput.setInteractive();
 
@@ -753,19 +761,19 @@ export default class GameScene extends Phaser.Scene {
    */
   showGameMessage(message) {
     // Only display one message at a time.
-    if (!this.messageText) {
-      this.messageText = this.add.dom(this.camera.centerX, this.camera.centerY + 100, 'div', 'font-size: 16px;', message);
-      this.messageText.setClassName('message-game');
+    if (!this.gameMessageText) {
+      this.gameMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 100, 'div', 'font-size: 16px;', message);
+      this.gameMessageText.setClassName('message-game');
 
       this.tweens.add({
-        targets: this.messageText,
+        targets: this.gameMessageText,
         delay: 2000,
         alpha: 0,
         ease: 'Linear',
         duration: 400,
         onComplete: () => {
-          this.messageText.destroy();
-          this.messageText = false;
+          this.gameMessageText.destroy();
+          this.gameMessageText = false;
         }
       });
     }
