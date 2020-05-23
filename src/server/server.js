@@ -266,8 +266,9 @@ function onCardPlayed(card, wildcardSuit = false) {
   // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player, card);
 
-  // If a king was played, we need to reverse the direction of play.
-  if (card.value === 'k') {
+  // If a king was played, reverse the direction of play if there are more
+  // than 2 players in the game.
+  if (rooms[roomCode].playerOrder.length > 2 && card.value === 'k') {
     rooms[roomCode].reverseDirection = (rooms[roomCode].reverseDirection) ? false : true;
 
     // Tell the client that they have reversed the direction.
