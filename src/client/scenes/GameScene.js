@@ -877,7 +877,7 @@ export default class GameScene extends Phaser.Scene {
   showCountdownMessage(message) {
     // Only display one message at a time.
     if (!this.countdownMessageText) {
-      this.countdownMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 50, 'div', 'font-size: 16px;', message);
+      this.countdownMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 60, 'div', 'font-size: 16px;', message);
       this.countdownMessageText.setClassName('message-countdown');
 
       this.tweens.add({
