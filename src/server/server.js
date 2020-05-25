@@ -253,9 +253,6 @@ function onCardPlayed(card, wildcardSuit = false) {
       suit: wildcardSuit
     }
 
-    // Notfiy all players that the suit has changed.
-    io.in(roomCode).emit('game message', `THE SUIT HAS CHANGED TO ${wildcardSuit.toUpperCase()}`);
-
     // Update the card in play to our wildcard choice.
     io.in(roomCode).emit('update card in play', wildcard);
     rooms[roomCode].cardInPlay = wildcard;

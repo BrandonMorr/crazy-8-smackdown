@@ -53,7 +53,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(this.camera.centerX, this.getGridColumnPosition(3, 12), 'div', 'font-size: 27px', 'CRAZY 8 SMACKDOWN');
+    let titleText = this.add.dom(this.camera.centerX, this.camera.centerY - 200, 'div', 'font-size: 27px', 'CRAZY 8 SMACKDOWN');
     titleText.setClassName('title-menu');
   }
 
@@ -69,10 +69,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a player name input and label to the scene.
    */
   addNameInput() {
-    let nameLabel = this.add.dom(this.camera.centerX - 130, this.getGridColumnPosition(5, 12) - 10 - 35, 'div', 'font-size: 18px;', 'NAME');
+    let nameLabel = this.add.dom(this.camera.centerX - 130, this.camera.centerY - 100 - 35, 'div', 'font-size: 18px;', 'NAME');
     nameLabel.setClassName('label');
 
-    let nameInput = this.add.dom(this.camera.centerX, this.getGridColumnPosition(5, 12) - 10, 'input');
+    let nameInput = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'input');
     nameInput.setClassName('name-input');
     nameInput.node.maxLength = 12;
     nameInput.node.placeholder = 'ENTER YOUR NAME';
@@ -83,10 +83,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a room code input and label to the scene.
    */
   addRoomCodeInput() {
-    let roomCodeLabel = this.add.dom(this.camera.centerX - 100, this.getGridColumnPosition(6, 12) - 35, 'div', 'font-size: 18px;', 'ROOM CODE');
+    let roomCodeLabel = this.add.dom(this.camera.centerX - 100, this.camera.centerY - 20 - 35, 'div', 'font-size: 18px;', 'ROOM CODE');
     roomCodeLabel.setClassName('label');
 
-    let roomCodeInput = this.add.dom(this.camera.centerX, this.getGridColumnPosition(6, 12), 'input');
+    let roomCodeInput = this.add.dom(this.camera.centerX, this.camera.centerY - 20, 'input');
     roomCodeInput.setClassName('room-code-input');
     roomCodeInput.node.maxLength = 4;
     roomCodeInput.node.placeholder = 'ENTER 4 CHARACTER CODE';
@@ -97,7 +97,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.dom(this.camera.centerX - 85, this.getGridColumnPosition(7, 12), 'button', 'font-size: 16px;', 'CREATE GAME');
+    let createGameButton = this.add.dom(this.camera.centerX - 85, this.camera.centerY + 40, 'button', 'font-size: 16px;', 'CREATE GAME');
     createGameButton.setClassName('menu-button');
     createGameButton.addListener('click');
 
@@ -138,7 +138,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
   addJoinButton() {
-    let joinButton = this.add.dom(this.camera.centerX + 85, this.getGridColumnPosition(7, 12), 'button', 'font-size: 16px;', 'JOIN');
+    let joinButton = this.add.dom(this.camera.centerX + 85, this.camera.centerY + 40, 'button', 'font-size: 16px;', 'JOIN');
     joinButton.setClassName('menu-button');
     joinButton.addListener('click');
 

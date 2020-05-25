@@ -128,6 +128,25 @@ div {
   box-shadow: 0 4px 0 0 #824D9F;
 }
 
+/* Game message */
+.message-shuffle {
+  color: white;
+  background-color: #3185FC;
+  padding: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 4px 0 0 #2161bb;
+  -moz-box-shadow: 0 4px 0 0 #2161bb;
+  box-shadow: 0 4px 0 0 #2161bb;
+}
+
+/* Game message */
+.message-wildcard {
+  color: white;
+  padding: 6px;
+  border-radius: 6px;
+  animation: whacky-colors-button 3s infinite;
+}
+
 /* Player message */
 .message-player {
   color: #505050;
@@ -199,11 +218,6 @@ div {
   border-radius: 4px;
   border-right: none;
   border-left: none;
-  background-color: #aaaaaa;
-  border-color: #aaaaaa;
-  -webkit-box-shadow: 0 4px 0 0 #797979;
-  -moz-box-shadow: 0 4px 0 0 #797979;
-  box-shadow: 0 4px 0 0 #797979;
   animation: whacky-colors-button 3s infinite;
 }
 
@@ -243,7 +257,6 @@ div {
   -webkit-box-shadow: 0 4px 0 0 #9b9b9b;
   -moz-box-shadow: 0 4px 0 0 #9b9b9b;
   box-shadow: 0 4px 0 0 #9b9b9b;
-
 }
 
 /* Tumblr-level color animation... lovely */

@@ -124,7 +124,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
     for (let i = 0; i <= colors.length - 1; i++) {
       // CSS style string.
       let styleString = `background-color: ${colorHexs[i]}; border-color: ${colorHexs[i]};`;
-      let colorButton = this.add.dom(this.camera.centerX + 300, this.getGridColumnPosition(1) + 65 + offset, 'button', styleString);
+      let colorButton = this.add.dom(this.camera.centerX + 300, this.camera.centerY - 180 + offset, 'button', styleString);
       colorButton.setClassName('color-button');
       colorButton.addListener('click');
 
@@ -141,7 +141,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(this.camera.centerX, this.getGridColumnPosition(1), 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
+    let titleText = this.add.dom(this.camera.centerX, this.camera.centerY - 250, 'div', 'font-size: 28px', 'DRAW YOUR AVATAR');
     titleText.setClassName('title-setup');
   }
 
@@ -149,7 +149,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add a play button to the scene.
    */
   addPlayButton() {
-    let playButton = this.add.dom(this.camera.centerX, this.getGridColumnPosition(4), 'button', 'font-size: 16px;', 'SAVE & PLAY');
+    let playButton = this.add.dom(this.camera.centerX, this.camera.centerY + 250, 'button', 'font-size: 16px;', 'SAVE & PLAY');
     playButton.setClassName('game-button');
     playButton.addListener('click');
 
@@ -166,7 +166,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * Add a clear button to the scene which just resets the MFing scene.
    */
   addClearButton() {
-    let clearButton = this.add.dom(this.camera.centerX + 300, this.getGridColumnPosition(4), 'button', 'font-size: 16px; width: 82px', 'CLEAR');
+    let clearButton = this.add.dom(this.camera.centerX + 300, this.camera.centerY + 250, 'button', 'font-size: 16px; width: 82px', 'CLEAR');
     clearButton.setClassName('game-button');
     clearButton.addListener('click');
 

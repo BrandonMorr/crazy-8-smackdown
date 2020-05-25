@@ -95,7 +95,7 @@ export default class GameScene extends Phaser.Scene {
     this.socket.on('shuffle deck', () => {
       this.deck.shuffle(this);
 
-      this.showGameMessage('THE DECK HAS BEEN SHUFFLED');
+      this.showShuffleMessage();
     });
 
     // Tween cards to the player.
@@ -333,6 +333,12 @@ export default class GameScene extends Phaser.Scene {
     if (!this.currentCardInPlay) {
       let card = new Card(this, this.camera.centerX, this.camera.centerY, cardObj.suit, cardObj.value, cardObj.name);
       this.deck.addCardToPlayPile(card);
+    }
+
+    // If the card has no value, this means it's a wildcard, show a
+    // notification to the player.
+    if (!cardObj.value) {
+      this.showWildcardMessage(cardObj.suit);
     }
 
     this.currentCardInPlay = cardObj;
@@ -819,6 +825,53 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Show a message when the deck has been shuffled.
+   */
+  showShuffleMessage() {
+    // Only display one message at a time...even though it probably woundn't
+    // matter.
+    if (!this.shuffleMessageText) {
+      this.shuffleMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 110, 'div', 'font-size: 16px;', 'THE DECK HAS BEEN SHUFFLED');
+      this.shuffleMessageText.setClassName('message-shuffle');
+
+      this.tweens.add({
+        targets: this.shuffleMessageText,
+        delay: 2000,
+        alpha: 0,
+        ease: 'Linear',
+        duration: 400,
+        onComplete: () => {
+          this.shuffleMessageText.destroy();
+          this.shuffleMessageText = false;
+        }
+      });
+    }
+  }
+
+  /**
+   * Show a message when the suit has changed due to a wild card.
+   */
+  showWildcardMessage(suit) {
+    // Only display one message at a time.
+    if (!this.wildcardMessageText) {
+      this.wildcardMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 110, 'div', 'font-size: 16px;', `THE SUIT HAS CHANGED TO ${suit.toUpperCase()}`);
+      this.wildcardMessageText.setClassName('message-wildcard');
+
+      this.tweens.add({
+        targets: this.wildcardMessageText,
+        delay: 5000,
+        alpha: 0,
+        ease: 'Linear',
+        duration: 400,
+        onComplete: () => {
+          this.wildcardMessageText.destroy();
+          this.wildcardMessageText = false;
+        }
+      });
+    }
+  }
+
+  /**
    * Show a message when a player's countdown score has updated.
    */
   showCountdownMessage(message) {
@@ -897,7 +950,20 @@ export default class GameScene extends Phaser.Scene {
       // Copy room code to the clipboard.
       navigator.clipboard.writeText(this.socket.roomCode);
 
-      this.showGameMessage('CODE COPIED TO CLIPBOARD');
+      this.codeCopiedText = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4) + 85, 'div', 'font-size: 16px;', 'CODE COPIED');
+      this.codeCopiedText.setClassName('status');
+
+      this.tweens.add({
+        targets: this.codeCopiedText,
+        delay: 2000,
+        alpha: 0,
+        ease: 'Linear',
+        duration: 400,
+        onComplete: () => {
+          this.codeCopiedText.destroy();
+          this.codeCopiedText = false;
+        }
+      });
     });
   }
 
