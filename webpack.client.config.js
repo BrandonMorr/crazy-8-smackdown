@@ -34,21 +34,14 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: [ nodeModules, server ],
-        use: {
-          loader: 'babel-loader'
-        }
+        use: 'babel-loader',
+        exclude: [ nodeModules, server ]
       },
       {
         test: /\.(png|jpg|gif|ico|svg|pvr|pkm|static|ogg|mp3|wav)$/,
-        exclude: [ nodeModules, server ],
-        use: [ 'file-loader' ]
+        use: 'file-loader',
+        exclude: [ nodeModules, server ]
       },
     ]
-  },
-  node: {
-    fs: 'empty',
-    net: 'empty',
-    tls: 'empty'
   }
 };

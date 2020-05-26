@@ -28,7 +28,7 @@ app.use('/public', Express.static(Path.join(__dirname, '../public')));
 
 // Request router.
 app.get('/', function(request, response) {
-   response.sendFile(Path.join(__dirname, '../public/index.html'));
+  response.sendFile(Path.join(__dirname, '../public/index.html'));
 })
 
 // Tell server to start listening for connections.
