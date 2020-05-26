@@ -16,19 +16,12 @@ module.exports = {
   devtool: 'inline-source-map',
   plugins: [ definePlugin ],
   entry: {
-    app: [ client ],
-    vendor: [ 'phaser' ]
+    app: client
   },
   output: {
     path: path.join(www, 'js'),
     filename: 'bundle.js',
     publicPath: '/'
-  },
-  optimization: {
-    splitChunks: {
-      name: 'vendor',
-      chunks: 'all'
-    }
   },
   module: {
     rules: [
