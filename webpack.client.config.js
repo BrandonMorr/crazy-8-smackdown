@@ -23,6 +23,12 @@ module.exports = {
     filename: 'bundle.js',
     publicPath: '/'
   },
+  optimization: {
+    splitChunks: {
+      name: 'vendor',
+      chunks: 'all'
+    }
+  },
   module: {
     rules: [
       {
