@@ -10,13 +10,10 @@ module.exports = {
   node: {
     __dirname: false
   },
-  entry: './src/server/server.js',
+  entry: path.join(__dirname, 'src/server/server.js'),
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'server.bundle.js'
-  },
-  resolve: {
-    extensions: [ '.js' ]
   },
   plugins: [
     new NodemonPlugin(),
