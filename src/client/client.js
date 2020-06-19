@@ -8,12 +8,6 @@ const config = {
   version:  '1.1',
   type:     Phaser.AUTO,
   parent:   'game',
-  input: {
-    keyboard: true,
-    mouse:    true,
-    touch:    true,
-    gamepad:  false,
-  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

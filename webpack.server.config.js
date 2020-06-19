@@ -5,7 +5,6 @@ const NodemonPlugin = require('nodemon-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  devtool: 'inline-source-map',
   target: 'node',
   node: {
     __dirname: false

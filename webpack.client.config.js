@@ -31,7 +31,7 @@ module.exports = {
         test: /\.(png|jpg|gif|ico|svg|pvr|pkm|static|ogg|mp3|wav)$/,
         exclude: [ nodeModules, server ],
         use: [ 'file-loader' ]
-      },
+      }
     ]
   }
 };
