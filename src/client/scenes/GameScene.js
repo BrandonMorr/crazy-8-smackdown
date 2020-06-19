@@ -115,7 +115,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Update a player's hand count.
     this.socket.on('update hand count', (playerObj, numberOfCards) => {
-      let player = this.getPlayerByID(playerObj.id);
+      const player = this.getPlayerByID(playerObj.id);
 
       player.updateHandCountText(numberOfCards);
     });
@@ -171,7 +171,7 @@ export default class GameScene extends Phaser.Scene {
    * When a player connects to the room, add them to the game client.
    */
   onNewPlayer(playerObj) {
-    let player = new Player(this, this.getPlayerStartingX(), this.getGridColumnPosition(1), playerObj.id, playerObj.name, playerObj.textureMap);
+    const player = new Player(this, this.getPlayerStartingX(), this.getGridColumnPosition(1), playerObj.id, playerObj.name, playerObj.textureMap);
     this.players.push(player);
 
     this.drawPlayerAvatar(player);
@@ -187,7 +187,7 @@ export default class GameScene extends Phaser.Scene {
     for (let playerObj of playerObjs) {
       // We only want to add other players.
       if (playerObj.id !== this.player.id) {
-        let player = new Player(this, this.getPlayerStartingX(), this.getGridColumnPosition(1), playerObj.id, playerObj.name, playerObj.textureMap);
+        const player = new Player(this, this.getPlayerStartingX(), this.getGridColumnPosition(1), playerObj.id, playerObj.name, playerObj.textureMap);
 
         // Add the player to the players array.
         this.players.push(player);
@@ -210,8 +210,8 @@ export default class GameScene extends Phaser.Scene {
    * Show that a player has played a card.
    */
   onShowCardPlayed(playerObj, cardObj) {
-    let player = this.getPlayerByID(playerObj.id);
-    let card = new Card(this, player.x, player.y, cardObj.suit, cardObj.value, cardObj.name);
+    const player = this.getPlayerByID(playerObj.id);
+    const card = new Card(this, player.x, player.y, cardObj.suit, cardObj.value, cardObj.name);
 
     // Add the card to the play pile.
     this.deck.addCardToPlayPile(card);
@@ -236,9 +236,9 @@ export default class GameScene extends Phaser.Scene {
    * Show that a player has drawn a card (in the event they could not play).
    */
   onShowCardDraw(playerObj) {
-    let player = this.getPlayerByID(playerObj.id);
+    const player = this.getPlayerByID(playerObj.id);
     // Create an arbitrary card.
-    let card = new Card(this, this.camera.centerX, this.camera.centerY, 'spades', 'a', 'a of spades');
+    const card = new Card(this, this.camera.centerX, this.camera.centerY, 'spades', 'a', 'a of spades');
 
     // Load the back of the card.
     card.faceDown();
@@ -272,7 +272,7 @@ export default class GameScene extends Phaser.Scene {
     }
     else {
       // It's someone elses turn!
-      let player = this.getPlayerByID(playerObj.id);
+      const player = this.getPlayerByID(playerObj.id);
 
       player.addTurnText();
       this.yourTurn = false;
@@ -290,7 +290,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Check for playable cards.
     for (let card of this.player.hand) {
-      let isPlayable = this.checkCardPlayable(card);
+      const isPlayable = this.checkCardPlayable(card);
 
       // If the card is playable, make it interactive.
       if (isPlayable) {
@@ -331,7 +331,7 @@ export default class GameScene extends Phaser.Scene {
     // If a card in play hasn't been set, we need to add the first one to the
     // scene.
     if (!this.currentCardInPlay) {
-      let card = new Card(this, this.camera.centerX, this.camera.centerY, cardObj.suit, cardObj.value, cardObj.name);
+      const card = new Card(this, this.camera.centerX, this.camera.centerY, cardObj.suit, cardObj.value, cardObj.name);
       this.deck.addCardToPlayPile(card);
     }
 
@@ -348,7 +348,7 @@ export default class GameScene extends Phaser.Scene {
    * Update a players countdown score, notify client.
    */
   onUpdateCountdownScore(playerObj) {
-    let player = this.getPlayerByID(playerObj.id);
+    const player = this.getPlayerByID(playerObj.id);
     player.updateCountdownText();
 
     // Show a notification that a player's score has gone down.
@@ -401,6 +401,12 @@ export default class GameScene extends Phaser.Scene {
     }
     if (this.countdownMessageText) {
       this.countdownMessageText.destroy();
+    }
+    if (this.shuffleMessageText) {
+      this.shuffleMessageText.destroy();
+    }
+    if (this.wildcardMessageText) {
+      this.wildcardMessageText.destroy();
     }
 
     let gameOverMessage;
@@ -474,7 +480,7 @@ export default class GameScene extends Phaser.Scene {
    * Tween the card(s) to the player's hand.
    */
   dealCardToPlayer(card) {
-    let cardToTween = new Card(this, this.camera.centerX - 100, this.camera.centerY, card.suit, card.value, card.name);
+    const cardToTween = new Card(this, this.camera.centerX - 100, this.camera.centerY, card.suit, card.value, card.name);
 
     // Add the card to the player's hand.
     this.player.addCardToHand(cardToTween);
@@ -575,9 +581,9 @@ export default class GameScene extends Phaser.Scene {
    * Draw a player's avatar using the player's texture map.
    */
   drawPlayerAvatar(playerObj) {
-    let brush = this.textures.getFrame('brush');
-    let textureKey = `avatar_${playerObj.id}`;
-    let renderTexture = this.add.renderTexture(0, 0, 400, 400);
+    const brush = this.textures.getFrame('brush');
+    const textureKey = `avatar_${playerObj.id}`;
+    const renderTexture = this.add.renderTexture(0, 0, 400, 400);
 
     // Hide the render texture from the scene.
     renderTexture.setVisible(false);
@@ -632,11 +638,11 @@ export default class GameScene extends Phaser.Scene {
    * Update the position of every card so that they're sorted evenly & visible.
    */
   moveCardsInHand() {
-    let hand = this.player.hand;
-    let handSize = this.player.hand.length;
+    const hand = this.player.hand;
+    const handSize = this.player.hand.length;
 
     // If the hand is bigger than 8 cards, we should reduce the offset in half.
-    let offset = (handSize <= 8) ? 50 : 25;
+    const offset = (handSize <= 8) ? 50 : 25;
 
     // Start X represents where the first card in the hand should go, every
     // card after that will be offset by 50 (or less).
@@ -650,7 +656,7 @@ export default class GameScene extends Phaser.Scene {
       // of cards that could be drawn from the middle point of the screen.
       // Multiply the number of cards by the offset (in px.) and you get
       // starting x position (I don't actually know why this works ^_^).
-      let distanceFromMiddle = Math.floor(handSize / 2) * offset;
+      const distanceFromMiddle = Math.floor(handSize / 2) * offset;
       startX = this.camera.centerX - distanceFromMiddle;
     }
     // If there is an even number of cards, the starting position is slightly
@@ -658,7 +664,7 @@ export default class GameScene extends Phaser.Scene {
     else {
       // Same craziness as before, but this time we need to reduce the floored
       // value by one (again, not sure why this works but it totally does).
-      let distanceFromMiddle = Math.floor(handSize / 2 - 1) * offset;
+      const distanceFromMiddle = Math.floor(handSize / 2 - 1) * offset;
       startX = (this.camera.centerX - 25) - distanceFromMiddle;
     }
 
@@ -689,7 +695,7 @@ export default class GameScene extends Phaser.Scene {
    * Check to see if a card is playable, otherwise return false.
    */
   checkCardPlayable(card) {
-    let isPlayable =
+    const isPlayable =
       // Check if card matches the current suit in play.
       card.suit == this.currentCardInPlay.suit ||
       // Check if card matches the current value in play.
@@ -807,7 +813,7 @@ export default class GameScene extends Phaser.Scene {
   showGameMessage(message) {
     // Only display one message at a time.
     if (!this.gameMessageText) {
-      this.gameMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 100, 'div', 'font-size: 16px;', message);
+      this.gameMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 120, 'div', 'font-size: 16px;', message);
       this.gameMessageText.setClassName('message-game');
 
       this.tweens.add({
@@ -831,7 +837,7 @@ export default class GameScene extends Phaser.Scene {
     // Only display one message at a time...even though it probably woundn't
     // matter.
     if (!this.shuffleMessageText) {
-      this.shuffleMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'div', 'font-size: 16px;', 'THE DECK HAS BEEN SHUFFLED');
+      this.shuffleMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 80, 'div', 'font-size: 16px;', 'THE DECK HAS BEEN SHUFFLED');
       this.shuffleMessageText.setClassName('message-shuffle');
 
       this.tweens.add({
@@ -854,7 +860,7 @@ export default class GameScene extends Phaser.Scene {
   showCountdownMessage(message) {
     // Only display one message at a time.
     if (!this.countdownMessageText) {
-      this.countdownMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 60, 'div', 'font-size: 16px;', message);
+      this.countdownMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 80, 'div', 'font-size: 16px;', message);
       this.countdownMessageText.setClassName('message-countdown');
 
       this.tweens.add({
@@ -877,7 +883,7 @@ export default class GameScene extends Phaser.Scene {
   showWildcardMessage(suit) {
     // Only display one message at a time.
     if (!this.wildcardMessageText) {
-      this.wildcardMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 60, 'div', 'font-size: 16px;', `THE SUIT HAS CHANGED TO ${suit.toUpperCase()}`);
+      this.wildcardMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 120, 'div', 'font-size: 16px;', `THE SUIT HAS CHANGED TO ${suit.toUpperCase()}`);
       this.wildcardMessageText.setClassName('message-wildcard');
 
       this.tweens.add({
@@ -886,7 +892,7 @@ export default class GameScene extends Phaser.Scene {
         alpha: 0,
         ease: 'Linear',
         duration: 400,
-        onComplete: () => {
+        onCompconste: () => {
           this.wildcardMessageText.destroy();
           this.wildcardMessageText = false;
         }

@@ -32,7 +32,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * @param {Deck} deck - The deck that contains the pile of cards to add to.
    */
   removeCardFromHand(card, deck) {
-    let cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
+    const cardToRemove = this.hand.splice(this.hand.indexOf(card), 1);
     deck.addCardToPlayPile(cardToRemove[0]);
   }
 
@@ -119,7 +119,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * @return {Phaser.DomElement[]} - Player UI elements.
    */
   getPlayerTextObjects() {
-    let textObjects = [];
+    const textObjects = [];
 
     Object.keys(this).forEach((property) => {
       if (property.includes('Text')) {
@@ -137,7 +137,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    */
   getTweenTargets() {
     // Add the player reference to the targets list.
-    let targets = [ this ];
+    const targets = [ this ];
 
     for (let textObj of this.getPlayerTextObjects()) {
       targets.push(textObj);
@@ -193,7 +193,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    * @return {string} - A JSON representation of the card object.
    */
   toJSON() {
-    let player = {
+    const player = {
       id: this.id,
       name: this.name,
       textureMap: this.textureMap

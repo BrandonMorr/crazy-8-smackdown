@@ -40,7 +40,7 @@ export default class Card extends Phaser.GameObjects.Sprite {
    * @return {string} - A JSON representation of the card object.
    */
   toJSON() {
-    let card = {
+    const card = {
       suit: this.suit,
       value: this.value,
       name: this.name

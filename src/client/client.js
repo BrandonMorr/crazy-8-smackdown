@@ -8,6 +8,7 @@ const config = {
   version:  '1.1',
   type:     Phaser.AUTO,
   parent:   'game',
+  backgroundColor: '#F5F5F5',
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -18,7 +19,6 @@ const config = {
     pixelArt:   true,
     antialias:  true,
   },
-  backgroundColor: '0xF5F5F5',
   dom: {
     createContainer: true,
   },

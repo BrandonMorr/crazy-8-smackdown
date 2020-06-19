@@ -24,10 +24,10 @@ export default class Deck extends Phaser.GameObjects.Group {
     const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
     const backColors = [ 'blue', 'green', 'red' ];
 
-    let deck = [];
-    let backColor = Phaser.Math.RND.pick(backColors);
+    const deck = [];
+    const backColor = Phaser.Math.RND.pick(backColors);
 
-    let middleY = scene.cameras.main.height / 2;
+    const middleY = scene.cameras.main.height / 2;
 
     for (let i = 0; i < suits.length; i++) {
       for (let ii = 0; ii < values.length; ii++) {
@@ -84,7 +84,7 @@ export default class Deck extends Phaser.GameObjects.Group {
   }
 
   /**
-   * Show an arbitrary card in the scene that represents a draw pile.
+   * Show an arbitrary card in the scene that represents the draw pile.
    */
   addDrawPileCard(scene) {
     // Create an arbitrary card.
@@ -93,19 +93,19 @@ export default class Deck extends Phaser.GameObjects.Group {
    }
 
   /**
-   * Shuffle the play pile, pass that back to the draw pile and clear playPile.
+   * Shuffle the play pile, pass that back to the draw pile and empty play pile.
    *
    * @param {Phaser.Scene} scene - The phaser scene object.
    */
   shuffle(scene) {
     // Get the size of the pile (subract one so the loop understands).
-    let pileSize = this.playPile.length - 1;
+    const pileSize = this.playPile.length - 1;
 
     // Remove the draw pile card.
     this.drawPileCard.destroy();
 
     for (let i = 0; i <= pileSize; i++) {
-      let card = this.playPile[i];
+      const card = this.playPile[i];
 
       // Skip the last card played (first in the play pile array).
       if (i >= 1) {

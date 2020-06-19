@@ -23,7 +23,7 @@ export default class Room {
   getNextPlayer() {
     // Grab the size of the player order array so we can target the player last
     // in order.
-    let playerLastOrder = this.playerOrder.length - 1;
+    const playerLastOrder = this.playerOrder.length - 1;
 
     if (this.reverseDirection) {
       // If the player first in order has played, reset back to last player.

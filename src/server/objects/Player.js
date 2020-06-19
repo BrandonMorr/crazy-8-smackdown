@@ -21,8 +21,8 @@ export default class Player {
    * @param {Deck} deck - The deck which contains the play pile to add to.
    */
   removeCardFromHand(card, deck) {
-    let cardToRemoveIndex = this.hand.findIndex((cardObj) => cardObj.name === card.name);
-    let cardToRemove = this.hand.splice(cardToRemoveIndex, 1);
+    const cardToRemoveIndex = this.hand.findIndex((cardObj) => cardObj.name === card.name);
+    const cardToRemove = this.hand.splice(cardToRemoveIndex, 1);
 
     // Add the card to the play pile.
     deck.addCardToPlayPile(cardToRemove[0]);

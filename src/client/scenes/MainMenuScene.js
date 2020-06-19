@@ -53,7 +53,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add title text to the scene.
    */
   addTitleText() {
-    let titleText = this.add.dom(this.camera.centerX, this.camera.centerY - 200, 'div', 'font-size: 27px', 'CRAZY 8 SMACKDOWN');
+    const titleText = this.add.dom(this.camera.centerX, this.camera.centerY - 200, 'div', 'font-size: 27px', 'CRAZY 8 SMACKDOWN');
     titleText.setClassName('title-menu');
   }
 
@@ -61,7 +61,7 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add connection status text to the scene.
    */
   addConnectionStatus() {
-    let statusText = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4), 'div', 'font-size: 14px;', 'CONNECTED');
+    const statusText = this.add.dom(this.getGridRowPosition(3), this.getGridColumnPosition(4), 'div', 'font-size: 14px;', 'CONNECTED');
     statusText.setClassName('status');
   }
 
@@ -69,10 +69,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a player name input and label to the scene.
    */
   addNameInput() {
-    let nameLabel = this.add.dom(this.camera.centerX - 130, this.camera.centerY - 100 - 35, 'div', 'font-size: 18px;', 'NAME');
+    const nameLabel = this.add.dom(this.camera.centerX - 130, this.camera.centerY - 100 - 35, 'div', 'font-size: 18px;', 'NAME');
     nameLabel.setClassName('label');
 
-    let nameInput = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'input');
+    const nameInput = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'input');
     nameInput.setClassName('name-input');
     nameInput.node.maxLength = 12;
     nameInput.node.placeholder = 'ENTER YOUR NAME';
@@ -83,10 +83,10 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a room code input and label to the scene.
    */
   addRoomCodeInput() {
-    let roomCodeLabel = this.add.dom(this.camera.centerX - 100, this.camera.centerY - 20 - 35, 'div', 'font-size: 18px;', 'ROOM CODE');
+    const roomCodeLabel = this.add.dom(this.camera.centerX - 100, this.camera.centerY - 20 - 35, 'div', 'font-size: 18px;', 'ROOM CODE');
     roomCodeLabel.setClassName('label');
 
-    let roomCodeInput = this.add.dom(this.camera.centerX, this.camera.centerY - 20, 'input');
+    const roomCodeInput = this.add.dom(this.camera.centerX, this.camera.centerY - 20, 'input');
     roomCodeInput.setClassName('room-code-input');
     roomCodeInput.node.maxLength = 4;
     roomCodeInput.node.placeholder = 'ENTER 4 CHARACTER CODE';
@@ -97,13 +97,13 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a create game button that creates a game session/token (GameScene).
    */
   addCreateGameButton() {
-    let createGameButton = this.add.dom(this.camera.centerX - 85, this.camera.centerY + 40, 'button', 'font-size: 16px;', 'CREATE GAME');
+    const createGameButton = this.add.dom(this.camera.centerX - 85, this.camera.centerY + 40, 'button', 'font-size: 16px;', 'CREATE GAME');
     createGameButton.setClassName('menu-button');
     createGameButton.addListener('click');
 
     createGameButton.on('click', () => {
-      let playerName = document.querySelector('.name-input').value.toUpperCase();
-      let roomCode = document.querySelector('.room-code-input').value.toLowerCase();
+      const playerName = document.querySelector('.name-input').value.toUpperCase();
+      const roomCode = document.querySelector('.room-code-input').value.toLowerCase();
 
       if (playerName !== '') {
         this.socket.name = playerName.toUpperCase();
@@ -138,13 +138,13 @@ export default class MainMenuScene extends Phaser.Scene {
    * Add a play button that starts the player setup scene (PlayerSetupScene).
    */
   addJoinButton() {
-    let joinButton = this.add.dom(this.camera.centerX + 85, this.camera.centerY + 40, 'button', 'font-size: 16px;', 'JOIN');
+    const joinButton = this.add.dom(this.camera.centerX + 85, this.camera.centerY + 40, 'button', 'font-size: 16px;', 'JOIN');
     joinButton.setClassName('menu-button');
     joinButton.addListener('click');
 
     joinButton.on('click', () => {
-      let playerName = document.querySelector('.name-input').value.toUpperCase();
-      let roomCode = document.querySelector('.room-code-input').value.toLowerCase();
+      const playerName = document.querySelector('.name-input').value.toUpperCase();
+      const roomCode = document.querySelector('.room-code-input').value.toLowerCase();
 
       if (playerName !== '' && roomCode !== '') {
         // Tell the server who we are and that we're joining an existing game.

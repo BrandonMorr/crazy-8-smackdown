@@ -64,7 +64,7 @@ function onNewGame(roomCode) {
   if (!roomCode) {
     Crypto.randomBytes(2, (err, buf) => {
       // Generate a random room code.
-      let roomCode = buf.toString('hex');
+      const roomCode = buf.toString('hex');
 
       // Add room to rooms array.
       rooms[roomCode] = new Room(roomCode);
@@ -77,7 +77,7 @@ function onNewGame(roomCode) {
     });
   }
   else {
-    let foundRoom = Object.keys(rooms).find(room => room === roomCode);
+    const foundRoom = Object.keys(rooms).find(room => room === roomCode);
 
     if (foundRoom) {
       // Notify the user that the room already exists.
@@ -101,11 +101,11 @@ function onNewGame(roomCode) {
  */
 function onJoinRequest(roomCode) {
   // Check to see if the supplied room code is actively in use.
-  let foundRoom = Object.keys(rooms).find(room => room === roomCode);
+  const foundRoom = Object.keys(rooms).find(room => room === roomCode);
 
   // If room code is valid and the game hasn't started, connect the user.
   if (foundRoom) {
-    let socketsInRoom = getSocketsInRoom(roomCode).length;
+    const socketsInRoom = getSocketsInRoom(roomCode).length;
 
     // If there are less than 4 sockets connected to the room, connect.
     if (socketsInRoom < 4) {
@@ -154,7 +154,7 @@ function onNewPlayer(playerObj, roomCode) {
  * players that the game has stared.
  */
 function onPlayerReady() {
-  let roomCode = this.player.roomCode;
+  const roomCode = this.player.roomCode;
 
   this.player.ready = true;
 
@@ -177,7 +177,7 @@ function onPlayerReady() {
     // Determine the player order.
     rooms[roomCode].playerOrder = shufflePlayerOrder(roomCode);
 
-    let firstPlayer = rooms[roomCode].playerOrder[0];
+    const firstPlayer = rooms[roomCode].playerOrder[0];
 
     // Notify all players who's turn it is.
     io.in(roomCode).emit('show player turn', firstPlayer);
@@ -193,7 +193,7 @@ function onPlayerReady() {
     }
 
     // Shift out a card from the draw pile, the first card in play.
-    let firstCardInPlay = rooms[roomCode].deck.drawPile.shift();
+    const firstCardInPlay = rooms[roomCode].deck.drawPile.shift();
 
     // Notify all players players of the first card in play.
     io.in(roomCode).emit('update card in play', firstCardInPlay);
@@ -214,8 +214,8 @@ function onPlayerReady() {
  * Notify players that a turn has been made, move to next player.
  */
 function onCardPlayed(card, wildcardSuit = false) {
-  let roomCode = this.player.roomCode;
-  let deck = rooms[roomCode].deck;
+  const roomCode = this.player.roomCode;
+  const deck = rooms[roomCode].deck;
 
   // Remove the card from the player's hand.
   this.player.removeCardFromHand(card, deck);
@@ -248,7 +248,7 @@ function onCardPlayed(card, wildcardSuit = false) {
   // If a wildcard was played, notify the players that the suit has changed.
   if (wildcardSuit) {
     // Create a wildcard that we set as the current card in play.
-    let wildcard = {
+    const wildcard = {
       value: false,
       suit: wildcardSuit
     }
@@ -263,7 +263,7 @@ function onCardPlayed(card, wildcardSuit = false) {
     rooms[roomCode].cardInPlay = card;
   }
 
-  // Let everyone know that the player has played a card.
+  // const everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player, card);
 
   // If a king was played, reverse the direction of play if there are more
@@ -281,7 +281,7 @@ function onCardPlayed(card, wildcardSuit = false) {
   // If a jack was played skip the next players turn.
   if (card.value === 'j') {
     // Skip the next player, get the name of the skipped player.
-    let skippedPlayer = rooms[roomCode].getNextPlayer();
+    const skippedPlayer = rooms[roomCode].getNextPlayer();
 
     // Tell the client who's turn they skipped.
     this.emit('game message', `YOU SKIPPED ${skippedPlayer.name}'S TURN`);
@@ -291,7 +291,7 @@ function onCardPlayed(card, wildcardSuit = false) {
   }
 
   // Grab the next player to play.
-  let player = rooms[roomCode].getNextPlayer();
+  const player = rooms[roomCode].getNextPlayer();
 
   // If a queen of spades was played, deal 5 cards to the next player.
   if (card.name === 'q of spades') {
@@ -316,7 +316,7 @@ function onCardPlayed(card, wildcardSuit = false) {
  * Player has no playable cards, deal a new card and move on.
  */
 function onDrawCard() {
-  let roomCode = this.player.roomCode;
+  const roomCode = this.player.roomCode;
 
   // Deal a new card to the player.
   dealCardsToPlayer(this.player);
@@ -327,8 +327,8 @@ function onDrawCard() {
   // Grab the card that was dealt to the player and check to see if last card
   // in play is playable. If the card is playable, allow the card to be played.
   // Otherwise, move on to the next player.
-  let cardDealt = this.player.getLastCardInHand();
-  let isPlayable = checkCardPlayable(cardDealt, rooms[roomCode].cardInPlay, this.player);
+  const cardDealt = this.player.getLastCardInHand();
+  const isPlayable = checkCardPlayable(cardDealt, rooms[roomCode].cardInPlay, this.player);
 
   if (isPlayable) {
     // Notify the player they can play the card.
@@ -336,7 +336,7 @@ function onDrawCard() {
   }
   else {
     // Grab the next player to play.
-    let player = rooms[roomCode].getNextPlayer();
+    const player = rooms[roomCode].getNextPlayer();
 
     // Notify everyone who is going to play next.
     io.in(roomCode).emit('show player turn', player);
@@ -370,8 +370,8 @@ function onPlayerQuit() {
 function onDisconnect() {
   // Check to see if the socket has a player data object.
   if ('player' in this) {
-    let roomCode = this.player.roomCode;
-    let players = getPlayersInRoom(roomCode);
+    const roomCode = this.player.roomCode;
+    const players = getPlayersInRoom(roomCode);
 
     // Check to see if the room is empty.
     if (players.length > 0) {
@@ -385,7 +385,7 @@ function onDisconnect() {
 
       // Put the player's hand back in the play pile so that cards go back into
       // circulation.
-      let deck = rooms[roomCode].deck;
+      const deck = rooms[roomCode].deck;
 
       for (let card of this.player.hand) {
         deck.addCardToPlayPile(card);
@@ -393,14 +393,14 @@ function onDisconnect() {
 
       // Grab the player turn so we can check if player disconnected on their
       // turn.
-      let playerTurn = rooms[roomCode].playerTurn;
+      const playerTurn = rooms[roomCode].playerTurn;
 
       if (rooms[roomCode].gameStarted) {
         // If a player disconnected on their turn, move to the next player in
         // order.
         if (rooms[roomCode].playerOrder[playerTurn].id == this.id) {
           // Grab the next player to play.
-          let player = rooms[roomCode].getNextPlayer();
+          const player = rooms[roomCode].getNextPlayer();
 
           // Notify everyone who is now playing.
           io.in(roomCode).emit('show player turn', player);
@@ -424,9 +424,10 @@ function onDisconnect() {
  * Check and return whether all players are ready to play.
  */
 function checkAllPlayersReady(roomCode) {
+  const players = getPlayersInRoom(roomCode);
+  const sockets = getSocketsInRoom(roomCode);
+
   let ready = true;
-  let players = getPlayersInRoom(roomCode);
-  let sockets = getSocketsInRoom(roomCode);
 
   // Only continue if there is 2 or more players.
   if (players.length >= 2) {
@@ -455,11 +456,11 @@ function checkAllPlayersReady(roomCode) {
  * Shuffle player order using Fisher Yates implementation.
  */
 function shufflePlayerOrder(roomCode) {
-  let players = getPlayersInRoom(roomCode);
+  const players = getPlayersInRoom(roomCode);
 
   for (let i = players.length - 1; i > 0; i--) {
-    let randomIndex = Math.floor(Math.random() * (i + 1));
-    let itemAtIndex = players[randomIndex];
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    const itemAtIndex = players[randomIndex];
 
     players[randomIndex] = players[i];
     players[i] = itemAtIndex;
@@ -472,7 +473,7 @@ function shufflePlayerOrder(roomCode) {
  * Return all sockets currently connected to a room.
  */
 function getSocketsInRoom(roomCode) {
-  let sockets = [];
+  const sockets = [];
 
   // Check to see if anyone is even in the room.
   if (io.sockets.adapter.rooms[roomCode] !== undefined) {
@@ -489,13 +490,13 @@ function getSocketsInRoom(roomCode) {
  * Return all players currently connected to a room.
  */
 function getPlayersInRoom(roomCode) {
-  let players = [];
+  const players = [];
 
   // Check to see if anyone is even in the room.
   if (io.sockets.adapter.rooms[roomCode] !== undefined) {
     // Loop over sockets connected to a room, return all players found.
     Object.keys(io.sockets.adapter.rooms[roomCode].sockets).forEach(socket => {
-      let player = io.sockets.connected[socket].player;
+      const player = io.sockets.connected[socket].player;
 
       if (player) {
         players.push(player);
@@ -513,7 +514,7 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
   // We want to keep track of how many cards are left to deal if the deck
   // needs to be shuffled.
   for (let cardsLeftToDeal = numberOfCards; cardsLeftToDeal >= 1; cardsLeftToDeal--) {
-    let cardToDeal = rooms[player.roomCode].deck.drawPile.shift();
+    const cardToDeal = rooms[player.roomCode].deck.drawPile.shift();
 
     if (cardToDeal) {
       // Move the card to player's hand array.
@@ -548,7 +549,7 @@ function dealCardsToPlayer(player, numberOfCards = 1) {
  * Check to see if a card is playable, otherwise return false.
  */
 function checkCardPlayable(card, currentCardInPlay, player) {
-  let isPlayable =
+  const isPlayable =
     // Check if card matches the current suit in play.
     card.suit == currentCardInPlay.suit ||
     // Check if card matches the current value in play.

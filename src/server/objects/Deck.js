@@ -21,7 +21,7 @@ export default class Deck {
     const values = [ 'a', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k' ];
     const suits = [ 'hearts', 'diamonds', 'spades', 'clubs' ];
 
-    let deck = [];
+    const deck = [];
 
     for (let i = 0; i < suits.length; i++) {
       for (let ii = 0; ii < values.length; ii++) {
@@ -53,7 +53,7 @@ export default class Deck {
   /**
    * Add a card to the draw pile.
    *
-   * @param {Card} card - The card to add to the play pile.
+   * @param {Card} card - The card to add to the draw pile.
    */
   addCardToDrawPile(card) {
     this.drawPile.unshift(card);
@@ -69,11 +69,11 @@ export default class Deck {
   }
 
   /**
-   * Shuffle the play pile, pass that back to the draw pile and clear playPile.
+   * Shuffle the play pile, pass that back to the draw pile and empty play pile.
    */
   shuffleDeck() {
     // Keep the last played card.
-    let card = this.playPile.shift();
+    const card = this.playPile.shift();
     // Shuffle the play pile and move it back into the draw pile.
     this.drawPile = this.shuffle(this.playPile);
     // Reset the play pile.
@@ -86,9 +86,9 @@ export default class Deck {
    * @return {Card[]} The randomly shuffled cards.
    */
   shuffle(cards) {
-    for (var i = cards.length - 1; i > 0; i--) {
-      var randomIndex = Math.floor(Math.random() * (i + 1));
-      var itemAtIndex = cards[randomIndex];
+    for (let i = cards.length - 1; i > 0; i--) {
+      const randomIndex = Math.floor(Math.random() * (i + 1));
+      const itemAtIndex = cards[randomIndex];
 
       cards[randomIndex] = cards[i];
       cards[i] = itemAtIndex;
