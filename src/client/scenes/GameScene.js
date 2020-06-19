@@ -831,7 +831,7 @@ export default class GameScene extends Phaser.Scene {
     // Only display one message at a time...even though it probably woundn't
     // matter.
     if (!this.shuffleMessageText) {
-      this.shuffleMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 110, 'div', 'font-size: 16px;', 'THE DECK HAS BEEN SHUFFLED');
+      this.shuffleMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 100, 'div', 'font-size: 16px;', 'THE DECK HAS BEEN SHUFFLED');
       this.shuffleMessageText.setClassName('message-shuffle');
 
       this.tweens.add({
@@ -843,29 +843,6 @@ export default class GameScene extends Phaser.Scene {
         onComplete: () => {
           this.shuffleMessageText.destroy();
           this.shuffleMessageText = false;
-        }
-      });
-    }
-  }
-
-  /**
-   * Show a message when the suit has changed due to a wild card.
-   */
-  showWildcardMessage(suit) {
-    // Only display one message at a time.
-    if (!this.wildcardMessageText) {
-      this.wildcardMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 110, 'div', 'font-size: 16px;', `THE SUIT HAS CHANGED TO ${suit.toUpperCase()}`);
-      this.wildcardMessageText.setClassName('message-wildcard');
-
-      this.tweens.add({
-        targets: this.wildcardMessageText,
-        delay: 5000,
-        alpha: 0,
-        ease: 'Linear',
-        duration: 400,
-        onComplete: () => {
-          this.wildcardMessageText.destroy();
-          this.wildcardMessageText = false;
         }
       });
     }
@@ -889,6 +866,29 @@ export default class GameScene extends Phaser.Scene {
         onComplete: () => {
           this.countdownMessageText.destroy();
           this.countdownMessageText = false;
+        }
+      });
+    }
+  }
+
+  /**
+   * Show a message when the suit has changed due to a wild card.
+   */
+  showWildcardMessage(suit) {
+    // Only display one message at a time.
+    if (!this.wildcardMessageText) {
+      this.wildcardMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 60, 'div', 'font-size: 16px;', `THE SUIT HAS CHANGED TO ${suit.toUpperCase()}`);
+      this.wildcardMessageText.setClassName('message-wildcard');
+
+      this.tweens.add({
+        targets: this.wildcardMessageText,
+        delay: 5000,
+        alpha: 0,
+        ease: 'Linear',
+        duration: 400,
+        onComplete: () => {
+          this.wildcardMessageText.destroy();
+          this.wildcardMessageText = false;
         }
       });
     }
