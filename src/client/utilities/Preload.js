@@ -42,11 +42,12 @@ export default class Preload {
   }
 
   /**
-   * Load brush asset.
+   * Load other assets.
    *
    * @param {Phaser.Scene} scene - The phaser scene object.
    */
-  static loadBrush(scene) {
+  static loadOther(scene) {
     scene.load.image('brush', 'public/assets/other/brush.png');
+    scene.load.image('confeddi', 'public/assets/other/confeddi.png');
   }
 }

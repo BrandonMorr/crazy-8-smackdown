@@ -230,13 +230,13 @@ function onCardPlayed(card, wildcardSuit = false) {
 
     // Check to see if the game is over.
     if (this.player.countdown === 0) {
+      // Signal that the game is over.
+      rooms[roomCode].gameOver = true;
+
       // Notify players that the game is over and who the winner is.
       io.in(roomCode).emit('game over', this.player);
 
-      // Remove the game room.
-      delete rooms[roomCode];
-      // Stop here.
-      return;
+      return; // Stop here.
     }
 
     // Notify everyone that a player's countdown score is being updated.
@@ -263,7 +263,7 @@ function onCardPlayed(card, wildcardSuit = false) {
     rooms[roomCode].cardInPlay = card;
   }
 
-  // const everyone know that the player has played a card.
+  // Let everyone know that the player has played a card.
   this.broadcast.to(roomCode).emit('show card played', this.player, card);
 
   // If a king was played, reverse the direction of play if there are more
@@ -362,6 +362,10 @@ function onPlayerQuit() {
   const player = this.player;
 
   this.broadcast.to(player.roomCode).emit('player quit', player);
+
+  if (rooms[player.roomCode].playerOrder.length === 0) {
+    delete rooms[player.roomCode];
+  }
 }
 
 /**
@@ -374,7 +378,11 @@ function onDisconnect() {
     const players = getPlayersInRoom(roomCode);
 
     // Check to see if the room is empty.
-    if (players.length > 0) {
+    if (players.length === 0) {
+      // If the room is empty, remove it from the map.
+      delete rooms[roomCode];
+    }
+    else {
       // Unready all the players.
       for (let player of players) {
         player.ready = false;
@@ -383,19 +391,19 @@ function onDisconnect() {
       // Tell everyone the player has disconnected.
       io.in(roomCode).emit('player disconnect', this.player);
 
-      // Put the player's hand back in the play pile so that cards go back into
-      // circulation.
-      const deck = rooms[roomCode].deck;
+      if (rooms[roomCode].gameStarted && !rooms[roomCode].gameOver) {
+        // Put the player's hand back in the play pile so that cards go back into
+        // circulation.
+        const deck = rooms[roomCode].deck;
 
-      for (let card of this.player.hand) {
-        deck.addCardToPlayPile(card);
-      }
+        for (let card of this.player.hand) {
+          deck.addCardToPlayPile(card);
+        }
 
-      // Grab the player turn so we can check if player disconnected on their
-      // turn.
-      const playerTurn = rooms[roomCode].playerTurn;
+        // Grab the player turn so we can check if player disconnected on their
+        // turn.
+        const playerTurn = rooms[roomCode].playerTurn;
 
-      if (rooms[roomCode].gameStarted) {
         // If a player disconnected on their turn, move to the next player in
         // order.
         if (rooms[roomCode].playerOrder[playerTurn].id == this.id) {
@@ -412,10 +420,6 @@ function onDisconnect() {
 
       // Remove player from room's player order array.
       rooms[roomCode].removePlayerByID(this.id);
-    }
-    else {
-      // If the room is empty, remove it from the map.
-      delete rooms[roomCode];
     }
   }
 }

@@ -114,6 +114,39 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   /**
+   * Show a confeddi explosion and add some winner text to show victory.
+   */
+  showWinner() {
+    const numberOfConfeddi = 100;
+    const colors = ['0x70d6ff', '0xff70a6', '0xff9770', '0xffd670', '0xe9ff70'];
+
+    for (let i = 0; i <= numberOfConfeddi; i++) {
+      const color = Phaser.Math.RND.pick(colors)
+      const scale = Phaser.Math.RND.between(1, 2)
+      const randomX = Phaser.Math.RND.between(this.x - 100, this.x + 100)
+      const randomY = Phaser.Math.RND.between(this.y - 100, this.y + 50)
+
+
+      const confeddi = this.scene.add.image(randomX, randomY, 'confeddi')
+      confeddi.setTint(color)
+      confeddi.setScale(scale)
+
+      this.scene.tweens.add({
+        targets: confeddi,
+        y: this.y + 100,
+        duration: 500 * scale,
+        completeDelay: 2000,
+        onComplete: () => {
+          confeddi.destroy();
+        }
+      });
+    }
+
+    // Show some winner text.
+    this.addWinnerText();
+  }
+
+  /**
    * Provide an array of player UI elements that are attached to the player.
    *
    * @return {Phaser.DomElement[]} - Player UI elements.

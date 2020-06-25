@@ -23,7 +23,7 @@ export default class GameScene extends Phaser.Scene {
   preload() {
     Preload.loadCards(this);
     Preload.loadSounds(this);
-    Preload.loadBrush(this);
+    Preload.loadOther(this);
   }
 
   /**
@@ -156,8 +156,7 @@ export default class GameScene extends Phaser.Scene {
     // Show a clickable send message button.
     this.addPlayerMessageButton();
 
-    // Show a message input which allows players to communicate with each
-    // other.
+    // Show a message input which allows players to talk shit with each other.
     this.input.keyboard.on('keyup', (event) => {
       if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) {
         this.showPlayerMessageInput();
@@ -376,6 +375,8 @@ export default class GameScene extends Phaser.Scene {
    * Game over, remove everything from the scene and show a message (win/lose).
    */
   onGameOver(playerObj) {
+    this.gameOver = true;
+
     // Remove all the players from the screen.
     this.player.removeHand();
 
@@ -383,7 +384,7 @@ export default class GameScene extends Phaser.Scene {
       player.removeGameText();
 
       if (playerObj.id === player.id) {
-        player.addWinnerText();
+        player.showWinner();
       }
     }
 
