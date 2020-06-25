@@ -34,6 +34,7 @@ export default class GameScene extends Phaser.Scene {
     this.camera = this.cameras.main;
 
     this.players = [];
+    
     this.deck = new Deck();
     this.yourTurn = false;
     this.gameOver = false;
@@ -893,7 +894,7 @@ export default class GameScene extends Phaser.Scene {
         alpha: 0,
         ease: 'Linear',
         duration: 400,
-        onCompconste: () => {
+        onComplete: () => {
           this.wildcardMessageText.destroy();
           this.wildcardMessageText = false;
         }

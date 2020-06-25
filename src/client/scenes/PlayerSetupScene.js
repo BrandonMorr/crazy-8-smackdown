@@ -18,7 +18,7 @@ export default class PlayerSetupScene extends Phaser.Scene {
    * @see Preload.js for preload functions.
    */
   preload() {
-    Preload.loadBrush(this);
+    Preload.loadOther(this);
   }
 
   create(data) {
