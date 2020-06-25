@@ -134,7 +134,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
       this.scene.tweens.add({
         targets: confeddi,
         y: this.y + 100,
-        duration: Phaser.Math.RND.between(500, 1000),
+        duration: Phaser.Math.RND.between(1000, 2000),
         completeDelay: 2000,
         onComplete: () => {
           confeddi.destroy();
