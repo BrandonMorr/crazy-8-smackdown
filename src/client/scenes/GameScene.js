@@ -34,7 +34,7 @@ export default class GameScene extends Phaser.Scene {
     this.camera = this.cameras.main;
 
     this.players = [];
-    
+
     this.deck = new Deck();
     this.yourTurn = false;
     this.gameOver = false;
@@ -546,7 +546,7 @@ export default class GameScene extends Phaser.Scene {
       // Check to see if a wildcard was played. The wildcard corresponds to your
       // countdown score. Since aces have a value of 'a', we have to perform a
       // separate condition check for that wildcard.
-      if (card.value == this.player.countdown || ((card.value == 'a') && this.player.countdown == 1)) {
+      if (this.checkCardWild(card)) {
         this.showWildCardMenu(card);
       }
       else {
@@ -558,7 +558,13 @@ export default class GameScene extends Phaser.Scene {
     // When the user hovers the cursor over the card, set a tint and raise y.
     card.on('pointerover', () => {
       // Set a tint to show card is playable.
-      card.setTint(0xe3e3e3);
+      if (this.checkCardWild(card)) {
+        // Special tint for wildcards.
+        card.setTint(0x55ffff, 0xff55ff, 0xffff55, 0x55ff55);
+      }
+      else {
+        card.setTint(0xe3e3e3);
+      }
 
       // Move card up slightly.
       this.tweens.add({
@@ -696,6 +702,20 @@ export default class GameScene extends Phaser.Scene {
       ease: 'Linear',
       duration: 100
     });
+  }
+
+  /**
+   * Check to see if a card is a wildcard, otherwise return false.
+   */
+  checkCardWild(card) {
+    const isWildcard =
+      // Check if the card value mathces the players countdown score, it's
+      // a wildcard.
+      card.value == this.player.countdown ||
+      // Special case for aces since 'a' isn't a real number.
+      ((card.value == 'a') && this.player.countdown === 1);
+
+    return isWildcard;
   }
 
   /**

@@ -391,6 +391,11 @@ function onDisconnect() {
       // Tell everyone the player has disconnected.
       io.in(roomCode).emit('player disconnect', this.player);
 
+      // If there's only one player remaining, game ogre.
+      if (players.length === 1) {
+        rooms[roomCode].gameOver = true;
+      }
+
       if (rooms[roomCode].gameStarted && !rooms[roomCode].gameOver) {
         // Put the player's hand back in the play pile so that cards go back into
         // circulation.
@@ -560,7 +565,7 @@ function checkCardPlayable(card, currentCardInPlay, player) {
     card.value == currentCardInPlay.value ||
     // Check if the card is wild (wildcard = countdown score).
     card.value == player.countdown ||
-    // Check if the countdown is at one (wildcard is ace and 'a' != 1).
+    // Special case for aces since 'a' isn't a real number.
     (player.countdown == 1 && card.value == 'a');
 
   return isPlayable;
