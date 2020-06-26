@@ -341,6 +341,11 @@ export default class GameScene extends Phaser.Scene {
       this.showWildcardMessage(cardObj.suit);
     }
 
+    // Play an explosion sound when the queen of spades is played (pickup 5).
+    if (cardObj.name === 'q of spades') {
+      this.sound.play('explosion');
+    }
+
     this.currentCardInPlay = cardObj;
   }
 

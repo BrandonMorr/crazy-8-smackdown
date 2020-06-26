@@ -38,6 +38,7 @@ export default class Preload {
     scene.load.audio('bell', 'public/assets/sounds/bell.ogg');
     scene.load.audio('winner', 'public/assets/sounds/winner.ogg');
     scene.load.audio('loser', 'public/assets/sounds/loser.ogg');
+    scene.load.audio('explosion', 'public/assets/sounds/explosion.ogg');
     scene.load.audio('player_message', 'public/assets/sounds/player_message.ogg');
   }
 
