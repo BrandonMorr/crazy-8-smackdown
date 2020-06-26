@@ -131,11 +131,16 @@ export default class Player extends Phaser.GameObjects.Sprite {
       confeddi.setTint(color)
       confeddi.setScale(scale)
 
+      // Slowly tween the confeddi to the ground.
       this.scene.tweens.add({
         targets: confeddi,
         y: this.y + 100,
-        duration: Phaser.Math.RND.between(1000, 2000),
+        duration: Phaser.Math.RND.between(2000, 3000),
         completeDelay: 2000,
+        onUpdate: () => {
+          // Give the confeddi a nice swing while it's floating to the ground.
+          confeddi.x += Math.cos(Date.now() * 0.01) * Math.PI;
+        },
         onComplete: () => {
           confeddi.destroy();
         }
