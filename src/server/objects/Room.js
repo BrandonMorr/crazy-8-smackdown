@@ -6,12 +6,13 @@ export default class Room {
   constructor(roomCode) {
     this.roomCode = roomCode;
 
+    this.startGameCounter = 0;
     this.gameOver = false;
     this.gameStarted = false;
     this.reverseDirection = false;
     this.cardInPlay = false;
 
-    this.playerOrder = [];
+    this.players = [];
     this.playerTurn = 0;
   }
 
@@ -23,7 +24,7 @@ export default class Room {
   getNextPlayer() {
     // Grab the size of the player order array so we can target the player last
     // in order.
-    const playerLastOrder = this.playerOrder.length - 1;
+    const playerLastOrder = this.players.length - 1;
 
     if (this.reverseDirection) {
       // If the player first in order has played, reset back to last player.
@@ -36,7 +37,7 @@ export default class Room {
       this.playerTurn === playerLastOrder ? this.playerTurn = 0 : this.playerTurn++;
     }
 
-    return this.playerOrder[this.playerTurn];
+    return this.players[this.playerTurn];
   }
 
   /**
@@ -45,6 +46,6 @@ export default class Room {
    * @param {string} id - socket id of the player to remove from the game.
    */
   removePlayerByID(id) {
-    this.playerOrder = this.playerOrder.filter(player => player.id !== id);
+    this.players = this.players.filter(player => player.id !== id);
   }
 }

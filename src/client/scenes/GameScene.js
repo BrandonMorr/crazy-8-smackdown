@@ -40,6 +40,7 @@ export default class GameScene extends Phaser.Scene {
     this.gameOver = false;
     this.gameStarted = false;
     this.currentCardInPlay = false;
+    this.countdownStarted = false;
 
     // Create local player's Player object and add it to players array.
     this.player = new Player(this, this.getGridRowPosition(1), this.getGridColumnPosition(4), this.socket.id, this.socket.name, data.textureMap);
@@ -85,6 +86,11 @@ export default class GameScene extends Phaser.Scene {
     // Check player hand for playable cards, otherwise draw a card and move on.
     this.socket.on('turn start', () => {
       this.onTurnStart();
+    });
+
+    // Initiate the smackdown countdown.
+    this.socket.on('start countdown', () => {
+      this.onStartCountdown();
     });
 
     // Flag that the game has started, remove player text.
@@ -157,6 +163,12 @@ export default class GameScene extends Phaser.Scene {
     // Show a clickable send message button.
     this.addPlayerMessageButton();
 
+    // Add a lobby text bubble to the scene.
+    this.addLobbyText();
+
+    // Show a 'share code' message.
+    this.addUseCodeMessageText();
+
     // Show a message input which allows players to talk shit with each other.
     this.input.keyboard.on('keyup', (event) => {
       if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) {
@@ -174,7 +186,11 @@ export default class GameScene extends Phaser.Scene {
     const player = new Player(this, this.getPlayerStartingX(), this.getGridColumnPosition(1), playerObj.id, playerObj.name, playerObj.textureMap);
     this.players.push(player);
 
+    // Draw player avatar
     this.drawPlayerAvatar(player);
+
+    // Update lobby text with either player count or a lobby message.
+    this.updateLobbyText();
 
     this.showGameMessage(`${playerObj.name} HAS CONNECTED`);
     this.showReadyButton();
@@ -201,6 +217,9 @@ export default class GameScene extends Phaser.Scene {
         }
       }
     }
+
+    // Update lobby text with either player count or a lobby message.
+    this.updateLobbyText();
 
     // Check to see if the ready button needs to be hidden.
     this.showReadyButton();
@@ -303,6 +322,33 @@ export default class GameScene extends Phaser.Scene {
     if (needToDrawCard) {
       this.addDrawCardButton();
     }
+  }
+
+  /**
+   * When all players in a room are ready, start a countdown timer.
+   */
+  onStartCountdown() {
+    this.countdownStarted = true;
+    this.countdownSeconds = 3;
+
+    this.countdownTimer = this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        this.lobbyMessageText.setText(`GAME STARTING IN ${this.countdownSeconds}`);
+
+        if (this.countdownSeconds === 0) {
+          this.lobbyMessageText.destroy();
+          this.useCodeMessageText.destroy();
+
+          this.socket.emit('game start');
+
+          return; // Stop here.
+        }
+
+        this.countdownSeconds--;
+      },
+      repeat: this.countdownSeconds
+    });
   }
 
   /**
@@ -468,11 +514,28 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    if (!this.gameStarted) {
+      this.updateLobbyText();
+    }
+
     // Reorder the players on the screen.
     this.reorderPlayers();
 
-    // Check to see if the ready button needs to be hidden.
-    this.showReadyButton();
+    if (!this.gameStarted && this.countdownStarted) {
+      for (let player of this.players) {
+        if (player.ready) {
+          player.removeReadyText();
+        }
+
+        // Remove the timer.
+        this.countdownTimer.remove();
+
+        // Reset flag.
+        this.countdownStarted = false;
+
+        this.updateLobbyText();
+      }
+    }
 
     // If you're the last player standing and the game hasn't finished, you
     // win by default! Woo
@@ -957,6 +1020,37 @@ export default class GameScene extends Phaser.Scene {
       });
     }
   }
+
+  /**
+   * Add lobby text to the scene.
+   */
+  addLobbyText() {
+    this.lobbyMessageText = this.add.dom(this.camera.centerX, this.camera.centerY - 20, 'div', 'font-size: 20px;', 'LOADING...');
+    this.lobbyMessageText.setClassName('message-lobby');
+  }
+
+  /**
+   * Update the lobby message text with either a player count or the default
+   * message.
+   */
+   updateLobbyText() {
+     if (this.lobbyMessageText) {
+       if (this.players.length > 1) {
+         this.lobbyMessageText.setText(`${this.players.length} / 4 PLAYERS CONNECTED`);
+       }
+       else {
+         this.lobbyMessageText.setText('NEED MORE PLAYERS TO START');
+       }
+     }
+   }
+
+   /**
+    * Add a 'use the code to connect to the room blah blah...' text to the scene.
+    */
+   addUseCodeMessageText() {
+     this.useCodeMessageText = this.add.dom(this.camera.centerX, this.camera.centerY + 20, 'div', 'font-size: 14px;', `USE CODE ${this.socket.roomCode.toUpperCase()} TO JOIN THE GAME`);
+     this.useCodeMessageText.setClassName('message-share-code');
+   }
 
   /**
    * Add a player message button to the scene.

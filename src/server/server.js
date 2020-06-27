@@ -48,6 +48,7 @@ function setServerHandlers() {
     socket.on('join request', onJoinRequest);
     socket.on('new player', onNewPlayer);
     socket.on('player ready', onPlayerReady);
+    socket.on('game start', onGameStart);
     socket.on('card played', onCardPlayed);
     socket.on('draw card', onDrawCard);
     socket.on('player message', onPlayerMessage);
@@ -143,6 +144,9 @@ function onNewPlayer(playerObj, roomCode) {
   // Build up a list of all current players, send the data to the client.
   this.emit('get players', getPlayersInRoom(roomCode));
 
+  // Add player to the room's players array.
+  rooms[roomCode].players.push(this.player);
+
   // Broadcast new player to other new players.
   this.broadcast.to(roomCode).emit('new player', this.player);
 }
@@ -156,6 +160,7 @@ function onNewPlayer(playerObj, roomCode) {
 function onPlayerReady() {
   const roomCode = this.player.roomCode;
 
+  // The player is ready to smack down.
   this.player.ready = true;
 
   // Let everyone else know the player is ready.
@@ -163,21 +168,36 @@ function onPlayerReady() {
 
   // Check to see if all players are ready.
   if (checkAllPlayersReady(roomCode)) {
-    // Flag that the room's game has started.
-    rooms[roomCode].gameStarted = true;
+    io.in(roomCode).emit('start countdown');
+
+    rooms[roomCode].countdownStarted = true;
 
     // Clear the player's texture map to clean up JSON payload.
     for (let player of getPlayersInRoom(roomCode)) {
       player.textureMap = [];
     }
+  }
+}
+
+/**
+ * Start the game when each player's countdown timer is complete.
+ */
+function onGameStart() {
+  const roomCode = this.player.roomCode;
+
+  rooms[roomCode].startGameCounter++;
+
+  if (rooms[roomCode].startGameCounter === rooms[roomCode].players.length) {
+    // Flag that the room's game has started.
+    rooms[roomCode].gameStarted = true;
 
     // Notify everyone that the game has started.
     io.in(roomCode).emit('game started');
 
     // Determine the player order.
-    rooms[roomCode].playerOrder = shufflePlayerOrder(roomCode);
+    rooms[roomCode].players = shufflePlayerOrder(roomCode);
 
-    const firstPlayer = rooms[roomCode].playerOrder[0];
+    const firstPlayer = rooms[roomCode].players[0];
 
     // Notify all players who's turn it is.
     io.in(roomCode).emit('show player turn', firstPlayer);
@@ -187,7 +207,7 @@ function onPlayerReady() {
 
     // Deal out 8 cards to players.
     for (let i = 0; i <= 7; i++) {
-      for (let player of rooms[roomCode].playerOrder) {
+      for (let player of rooms[roomCode].players) {
         dealCardsToPlayer(player);
       }
     }
@@ -203,7 +223,6 @@ function onPlayerReady() {
 
     // Notify all players what the first card to play is.
     io.in(roomCode).emit('show first card in play', firstCardInPlay);
-
 
     // Notify the player that they can start their turn.
     io.to(firstPlayer.id).emit('turn start');
@@ -268,7 +287,7 @@ function onCardPlayed(card, wildcardSuit = false) {
 
   // If a king was played, reverse the direction of play if there are more
   // than 2 players in the game.
-  if (rooms[roomCode].playerOrder.length > 2 && card.value === 'k') {
+  if (rooms[roomCode].players.length > 2 && card.value === 'k') {
     rooms[roomCode].reverseDirection = (rooms[roomCode].reverseDirection) ? false : true;
 
     // Tell the client that they have reversed the direction.
@@ -363,7 +382,7 @@ function onPlayerQuit() {
 
   this.broadcast.to(player.roomCode).emit('player quit', player);
 
-  if (rooms[player.roomCode].playerOrder.length === 0) {
+  if (rooms[player.roomCode].players.length === 0) {
     delete rooms[player.roomCode];
   }
 }
@@ -381,6 +400,8 @@ function onDisconnect() {
     if (players.length === 0) {
       // If the room is empty, remove it from the map.
       delete rooms[roomCode];
+
+      return; // Stop here.
     }
     else {
       // Unready all the players.
@@ -390,6 +411,13 @@ function onDisconnect() {
 
       // Tell everyone the player has disconnected.
       io.in(roomCode).emit('player disconnect', this.player);
+
+      // If someone leaves during the start game countdown, stop the timer and
+      // reset the countdown-related variables.
+      if (rooms[roomCode].countdownStarted) {
+        rooms[roomCode].countdownStarted = false;
+        rooms[roomCode].startGameCounter = 0;
+      }
 
       // If there's only one player remaining, game ogre.
       if (players.length === 1) {
@@ -411,7 +439,7 @@ function onDisconnect() {
 
         // If a player disconnected on their turn, move to the next player in
         // order.
-        if (rooms[roomCode].playerOrder[playerTurn].id == this.id) {
+        if (rooms[roomCode].players[playerTurn].id == this.id) {
           // Grab the next player to play.
           const player = rooms[roomCode].getNextPlayer();
 

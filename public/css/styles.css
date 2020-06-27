@@ -117,6 +117,28 @@ div {
   box-shadow: 0 4px 0 0 #b72d37;
 }
 
+/* Lobby message */
+.message-lobby {
+  color: white;
+  background-color: #A663CC;
+  padding: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 4px 0 0 #824D9F;
+  -moz-box-shadow: 0 4px 0 0 #824D9F;
+  box-shadow: 0 4px 0 0 #824D9F;
+}
+
+/* Use code message */
+.message-share-code {
+  color: white;
+  background-color: #00bbf9;
+  padding: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 4px 0 0 #0393c3;
+  -moz-box-shadow: 0 4px 0 0 #0393c3;
+  box-shadow: 0 4px 0 0 #0393c3;
+}
+
 /* Game message */
 .message-game {
   color: white;
