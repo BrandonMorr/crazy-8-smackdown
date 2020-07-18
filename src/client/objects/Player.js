@@ -213,8 +213,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
    */
   removeAll() {
     for (let textObj of this.getPlayerTextObjects()) {
-      // Make sure destroy method is present before calling it.
-      if (textObj.destroy === 'function') {
+      if (typeof textObj.destroy == 'function') {
         textObj.destroy();
       }
     }

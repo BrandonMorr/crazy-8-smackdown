@@ -516,6 +516,7 @@ export default class GameScene extends Phaser.Scene {
 
     if (!this.gameStarted) {
       this.updateLobbyText();
+      this.showReadyButton();
     }
 
     // Reorder the players on the screen.
@@ -534,14 +535,6 @@ export default class GameScene extends Phaser.Scene {
         this.countdownStarted = false;
 
         this.updateLobbyText();
-      }
-    }
-
-    // If you're the last player standing and the game hasn't finished, you
-    // win by default! Woo
-    if (this.gameStarted && !this.gameOver) {
-      if (this.players.length === 1) {
-        this.onGameOver(this.player);
       }
     }
   }

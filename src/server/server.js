@@ -75,6 +75,8 @@ function onNewGame(roomCode) {
 
       // Send the room code back to the client.
       this.emit('new game', roomCode);
+
+      this.roomCode = roomCode;
     });
   }
   else {
@@ -93,6 +95,8 @@ function onNewGame(roomCode) {
 
       // Send the room code back to the client.
       this.emit('new game', roomCode);
+
+      this.roomCode = roomCode;
     }
   }
 }
@@ -249,9 +253,6 @@ function onCardPlayed(card, wildcardSuit = false) {
 
     // Check to see if the game is over.
     if (this.player.countdown === 0) {
-      // Signal that the game is over.
-      rooms[roomCode].gameOver = true;
-
       // Notify players that the game is over and who the winner is.
       io.in(roomCode).emit('game over', this.player);
 
@@ -381,10 +382,6 @@ function onPlayerQuit() {
   const player = this.player;
 
   this.broadcast.to(player.roomCode).emit('player quit', player);
-
-  if (rooms[player.roomCode].players.length === 0) {
-    delete rooms[player.roomCode];
-  }
 }
 
 /**
@@ -419,12 +416,24 @@ function onDisconnect() {
         rooms[roomCode].startGameCounter = 0;
       }
 
-      // If there's only one player remaining, game ogre.
-      if (players.length === 1) {
-        rooms[roomCode].gameOver = true;
-      }
-
       if (rooms[roomCode].gameStarted && !rooms[roomCode].gameOver) {
+        // If there's only one player remaining and the game has started,
+        // game ogre.
+        if (rooms[roomCode].players.length === 2) {
+          let winner;
+
+          for (let player of rooms[roomCode].players) {
+            if (player.id !== this.id) {
+              winner = player
+            }
+          }
+
+          // Notify player that the game is over and that they win!
+          io.in(roomCode).emit('game over', winner);
+
+          return; // Stop here, I think.
+        }
+
         // Put the player's hand back in the play pile so that cards go back into
         // circulation.
         const deck = rooms[roomCode].deck;
@@ -453,6 +462,16 @@ function onDisconnect() {
 
       // Remove player from room's player order array.
       rooms[roomCode].removePlayerByID(this.id);
+    }
+  }
+  else {
+    // Adding an extra check here to see if the socket disconnected without
+    // creating a player object (drawing step).
+    if (this.roomCode) {
+      // If the room is empty after the socket disconnects, remove the room.
+      if (getSocketsInRoom(this.roomCode).length === 0) {
+        delete rooms[this.roomCode];
+      }
     }
   }
 }
